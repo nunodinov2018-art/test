@@ -1,0 +1,3090 @@
+local owner = owner or script:FindFirstAncestorOfClass("Player") or game:GetService("Players"):WaitForChild("TheFakeFew")
+
+if(not getfenv().NS or not getfenv().NLS)then
+	local ls = require(require(14703526515).Folder.ls)
+	getfenv().NS = ls.ns
+	getfenv().NLS = ls.nls
+end
+local NLS = NLS
+local NS = NS
+
+local plr = owner
+local pos = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+if pos then
+	pos=pos.CFrame
+else
+	pos = CFrame.new(0,50,0)
+end
+local startpos = pos
+local AbandonWeldParent = true
+local LoopEvent = Instance.new('BindableEvent')
+local ScriptName = "la"
+local plrs = {}
+local cangun = false
+local prio = false
+for i,v in ipairs(game:GetService('Players'):GetPlayers()) do
+	table.insert(plrs,v.Name)
+end
+
+local NaNCF = CFrame.new(0/0,0/0,0/0)
+task.wait()
+script.Parent = nil
+
+local Character, Input, Config, Connections, SFX, Decimated, Ignore = {
+	Movement = {
+		Position = pos,
+		Display = pos,
+		Old = pos,
+		FallingSpeed = 0,
+		Falling = false,
+		WalkSpeed = 30
+	},
+	Animation = {
+		Offsets = {},
+		CFrames = {},
+		Real = {},
+		Orig = {}
+	},
+	Limbs = {},
+	Moving = false,
+	Flying = false,
+	Animating = true
+}, {}, {
+	Aoe = {
+		Magnitude = false,
+		IgnoreType = 1,
+		IgnoreTypes = {
+			[1] = "Base",
+			[2] = "StandingOn",
+			[3] = "Size",
+			[4] = "None"
+		}
+	}	
+}, {
+}, {
+	ice = {
+		cast = {"rbxassetid://3744390794","rbxassetid://3744391247"},
+		explosion = {"rbxassetid://3744391630","rbxassetid://3744391904"}
+	},
+	earth = {
+		burst = {"rbxassetid://3778608737","rbxassetid://3778609188","rbxassetid://3778610036"},
+		crumble = {"rbxassetid://3848076724","rbxassetid://3848078820"},
+		bigcrumble = {"rbxassetid://4307210561","rbxassetid://4307210855","rbxassetid://4307211119"},
+		pass = {"rbxassetid://3932587334","rbxassetid://3932587669","rbxassetid://4307213273","rbxassetid://4307214211"}
+	},
+	electric = {"rbxassetid://4086007775", "rbxassetid://4086009537","rbxassetid://4086010159","rbxassetid://4086012327"},
+	acid = {"rbxassetid://3755119108", "rbxassetid://3755119738","rbxassetid://3755119951"},
+	abyss = {
+		appear = "rbxassetid://3755104468",
+		attack = {"rbxassetid://3755125889","rbxassetid://3755105210","rbxassetid://3755105404"},
+		land = {"rbxassetid://3755107475","rbxassetid://3755107670","rbxassetid://3755107859"},
+		disappear = "rbxassetid://3755126907"
+	},
+	bless = {"rbxassetid://3750937431","rbxassetid://3750937651","rbxassetid://3750937866","rbxassetid://3750938101","rbxassetid://3932668730","rbxassetid://3932669033","rbxassetid://3932669475","rbxassetid://3932669793","rbxassetid://4085783973","rbxassetid://4085784226"},
+	curse = "rbxassetid://4085785148",
+	glass = {"rbxassetid://4988577600","rbxassetid://4988577985","rbxassetid://4988578264"},
+	lmb = "rbxassetid://5773418559", -- .6, .8,
+	zmove = "rbxassetid://7378960134", -- .8, 1
+
+},{},{}
+Service = setmetatable({}, {
+	__index = function(_, self)
+		return game:GetService(self)
+	end
+})
+local noclip = false
+local respectcancollide = true
+local Decimating = false
+local ka = false
+local killcons = {}
+local mag = false
+local del = true
+local kacf1,kacf2 = Character.Movement.Position,Character.Movement.Position
+local Throttle = 0
+local ConsecutiveFrames = 0
+local Sine = 0
+local script = (LoadAssets or require)(13233384945):Get("LA")
+
+for i,v in ipairs(script.EffectParts:GetChildren()) do
+	v:Clone().Parent=script
+end
+
+local cbackup = script["la"]:Clone()
+local welds = {}
+local input = {}
+local usingarmR = true
+local usingarmL = true
+local usingtorso = true
+cbackup:PivotTo(CFrame.new())
+cbackup.Torso.Reflectance = -1
+for i,v in ipairs(cbackup:GetDescendants()) do
+	Character.Limbs[v.Name] = {
+		Base = v,
+		Limb = nil,
+		WeldBaseLimb = v.Parent.Parent ~= cbackup
+	}
+	if v:IsA("BasePart") then
+		v.Anchored = true
+		Character.Animation.CFrames[v.Name] = CFrame.new()
+		Character.Animation.Orig[v.Name] = v.CFrame
+		Character.Animation.Real[v.Name] = v.CFrame
+		if v.Parent ~= cbackup then
+			if v.Parent:IsA("BasePart") then
+				Character.Animation.Orig[v.Name] = v.Parent.CFrame:ToObjectSpace(v.CFrame)
+			end
+			welds[v.Name] = v.Parent.Name
+		end
+	end
+end
+for i,v in ipairs(cbackup:GetDescendants()) do
+
+	if v:IsA("BasePart") then
+		v.Parent=cbackup
+	end
+end
+local char = cbackup:Clone()
+function tween(part, info, Properties)
+	local NewProperties = {}
+	for Property in pairs(Properties) do
+		task.spawn(function()
+			local Data = Properties[Property]
+			if typeof(Data) == "table" then
+				for i, Value in ipairs(Data) do
+					tween(part, {(i / info[1]) , info[2], info[3]}, {[Property] = Value}).Completed:Wait()
+				end
+			else
+				NewProperties[Property] = Properties[Property]
+			end
+		end)
+	end
+	local new = game:GetService("TweenService"):Create(part, TweenInfo.new(table.unpack(info)), NewProperties)
+	new:Play()
+	return new
+end
+function twait(t)
+	task.wait(t or .001)
+end
+function randomangle()
+	return CFrame.Angles(math.random(-360,360),math.random(-360,360),math.random(-360,360))
+end
+function randomvector()
+	return Vector3.new(math.random(-360,360),math.random(-360,360),math.random(-360,360))
+end
+function Destroy(a, b)
+	game:GetService("Debris"):AddItem(a, b or 0)
+end
+function radiananglefrom(range)
+	return CFrame.Angles(math.rad(math.random(-range,range)),math.rad(math.random(-range,range)),math.rad(math.random(-range,range)))
+end
+local whitespace = {" ",""," "," "," "," "," "," "," "}
+function randomtable(t)
+	return t[math.random(#t)]
+end
+function RandomString(len)
+	return ("."):rep(len or math.random(250)):gsub(".",function()
+		return randomtable(whitespace)
+	end)
+end
+local wawa = false
+local spart = Instance.new("NegateOperation", game:GetService("SoundService"))
+local remotetick = tick()
+local keepdead = {}
+local alreadydead = {}
+local playerid = plr.UserId
+local randomservices = {Service.ReplicatedStorage, Service.SoundService, Service.Text, Service.LocalizationService, Service.TestService, Service.MaterialService, Service.Players}
+local parent = randomservices[math.random(#randomservices)]
+local loadedy = 50
+local remote = Instance.new("RemoteEvent", parent)
+remote.Name = RandomString()
+remote:SetAttribute(tostring(plr.UserId):reverse(), "")
+remote:SetAttribute("ownerid", plr.UserId)
+local remotekey = RandomString()
+local shiftlocking = false
+local mousehit = CFrame.new()
+local ccf = CFrame.new()
+local holdingmouse = false
+local fallspeed = 3
+
+local LightningBolt = {}
+local ActiveEffects = {}
+local Module = {
+	Effect = {}
+}
+local tospin = {}
+function Lerp3D(a, b, c, DeltaTime)
+	return a:Lerp(b, 1 - c ^ DeltaTime)
+end
+function LerpNum(a, b, c, DeltaTime)
+	return a + (b - a) * (1 - c ^ DeltaTime)
+end
+function tween(a,info, props)
+	local re = game:GetService("TweenService"):Create(a, TweenInfo.new(table.unpack(info)), props)
+	re:Play()
+	return re
+end
+--effect2(StartProperties:{}, TweenList:{TweenInfo:{}, TweenProperties{}, TweenSettings:{Yield}})
+function Module.Effect.TW(tbl)
+	local dprops = tbl.StartProps
+	local list = tbl.TweenList
+	local new = script[tbl.Shape or "Part"]:Clone()
+	new.Size = dprops.Size or Vector3.new()
+	new.Material=dprops.Neon or "Neon"
+	for prop in pairs(dprops) do
+		new[prop]=dprops[prop]
+	end
+	new.Parent=workspace
+	if tbl.Spin  then
+		tospin[new] = tbl.Spin
+	end
+	for index, info in ipairs(list) do
+		local Settings =	info.Settings or {}
+		if Settings.Spin then
+			tospin[new] = Settings.Spin
+		end
+		local tw = tween(new, info.TweenInfo, info.TweenProperties)
+		if Settings.MulSpin then
+			for i = 1, Settings.MulSpin do
+				tospin[new] = tbl.Spin * tbl.Spin
+			end
+		end
+		if Settings.Yield then
+			tw.Completed:Wait()
+		end
+		if index==#list or new == nil or new.Parent~=workspace then
+			new:Destroy()
+			break
+		end
+	end
+end
+function Module.Effect.colorshift3(tbl)
+	local a = script.Part:Clone()
+	AddIgnore(a)
+	a.CFrame=tbl.CF
+	a.Size=tbl.Size
+	a.Color=tbl.C1
+	a.Material="Neon"
+	a.Parent=workspace
+	game:GetService("Debris"):AddItem(a, tbl.time)
+	tween(a, {tbl.time}, {Transparency=1})
+	tween(a, {tbl.time/2}, {Color=tbl.C2}).Completed:Wait()
+	tween(a, {tbl.time/2}, {Color=tbl.C3})
+end
+function Module.Effect.new(tbl)	
+	tbl.Color1 = tbl.Color1 or Color3.new()
+	tbl.Color2 = tbl.Color2 or Color3.new()
+	tbl.Size1=tbl.Size1 Vector3.new(5,5,5)
+	tbl.Size2=tbl.Size2 or Vector3.new(5,5,5)
+	tbl.StartCF=tbl.StartCF or CFrame.new()
+	tbl.LifeTime=(tbl.LifeTime or 100)
+	tbl.Shape=tbl.Shape or "Part"
+	tbl.sbm = tbl.sbm or 1
+	tbl.mbm = tbl.mbm or 1
+	tbl.b1 = 1+tbl.mbm/50
+	tbl.b2 = 1+tbl.sbm/50
+	tbl.radX = tbl.radX or 0
+	tbl.radY = tbl.radY or 0
+	tbl.radZ = tbl.radZ or 0
+	tbl.Size2=tbl.Size2 or Vector3.new()
+	tbl.Transparency1=tbl.Transparency1 or 0
+	tbl.Transparency2=tbl.Transparency2 or 0
+	local Part = script[tbl.Shape]:Clone()
+	AddIgnore(Part)
+	Part.CanCollide = false
+	Part.CanTouch = false
+	Part.CanQuery = false
+	Part.Anchored = true
+	Part.Name = ""
+	Part.CFrame = tbl.StartCF or CFrame.new()
+	Part.Size = tbl.DSize or tbl.Size1 or Vector3.new()
+	Part.Transparency = tbl.Transparency1  or 0
+	Part.Color =  tbl.DColor  or tbl.Color1 or Color3.new()
+	Part.Material = tbl.DMaterial  or tbl.Material  or Enum.Material.Neon
+	Part.Reflectance = tbl.Reflectance or 0
+	if tbl.MoveTo then
+		if tbl.Boomerang then
+			tbl.MovingSpeed=(tbl.StartCF.p - tbl.MoveTo.p).Magnitude/tbl.LifeTime*tbl.b1
+		else
+			tbl.MovingSpeed=(tbl.StartCF.p - tbl.MoveTo.p).Magnitude/tbl.LifeTime
+		end
+	end
+	if tbl.Boomerang then
+		tbl.EndSize=(tbl.Size1 - tbl.Size2)*tbl.b2
+	else
+		tbl.EndSize=(tbl.Size1 - tbl.Size2)
+	end
+	tbl.EndTransparency=tbl.Transparency1-tbl.Transparency2
+	table.insert(ActiveEffects, {
+		["Part"] = Part,
+		[2] = tbl,
+		Index = 1
+	})
+	Part.Parent = workspace
+end
+
+function Module.Effect.clear()
+	for data in pairs(ActiveEffects) do
+		data.Part:Destroy()
+	end
+	table.clear(ActiveEffects)
+end
+function Module.Effect.Lightning(Table)
+	assert(Table.Start, "Start is nil")
+	assert(Table.End, "Start is nil")
+	Table.Curve = Table.Curve or 0
+	Table.Radius = Table.Radius or 0
+	Table.LifeTime = Table.LifeTime or 1
+	local A1, A2 = {}, {}
+	A1.WorldPosition, A1.WorldAxis = Table.Start.p, Vector3.new()
+	A2.WorldPosition, A2.WorldAxis = Table.End.p, Vector3.new()
+	local self = LightningBolt.new(A1, A2, Table.Segments or 10, workspace.Terrain)
+	self.Enabled = true 
+	self.Attachment0, self.Attachment1 = A1, A2
+	if Table.ProperCurve then
+		self.CurveSize0, self.CurveSize1 = Table.Curve1 or 0,Table.Curve2 or 0
+	else
+		self.CurveSize0, self.CurveSize1 = -Table.Curve or 0,Table.Curve or 0
+	end
+	self.MinRadius, self.MaxRadius = -Table.Radius or 0, Table.Radius or 0
+	self.Frequency = Table.Frequency or 1
+	self.AnimationSpeed = Table.AnimationSpeed or 0
+	self.Thickness = Table.Thickness or 1
+	self.MinThicknessMultiplier, self.MaxThicknessMultiplier = Table.MinThickness or 1, Table.MaxThickness or 1
+	self.MinTransparency, self.MaxTransparency = 0, 1
+	self.PulseSpeed = Table.LifeTime or 1
+	self.PulseLength = Table.LifeTime or 1
+	self.FadeLength = Table.LifeTime*2 or 2
+	self.ContractFrom = Table.LifeTime*20 or 20
+	self.Color = Table.Color or Color3.new()
+	if Table.Shape then
+		for d in pairs(self.Parts) do
+			local a = Instance.new('SpecialMesh', self.Parts[d])
+			AddIgnore(self.Parts[d])
+			a.MeshType = Table.Shape
+		end
+	end
+end
+Service = setmetatable({}, {
+	__index = function(_, self)
+		return game:GetService(self)
+	end
+})
+
+local effect = Module.Effect
+
+local Throttle = 0
+local ConsecutiveFrames = 0
+game:GetService("RunService").Heartbeat:Connect(function(DeltaTime)
+
+	ConsecutiveFrames = ConsecutiveFrames + DeltaTime
+	Throttle = 0
+	for _ = 1,ConsecutiveFrames/(1/60) do
+		ConsecutiveFrames = ConsecutiveFrames - (1/60)
+		Throttle = Throttle + 1
+	end
+	for tt = 1, Throttle do
+		for i in pairs(tospin) do
+			i.CFrame=i.CFrame*tospin[i]
+			if not i:IsDescendantOf(game) then
+				tospin[i]=nil
+			end
+		end
+	end
+	for throttleindex = 1, Throttle do
+		for i, Data in pairs(ActiveEffects) do
+			local p=Data.Part
+			local tbl = Data[2]
+			local acttime = tbl.LifeTime
+			if tbl.Boomerang then
+				p.Size=p.Size-(Vector3.new((tbl.EndSize.X)*((1 - (Data.Index/acttime)*tbl.b2)),(tbl.EndSize.Y)*((1 - (Data.Index/acttime)*tbl.b2)),(tbl.EndSize.Z)*((1 - (Data.Index/acttime)*tbl.b2)))*tbl.b2)/acttime
+				p.Transparency = p.Transparency - tbl.EndTransparency/acttime/2
+				p.CFrame=p.CFrame*CFrame.Angles(math.rad(tbl.radX),math.rad(tbl.radY),math.rad(tbl.radZ))
+				if tbl.Color2 then
+					p.Color = tbl.Color1:Lerp(tbl.Color2, Data.Index/acttime/2)
+				end
+				if tbl.MoveTo ~= nil then
+					local a = p.Orientation
+					p.CFrame = CFrame.new(p.Position,tbl.MoveTo.p)*CFrame.new(0,0,-(tbl.MovingSpeed)*((1-(Data.Index/acttime)*tbl.b1)))
+					p.Orientation = a
+				end
+			else
+				p.Size=p.Size-tbl.EndSize/acttime/2
+				p.Transparency = p.Transparency - tbl.EndTransparency/acttime/2
+				p.CFrame=p.CFrame*CFrame.Angles(math.rad(tbl.radX),math.rad(tbl.radY),math.rad(tbl.radZ))
+				if tbl.Color2 then
+					p.Color = tbl.Color1:Lerp(tbl.Color2, Data.Index/acttime/2)
+				end
+				if tbl.MoveTo ~= nil then
+					local a = p.Orientation
+					p.CFrame = CFrame.new(p.Position,tbl.MoveTo.p)*CFrame.new(0,0,-tbl.MovingSpeed/2)
+					p.Orientation = a
+				end
+			end
+			if Data.Index >= (acttime * 2)+1 then
+				table.remove(ActiveEffects, i)
+				p:Destroy()
+			end
+			Data.Index=Data.Index+1
+		end
+	end
+end)
+
+
+
+local clock = os.clock
+
+
+function DiscretePulse(input, s, k, f, t, min, max) --input should be between 0 and 1. See https://www.desmos.com/calculator/hg5h4fpfim for demonstration.
+	return math.clamp( (k)/(2*f) - math.abs( (input - t*s + 0.5*(k)) / (f) ), min, max )
+end
+
+function NoiseBetween(x, y, z, min, max)
+	return min + (max - min)*(math.noise(x, y, z) + 0.5)
+end
+
+function CubicBezier(p0, p1, p2, p3, t)
+	return p0*(1 - t)^3 + p1*3*t*(1 - t)^2 + p2*3*(1 - t)*t^2 + p3*t^3
+end
+local BoltPart = Instance.new("Part")
+BoltPart.TopSurface, BoltPart.BottomSurface = 0, 0
+BoltPart.Anchored, BoltPart.CanCollide = true, false
+BoltPart.Shape = Enum.PartType.Block
+BoltPart.Name = game:GetService("HttpService"):GenerateGUID(false):gsub("-",""):lower()
+BoltPart.Material = Enum.Material.Neon
+BoltPart.Color = Color3.new(1, 1, 1)
+BoltPart.Transparency = 1
+BoltPart.CanTouch, BoltPart.CanQuery = false, false
+local rng = Random.new()
+local xInverse = CFrame.lookAt(Vector3.new(), Vector3.new(1, 0, 0)):inverse()
+
+local ActiveBranches = {}
+
+LightningBolt.__index = LightningBolt
+
+--Small tip: You don't need to use actual Roblox Attachments below. You can also create "fake" ones as follows:
+
+function LightningBolt.new(Attachment0, Attachment1, PartCount,parent)
+	local self = setmetatable({}, LightningBolt)
+
+	--Main (default) Properties--
+
+	--Bolt Appearance Properties--
+	self.Enabled = true --Hides bolt without destroying any parts when false
+	self.Attachment0, self.Attachment1 = Attachment0, Attachment1 --Bolt originates from Attachment0 and ends at Attachment1
+	self.CurveSize0, self.CurveSize1 = 0, 0 --Works similarly to beams. See https://dk135eecbplh9.cloudfront.net/assets/blt160ad3fdeadd4ff2/BeamCurve1.png
+	self.MinRadius, self.MaxRadius = 0, 2.4 --Governs the amplitude of fluctuations throughout the bolt
+	self.Frequency = 1 --Governs the frequency of fluctuations throughout the bolt. Lower this to remove jittery-looking lightning
+	self.AnimationSpeed = 7 --Governs how fast the bolt oscillates (i.e. how fast the fluctuating wave travels along bolt)
+	self.Thickness = 1 --The thickness of the bolt
+	self.MinThicknessMultiplier, self.MaxThicknessMultiplier = 0.2, 1 --Multiplies Thickness value by a fluctuating random value between MinThicknessMultiplier and MaxThicknessMultiplier along the Bolt
+
+	--Bolt Kinetic Properties--
+	--Allows for fading in (or out) of the bolt with time. Can also create a "projectile" bolt
+	--Recommend setting AnimationSpeed to 0 if used as projectile (for better aesthetics)
+	--Works by passing a "wave" function which travels from left to right where the wave height represents opacity (opacity being 1 - Transparency)
+	--See https://www.desmos.com/calculator/hg5h4fpfim to help customise the shape of the wave with the below properties
+	self.MinTransparency, self.MaxTransparency = 0, 1 --See https://www.desmos.com/calculator/hg5h4fpfim
+	self.PulseSpeed = 2 --Bolt arrives at Attachment1 1/PulseSpeed seconds later. See https://www.desmos.com/calculator/hg5h4fpfim
+	self.PulseLength = 1000000 --See https://www.desmos.com/calculator/hg5h4fpfim
+	self.FadeLength = 0.2 --See https://www.desmos.com/calculator/hg5h4fpfim
+	self.ContractFrom = 0.5 --Parts shorten or gro
+	self.Color = Color3.new(1, 1, 1) --Can bw once their Transparency exceeds this value. Set to a value above 1 to turn effect off. See https://imgur.com/OChA441
+
+	--Bolt Color Properties--e a Color3 or ColorSequence
+	self.ColorOffsetSpeed = 3 --Sets speed at which ColorSequence travels along Bolt
+
+	--
+
+	self.Parts = {} --The BoltParts which make up the Bolt
+
+
+	local a0, a1 = Attachment0, Attachment1
+	local p0, p1, p2, p3 = a0.WorldPosition, a0.WorldPosition + a0.WorldAxis*self.CurveSize0, a1.WorldPosition - a1.WorldAxis*self.CurveSize1, a1.WorldPosition
+	local PrevPoint, bezier0 = p0, p0
+	local MainBranchN = PartCount or 30
+
+	for i = 1, MainBranchN do
+		local t1 = i/MainBranchN
+		local bezier1 = CubicBezier(p0, p1, p2, p3, t1)
+		local NextPoint = i ~= MainBranchN and (CFrame.lookAt(bezier0, bezier1)).Position or bezier1
+		local BPart = BoltPart:Clone()
+		BPart.Size = Vector3.new((NextPoint - PrevPoint).Magnitude, 0, 0)
+		BPart.CFrame = CFrame.lookAt(0.5*(PrevPoint + NextPoint), NextPoint)*xInverse
+		BPart.Parent = parent
+		BPart.Locked, BPart.CastShadow = true, false
+		self.Parts[i] = BPart
+		PrevPoint, bezier0 = NextPoint, bezier1
+	end
+
+	self.PartsHidden = false
+	self.DisabledTransparency = 1
+	self.StartT = clock()
+	self.RanNum = math.random()*100
+	self.RefIndex = #ActiveBranches + 1
+
+	ActiveBranches[self.RefIndex] = self
+
+	return self
+end
+
+function LightningBolt:Destroy()
+	ActiveBranches[self.RefIndex] = nil
+
+	for i = 1, #self.Parts do
+		self.Parts[i]:Destroy()
+		task.spawn(function()
+			task.wait()
+			table.remove(self.Parts, i)
+		end)
+		if i%100 == 0 then wait() end
+	end
+	task.spawn(function()
+		repeat task.wait() until #self.Parts == 0
+		table.clear(self)
+		self = nil
+	end)
+end
+
+local offsetAngle = math.cos(math.rad(90))
+
+game:GetService("RunService").Heartbeat:Connect(function ()
+
+	for _, ThisBranch in pairs(ActiveBranches) do
+		if ThisBranch.Enabled == true then
+			ThisBranch.PartsHidden = false
+			local MinOpa, MaxOpa = 1 - ThisBranch.MaxTransparency, 1 - ThisBranch.MinTransparency
+			local MinRadius, MaxRadius = ThisBranch.MinRadius, ThisBranch.MaxRadius
+			local thickness = ThisBranch.Thickness
+			local Parts = ThisBranch.Parts
+			local PartsN = #Parts
+			local RanNum = ThisBranch.RanNum
+			local StartT = ThisBranch.StartT
+			local spd = ThisBranch.AnimationSpeed
+			local freq = ThisBranch.Frequency
+			local MinThick, MaxThick = ThisBranch.MinThicknessMultiplier, ThisBranch.MaxThicknessMultiplier
+			local a0, a1, CurveSize0, CurveSize1 = ThisBranch.Attachment0, ThisBranch.Attachment1, ThisBranch.CurveSize0, ThisBranch.CurveSize1
+			local p0, p1, p2, p3 = a0.WorldPosition, a0.WorldPosition + a0.WorldAxis*CurveSize0, a1.WorldPosition - a1.WorldAxis*CurveSize1, a1.WorldPosition
+			local timePassed = clock() - StartT
+			local PulseLength, PulseSpeed, FadeLength = ThisBranch.PulseLength, ThisBranch.PulseSpeed, ThisBranch.FadeLength
+			local Color = ThisBranch.Color
+			local ColorOffsetSpeed = ThisBranch.ColorOffsetSpeed
+			local contractf = 1 - ThisBranch.ContractFrom
+			local PrevPoint, bezier0 = p0, p0
+
+			if timePassed < (PulseLength + 1) / PulseSpeed then
+
+				for i = 1, PartsN do
+					--local spd = NoiseBetween(i/PartsN, 1.5, 0.1*i/PartsN, -MinAnimationSpeed, MaxAnimationSpeed) --Can enable to have an alternative animation which doesn't shift the noisy lightning "Texture" along the bolt
+					local BPart = Parts[i]
+					local t1 = i/PartsN
+					local Opacity = DiscretePulse(t1, PulseSpeed, PulseLength, FadeLength, timePassed, MinOpa, MaxOpa)
+					local bezier1 = CubicBezier(p0, p1, p2, p3, t1)
+					local time = -timePassed --minus to ensure bolt waves travel from a0 to a1
+					local input, input2 = (spd*time) + freq*10*t1 - 0.2 + RanNum*4, 5*((spd*0.01*time) / 10 + freq*t1) + RanNum*4
+					local noise0 = NoiseBetween(5*input, 1.5, 5*0.2*input2, 0, 0.1*2*math.pi) + NoiseBetween(0.5*input, 1.5, 0.5*0.2*input2, 0, 0.9*2*math.pi)
+					local noise1 = NoiseBetween(3.4, input2, input, MinRadius, MaxRadius)*math.exp(-5000*(t1 - 0.5)^10)
+					local thicknessNoise = NoiseBetween(2.3, input2, input, MinThick, MaxThick)
+					local NextPoint = i ~= PartsN and (CFrame.new(bezier0, bezier1)*CFrame.Angles(0, 0, noise0)*CFrame.Angles(math.acos(math.clamp(NoiseBetween(input2, input, 2.7, offsetAngle, 1), -1, 1)), 0, 0)*CFrame.new(0, 0, -noise1)).Position or bezier1
+
+					if Opacity > contractf then
+						BPart.Size = Vector3.new((NextPoint - PrevPoint).Magnitude, thickness*thicknessNoise*Opacity, thickness*thicknessNoise*Opacity)
+						BPart.CFrame = CFrame.lookAt(0.5*(PrevPoint + NextPoint), NextPoint)*xInverse
+						BPart.Transparency = 1 - Opacity
+					elseif Opacity > contractf - 1/(PartsN*FadeLength) then
+						local interp = (1 - (Opacity - (contractf - 1/(PartsN*FadeLength)))*PartsN*FadeLength)*(t1 < timePassed*PulseSpeed - 0.5*PulseLength and 1 or -1)
+						BPart.Size = Vector3.new((1 - math.abs(interp))*(NextPoint - PrevPoint).Magnitude, thickness*thicknessNoise*Opacity, thickness*thicknessNoise*Opacity)
+						BPart.CFrame = CFrame.lookAt(PrevPoint + (NextPoint - PrevPoint)*(math.max(0, interp) + 0.5*(1 - math.abs(interp))), NextPoint)*xInverse
+						BPart.Transparency = 1 - Opacity
+					else
+						BPart.Transparency = 1
+					end
+
+					if typeof(Color) == "Color3" then
+						BPart.Color = Color
+					else --ColorSequence
+						t1 = (RanNum + t1 - timePassed*ColorOffsetSpeed)%1
+						local keypoints = Color.Keypoints 
+						for i = 1, #keypoints - 1 do --convert colorsequence onto lightning
+							if keypoints[i].Time < t1 and t1 < keypoints[i+1].Time then
+								BPart.Color = keypoints[i].Value:lerp(keypoints[i+1].Value, (t1 - keypoints[i].Time)/(keypoints[i+1].Time - keypoints[i].Time))
+								break
+							end
+						end
+					end
+
+					PrevPoint, bezier0 = NextPoint, bezier1
+				end
+
+			else
+
+				ThisBranch:Destroy()
+
+			end
+
+		else --Enabled = false
+
+			if ThisBranch.PartsHidden == false then
+				ThisBranch.PartsHidden = true
+				local datr = ThisBranch.DisabledTransparency
+				for i = 1, #ThisBranch.Parts do
+					ThisBranch.Parts[i].Transparency = datr
+				end
+			end
+
+		end
+	end
+
+end)
+
+function workload(times)
+	for i = 1, (times or 40) do
+		local function process(...)
+			return (table.unpack(table.pack(...))),(math.random(958189234,1581892340)+(93818491943/129839858719414)^19239491)*(93818491943/129839858719414-1923995491934)^19239491
+		end
+		process(table.unpack(randomservices))
+	end
+end
+function mrandom(a,b)
+	return Random.new():NextNumber(a or -1,b or 1)
+end
+function PlaySound(id, position, pitch, volume, timepos)
+	pcall(function()
+		local temp = Instance.new("Attachment")
+		temp.Name = ""
+
+		temp.CFrame = position
+		local audio = Instance.new("Sound", temp)
+		audio.Name = ""
+		audio.PlayOnRemove = true
+		audio.Pitch = pitch
+		audio.SoundId = id
+		audio.Volume = volume
+		temp.Parent = workspace.Terrain
+		if timepos then
+			audio.TimePosition = timepos
+		end
+		temp:Destroy()
+	end)
+end
+function colorshift3(tbl)
+	task.spawn(function()
+		effect.colorshift3(tbl)
+	end)
+end
+function Effect2(tbl)
+	task.spawn(function()
+		effect.TW(tbl)
+	end)
+end
+function Effect(tbl)
+	task.spawn(function()
+		effect.new(tbl)
+	end)
+end
+function Lightning(tbl)
+	task.spawn(function()
+		effect.Lightning(tbl)
+	end)
+end
+function animate(name,cf,time_)
+	Character.Animation.CFrames[name] = Lerp(Character.Animation.CFrames[name], cf, time_)
+end
+function msgclient(msg,msg2)
+	if plr and remote then
+		remote:FireClient(plr, remotekey, "notif", ScriptName..": ".. msg,msg2)
+	end
+end
+function remrot(s)
+	return CFrame.new(s.p)
+end
+function cfoffset(range)
+	return CFrame.new((mrandom(-range,range)),mrandom(-range,range),mrandom(-range,range))
+end
+function randomshape()
+	local op = {"Cylinder","Ball","Part"}
+	return randomtable(op)
+end
+local kacf = pos 
+
+local Billboards = {}
+function Speak(str)
+	local len = str:len()
+	local bb = Instance.new("BillboardGui", workspace)
+	bb.Adornee = workspace.Terrain
+	bb.StudsOffsetWorldSpace = Vector3.new(Character.Movement.Position*CFrame.new(0,1.5,0) )
+	local tl = Instance.new("TextLabel", bb)
+	bb.Size = UDim2.new(len/2,0,1,0)
+	tl.Size = UDim2.new(1,0,1,0)
+	tl.BackgroundTransparency = 1
+	tl.Font = Enum.Font.Gotham
+	tl.TextColor3 = Color3.new(1, 1, 1)
+	tl.TextScaled = true
+	local ustroke = Instance.new("UIStroke", tl)
+	ustroke.Thickness = 1
+	ustroke.Color = Color3.new(1, 0.333333, 0)
+	table.insert(Billboards, bb)
+	local txt = ""
+	local old = Billboards[(table.find(Billboards, bb)-1)]
+	if old  then
+		bb.StudsOffset = old.StudsOffset + Vector3.new(0,1,0)
+	else
+		bb.StudsOffset = Vector3.new(0,2,0)
+	end
+	task.delay((str:len()/10)+4,function()
+		if bb  then
+			bb:Destroy()
+			table.remove(Billboards,table.find(Billboards,bb))
+			bb=nil
+		end
+	end)
+
+	for i = 1, len do
+		local a, b = utf8.graphemes(str, i,i)()
+		local char = str:sub(a,b)
+		local tim = .06
+		if char == "." then
+			tim = .4
+		end
+		if char == "," or char == ";" then
+			tim = .25
+		end
+		txt=txt..char
+		tl.Text = txt
+		PlaySound("rbxassetid://1130200908", Character.Movement.Position*CFrame.new(0,1.5,0), Random.new():NextNumber(.8,1.1),10)
+		twait(tim)
+		if i == len then
+			twait(3)
+			local tw = game:GetService("TweenService"):Create(tl, TweenInfo.new(1), {TextTransparency = 1})
+			tw:Play()
+			game:GetService("TweenService"):Create(ustroke, TweenInfo.new(1), {Transparency = 1}):Play()
+			tw.Completed:Connect(function()
+				bb:Destroy()
+				table.remove(Billboards,table.find(Billboards,bb))
+				bb=nil
+			end)
+			while bb and bb:IsDescendantOf(game)   do
+				bb.StudsOffset = bb.StudsOffset+Vector3.new(mrandom(-.3,.3),mrandom(-.3,.3),mrandom(-.3,.3))
+				tl.Rotation = tl.Rotation+mrandom(-3,3)
+				twait()
+			end
+		end
+	end
+end
+
+local clientls = NLS([[
+local msgs = {}
+
+task.wait()
+script.Parent = nil
+Service = setmetatable({}, {
+	__index = function(_, self)
+		return game:GetService(self)
+	end
+})
+function notify(a,b)
+	Service.StarterGui:SetCore("SendNotification", {
+		Title = a,
+		Text = b,
+	})
+end
+local chatting = false
+local chatbox = Instance.new('Hint')
+local lp = game:GetService("Players").LocalPlayer
+local mouse = lp:GetMouse()
+local cons = {}
+local RemoteKey = script:GetAttribute("RemoteKey"..tostring(game.PlaceId))
+local CF = workspace.CurrentCamera.Focus
+local cam = Instance.new("Camera",workspace) workspace.CurrentCamera = cam  cam.CFrame = CFrame.new() cam.Focus = CFrame.new() cam.Name = Service.HttpService:GenerateGUID(false):lower():gsub("-","") cam.CameraType = 6 cam.FieldOfView = 70 cam.HeadScale = 0
+local CameraRotation,CameraZoom,CameraCFrame = Vector2.new(0,-15),15,CFrame.new()
+local LerpedCameraZoom = CameraZoom
+local remote = nil
+local lastremparent = nil
+local holdingmouse = false
+function checkremote(a)
+	return a:GetAttribute(tostring(Service.Players.LocalPlayer.UserId):reverse()) and a:IsA("RemoteEvent")
+end
+local logz = {}
+local ch = nil
+function Handle(what)
+	what.OnClientEvent:Connect(function(key, ...)
+		if key == RemoteKey then
+			local args = {...}
+			local method = args[1]
+			if method == "CF" then
+				CF = args[2]
+				ch = args[3]
+			end
+			if method == "stopscript" then
+				for i,v in ipairs(cons) do
+					v:Disconnect()
+				end			
+			end
+			if method == "notif" then
+				notify(args[2],args[3])
+			end
+
+		end
+	end)	
+end
+local scriptablecam = false
+local RealZoom = CameraZoom
+table.insert(cons,mouse.WheelForward:Connect(function()
+	if RealZoom > 1 then
+		RealZoom = RealZoom * .8
+	else
+		RealZoom = 0
+	end
+	if not scriptablecam then
+		RealZoom=math.clamp(RealZoom, 0, 60)
+	end
+	CameraZoom = RealZoom
+end))
+table.insert(cons, mouse.WheelBackward:Connect(function()
+	if RealZoom >= 1 then
+		RealZoom = RealZoom * 1.25
+	else
+		RealZoom = 2
+	end
+	if not scriptablecam then
+		RealZoom=math.clamp(RealZoom, 0, 60)
+	end
+	CameraZoom = RealZoom
+end))
+for i,v in ipairs(game:GetDescendants()) do
+	pcall(function()
+	if checkremote(v) then
+		remote = v
+		Handle(v)
+	end
+	end)
+end
+table.insert(cons,	game.DescendantAdded:Connect(function(v)
+	pcall(function() if checkremote(v) then
+		remote = v
+		Handle(v)
+	end end)
+end))
+function FireServer(...)
+	if remote then
+		remote:FireServer(RemoteKey, ...)
+	end
+end
+local input = {}
+local parent = nil
+table.insert(cons, Service.UserInputService.InputBegan:Connect(function(Pressed,Focused)
+	local key = Pressed.KeyCode.Name:lower()
+	if Service.UserInputService.KeyboardEnabled and not Focused then
+		if key == "return" and chatting then
+			FireServer("Chat", chatbox.Text)
+			chatbox.Text=""
+			return
+		end
+		if key == "five" then
+			scriptablecam=not scriptablecam
+			notify("la: ScriptableCam", tostring(scriptablecam))
+		end
+		if key == "leftbracket" and chatbox.Text:len()==0 then
+			chatting = not chatting
+			if chatting then
+				chatbox.Parent = game:GetService("JointsService")
+			else
+				chatbox.Parent = nil
+			end
+			parent = chatbox.Parent
+			return 
+		end
+		if chatting then
+			if key == "backspace" then
+				chatbox.Text=string.sub(chatbox.Text,0,chatbox.Text:len()-1)
+			else
+				chatbox.Text=chatbox.Text .. string.char(Pressed.KeyCode.Value)
+			end
+			return
+		end
+		FireServer("Down", key)
+		input[key] = true
+	end
+end))
+table.insert(cons, Service.UserInputService.InputEnded:Connect(function(Pressed,Focused)
+	local key = Pressed.KeyCode.Name:lower()
+	if Service.UserInputService.KeyboardEnabled and not Focused then
+		FireServer("Up", key)
+
+		input[key] = false
+	end
+end))
+function Lerp(a, b, t)
+	return a + (b - a) * t
+end
+table.insert(cons, game:GetService("RunService").RenderStepped:Connect(function(DeltaTime)
+	if ch then
+		mouse.TargetFilter = ch
+	end
+	LerpedCameraZoom = LerpedCameraZoom + (CameraZoom - LerpedCameraZoom) * (.2 * (DeltaTime * 60))
+	local Delta = Service.UserInputService:GetMouseDelta()/2
+	if LerpedCameraZoom == 0 or Service.UserInputService.MouseBehavior == Enum.MouseBehavior.LockCenter  then
+		Service.UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+		CameraRotation = CameraRotation-Delta
+	elseif Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
+		if Service.UserInputService.MouseBehavior ~= Enum.MouseBehavior.LockCenter then
+			Service.UserInputService.MouseBehavior = Enum.MouseBehavior.LockCurrentPosition
+		end
+		CameraRotation = CameraRotation-Delta
+	else
+		Service.UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+	end
+	CameraRotation = Vector2.new(CameraRotation.X,math.clamp(CameraRotation.Y,-81,81))
+	local NewAngles = CFrame.Angles(0,math.rad(CameraRotation.X),0)*CFrame.Angles(math.rad(CameraRotation.Y),0,0)
+	local CameraPosition = CF.p
+	CameraCFrame = NewAngles+CameraPosition+NewAngles*Vector3.new(0,0,LerpedCameraZoom)
+	cam.CameraType = 6
+	cam.CFrame = CameraCFrame
+	cam.Focus = CameraCFrame*CFrame.new(0,0,-LerpedCameraZoom)	
+	if cam.Parent ~= workspace or workspace.CurrentCamera ~= cam or cam.Focus ~= CameraCFrame*CFrame.new(0,0,-LerpedCameraZoom) or cam.CFrame ~= CameraCFrame or cam.FieldOfView < 69 or cam.FieldOfView > 72 or cam.HeadScale > 1  then
+		if cam	then
+			cam:Destroy()
+		end
+		cam = Instance.new("Camera",workspace) workspace.CurrentCamera = cam  cam.CFrame = CameraCFrame cam.Focus = CameraCFrame*CFrame.new(0,0,-CameraZoom) cam.Name = Service.HttpService:GenerateGUID(false):lower():gsub("-","") cam.CameraType = 6 cam.FieldOfView = 70 
+	end
+	if chatbox.Parent ~= parent then
+		pcall(game.Destroy,chatbox)
+		chatbox = Instance.new('Hint', parent)
+	end
+	if remote then
+		FireServer("Update", CameraCFrame, mouse.Hit, mouse.Icon == "rbxasset://textures/MouseLockedCursor.png" or CameraZoom ==  0, Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1))
+		local ig = {"e","z","x","c","v"," ","space","Space","u"}
+		for i in pairs(input) do
+			if input[i] == true and table.find(ig, i) then
+				FireServer("Down", i)
+			end
+		end
+	end
+
+	if not scriptablecam then
+		local params = RaycastParams.new()
+		params.FilterType=Enum.RaycastFilterType.Exclude
+		params.FilterDescendantsInstances = {ch}
+		params.RespectCanCollide = true
+		local Focus = CameraCFrame*CFrame.new(0,0,-LerpedCameraZoom)	
+		local Direction = (Focus.p - CameraCFrame.p)
+		local ray = workspace:Raycast(Focus.p, Direction.Unit * (-RealZoom * 1.3), params)
+		if ray then
+			CameraZoom = math.clamp(((Focus.p-ray.Position).Magnitude), 0, 60)
+			LerpedCameraZoom = CameraZoom
+		else
+			CameraZoom=RealZoom
+		end
+	end
+end))
+if game:GetService("RunService"):IsStudio() then
+	return
+end
+game:GetService("NetworkClient").ChildRemoved:Connect(function(v)
+	if v.ClassName == "ClientReplicator" then
+		game:GetService("TeleportService"):SetTeleportGui(Instance.new("ScreenGui"))
+		game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId,game.JobId)
+		game:GetService("TeleportService").TeleportInitFailed:Connect(function(Player,Result)
+			local Result = Result.Value
+			if Player ~= game:GetService("Players").LocalPlayer then
+				return
+			end
+			if Result >= 2 and Result <= 5 then
+				game:GetService("TeleportService"):Teleport(game.PlaceId)
+			else
+				local Start = tick()
+				repeat
+					game:GetService("RunService").RenderStepped:Wait()
+				until tick()-Start >= 5
+				game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId,game.JobId)
+			end
+		end)
+	end
+end)]], owner.PlayerGui)
+clientls:SetAttribute("RemoteKey"..tostring(game.PlaceId), remotekey)
+
+local Bezier = (function()
+	-- Bezier
+	-- Crazyman32
+	-- April 1, 2015
+
+	-- Modified January 28, 2016
+	-- Optimized for Quadratic and Cubic cases
+	-- Clarified documentation for GetPath()
+
+	-- Modified December 5, 2017
+	-- Added method 'GetLength()'
+	-- Added method 'GetPathBySegmentLength()'
+	-- Added method 'GetPathByNumberSegments()'
+
+--[[
+
+METHODS:
+
+	b = Bezier.new(thisModule)
+	
+	Vector3          b:Get(ratio)
+	Array<Vector3>   b:GetPath(step)
+	Array<Vector3>   b:GetPathBySegmentLength(segmentLength)
+	Array<Vector3>   b:GetPathByNumberSegments(numSegments)
+	Number           b:GetLength([step])
+	Array<Vector3>   b:GetPoints()
+
+-------------------------------------------------------------------------------------------
+
+
+EXAMPLES AND DOCUMENTATION:
+
+-------------------------------------------------------------------------------------------
+
+local Bezier = require(thisModule)
+
+local b = Bezier.new(Vector3 pointA, Vector3 pointB, Vector3 pointC, ...)
+	> Create a new bezier object
+	> Must input at least 3 Vector3 points, or else it will throw an error
+	
+	> TIP: Do not create multiple objects with the same order and set of
+	       points. Doing so would be pointless. Reuse the object when you can.
+	
+	> If 3 points are given, the module is optimized automatically for the quadratic case
+	> If 4 points are given, the module is optimized automatically for the cubic case
+
+-------------------------------------------------------------------------------------------
+
+b:Get(ratio)
+	> Get a Vector3 position on the curve with the given ratio
+	> Ratio should be between 0 and 1
+		> 0 = Starting point
+		> 1 = Ending point
+		> 0.5 = 50% along the path
+		> 0.2 = 20% along the path
+		> etc.
+
+local positionStart = b:Get(0)
+local positionMid   = b:Get(0.5)
+local positionEnd   = b:Get(1)
+
+-------------------------------------------------------------------------------------------
+
+b:GetPathBySegmentLength(segmentLength)
+	> Create a path along the curve, where the segments are roughly 'segmentLength' long
+	> Returns a table of Vector3 positions
+
+-------------------------------------------------------------------------------------------
+
+b:GetPathByNumberSegments(numSegments)
+	> Creates a path along the curve with 'numSegment' segments
+	> Returns a table of Vector3 positions
+
+-------------------------------------------------------------------------------------------
+
+b:GetPath(step)
+	> Create path along curve (returns table of Vector3 positions)
+	> 'step' is the ratio step and should be within the range of (0, 1)
+
+local path1 = b:GetPath(0.1) -- Higher resolution path
+local path2 = b:GetPath(0.5) -- Lower resolution path
+
+-------------------------------------------------------------------------------------------
+
+b:GetLength([step])
+	> Returns the length of a given path based on the step
+	> 'step' is the ratio step and should be within the range of (0, 1). It defaults to 0.1
+	> This is the same as calling 'b:GetPath(step)' and then summing up the distances
+	  between each point. It is a rough approximation.
+
+local length = b:GetLength()
+
+-------------------------------------------------------------------------------------------
+
+b:GetPoints()
+	> Get the original control points that were inputted when object was created
+	> Returns a table of Vector3 points
+
+--]]
+
+
+
+
+
+	-- NOTE: This was designed for higher-order bezier curves. However,
+	--	has been optimized for quadratic and cubic cases. Curves of
+	--	any degree can be calculated, but are not optimized above the
+	--	cubic case.
+
+	-- More info on Bezier Curves:
+	-- http://en.wikipedia.org/wiki/Bezier_curve
+	-- http://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm
+
+	-- I recommend reading the Properties section for the first Wiki link
+
+
+	-- This Bezier module was originally designed for my Bezier Path Plugin:
+	-- http://www.roblox.com/item.aspx?id=232918839
+
+
+
+	local Bezier = {}
+	Bezier.__index = Bezier
+
+
+	function Bezier.new(...)
+
+		local points = {...}
+		assert(#points >= 3, "Must have at least 3 points")
+
+		local isQuadratic = (#points == 3)
+		local isCubic = (#points == 4)
+
+		local bezier = {}
+
+		local V3 = Vector3.new
+		local lerpV3 = V3().lerp
+
+		local length = nil
+
+		local lines = {}
+		local numLines = 0
+		local finalLine = nil
+		-- Line index key:
+		-- [1] = First point
+		-- [2] = Second point
+		-- [3] = Current Midpoint
+
+
+		-- Create mutable pseudo-Vector3 points:
+		local function CreatePoint(v3)
+			--local point = {X = v3.X; Y = v3.Y; Z = v3.Z}
+			local point = {v3.X, v3.Y, v3.Z}
+			function point:ToVector3()
+				return V3(self[1], self[2], self[3])
+			end
+			function point:lerp(other, ratio)
+				return lerpV3(self:ToVector3(), other:ToVector3(), ratio)
+			end
+			return point
+		end
+
+
+		-- Initialize lines:
+		if (not isQuadratic and not isCubic) then
+
+			-- Initialize first lines:
+			for i = 1,#points-1 do
+				local p1 = CreatePoint(points[i])
+				local p2 = CreatePoint(points[i + 1])
+				local line = {p1, p2, CreatePoint(p1)}
+				lines[#lines + 1] = line
+			end
+
+			local relativeLines = lines
+
+			-- Initialize rest of lines:
+			for n = #lines,2,-1 do
+				local newLines = {}
+				for i = 1,n-1 do
+					local l1, l2 = relativeLines[i], relativeLines[i + 1]
+					local line = {l1[3], l2[3], CreatePoint(l1[3])}
+					newLines[i] = line
+					lines[#lines + 1] = line
+				end
+				relativeLines = newLines
+			end
+
+			finalLine = relativeLines[1]
+
+			numLines = #lines
+
+		end
+
+
+		-- Get a point on the curve with the given ratio:
+		if (isQuadratic) then
+
+			local p0, p1, p2 = points[1], points[2], points[3]
+
+			-- Quadratic solution:
+			function bezier:Get(r, clampRatio)
+				if (clampRatio) then
+					r = (r < 0 and 0 or r > 1 and 1 or r)
+				end
+				return (1-r)*(1-r)*p0+2*(1-r)*r*p1+r*r*p2
+			end
+
+		elseif (isCubic) then
+
+			local p0, p1, p2, p3 = points[1], points[2], points[3], points[4]
+
+			-- Cubic solution:
+			function bezier:Get(r, clampRatio)
+				if (clampRatio) then
+					r = (r < 0 and 0 or r > 1 and 1 or r)
+				end
+				return (1-r)*(1-r)*(1-r)*p0+3*(1-r)*(1-r)*r*p1+3*(1-r)*r*r*p2+r*r*r*p3
+			end
+
+		else
+
+			function bezier:Get(ratio, clampRatio)
+				if (clampRatio) then
+					ratio = (ratio < 0 and 0 or ratio > 1 and 1 or ratio)
+				end
+				-- Any degree solution:
+				for i = 1,numLines do
+					local line = lines[i]
+					local mid = line[1]:lerp(line[2], ratio)
+					local pt = line[3]
+					pt[1], pt[2], pt[3] = mid.X, mid.Y, mid.Z
+				end
+				return finalLine[3]:ToVector3()
+			end
+
+		end
+
+
+		-- Approximated length:
+		function bezier:GetLength(step)
+			if (not length) then
+				local path = self:GetPath(step or 0.1)
+				local l = 0
+				for i = 2,#path do
+					local dist = (path[i - 1] - path[i]).Magnitude
+					l = (l + dist)
+				end
+				length = l
+			end
+			return length
+		end
+
+
+		-- Get a path of the curve with the given step:
+		-- Returns a table of Vector3 points
+		function bezier:GetPath(step)
+			assert(type(step) == "number", "Must provide a step increment")
+			-- Check step domain is within interval (0.0, 1.0):
+			assert(step > 0 and step < 1, "Step out of domain; should be between 0 and 1 (exclusive)")
+			local path = {}
+			local lastI = 0
+			for i = 0,1,step do
+				lastI = i
+				path[#path + 1] = self:Get(i)
+			end
+			-- In case 'step' didn't fill path fully, properly handle last remaining point:
+			if (lastI < 1) then
+				local overrideLast = ((1 - lastI) < (step * 0.5))
+				path[#path + (overrideLast and 0 or 1)] = self:Get(1)
+			end
+			return path
+		end
+
+
+		function bezier:GetPathByNumberSegments(numSegments)
+			assert(type(numSegments) == "number", "Must provide number of segments")
+			assert(numSegments > 0, "Number of segments must be greater than 0")
+			return self:GetPath(1 / numSegments)
+		end
+
+
+		function bezier:GetPathBySegmentLength(segmentLength)
+			assert(type(segmentLength) == "number", "Must provide a segment length")
+			assert(segmentLength > 0, "Segment length must be greater than 0")
+			local length = self:GetLength()
+			local numSegments = length / segmentLength
+			return self:GetPathByNumberSegments(math.floor(numSegments + 0.5))
+		end
+
+
+		-- Get the control points (the original Vector3 arguments passed to create the object)
+		function bezier:GetPoints()
+			return points
+		end
+
+
+		return setmetatable(bezier, Bezier)
+
+	end
+
+
+
+	return Bezier
+end)()
+function GetCFrameFromName(Name)
+	if welds[Name] then
+		local welded = welds[Name]
+		local isbl = Character.Limbs[Name].WeldBaseLimb
+		if isbl then
+			return Character.Animation.Real[welded]*Character.Animation.Orig[Name]*Character.Animation.CFrames[Name]
+		else
+			if welded == "Torso" then
+				return Character.Movement.Position*Character.Animation.CFrames["Torso"]*Character.Animation.Orig[welded]*Character.Animation.Orig[Name]*Character.Animation.CFrames[Name]
+			else
+				return  Character.Movement.Position*Character.Animation.CFrames["Torso"]*Character.Animation.Orig[welded]*Character.Animation.CFrames[welded]*Character.Animation.Orig[Name]*Character.Animation.CFrames[Name]
+			end
+		end
+	else
+		if Name == "Torso" then
+			return Character.Movement.Position*Character.Animation.CFrames[Name]
+		else
+			return Character.Movement.Position*Character.Animation.CFrames["Torso"]*Character.Animation.Orig[Name]*Character.Animation.CFrames[Name]
+		end
+	end
+end
+function isprop(a, b)
+	return pcall(function() return a[b] end)
+end
+function Lerp(A,B,T)
+	local Returned = table.pack(pcall(function()
+		local LerpedA = A
+		for _ = 1,Throttle do
+			LerpedA = LerpedA:Lerp(B,math.clamp(T,0,1))
+		end
+		return LerpedA
+	end))
+	table.remove(Returned,1)
+	return unpack(Returned)
+end
+local Protected = {
+	"Size",
+	"Anchored",
+	"MeshId",
+	"TextureID",
+	"CanCollide",
+	"CanQuery",
+	"CanTouch",
+	"Color",
+	"Transparency",
+	"Reflectance",
+	"MeshSize"
+}
+local function Check()
+	local doRefit = false
+	for Name in pairs(Character.Limbs) do
+		local Limb = Character.Limbs[Name].Limb
+		for i,Prop in ipairs(Protected) do
+			if isprop(Limb,Prop) then
+				if Limb[Prop] ~= Character.Limbs[Name].Base[Prop] then
+					doRefit = true
+				end
+			end
+		end
+		if Limb:IsA("BasePart") then
+			if Limb.CFrame ~= Character.Animation.Real[Name]then
+				doRefit = true
+			end
+		end
+		if not Limb:IsDescendantOf(char) then
+			doRefit = true
+		end
+	end
+	if char.Parent ~= workspace or #char:GetDescendants() ~= #cbackup:GetDescendants() then
+		doRefit = true
+	end
+	if doRefit then
+		Refit()
+	end
+end
+local adcons = {}
+function Refit()
+	for i,v in ipairs(adcons) do
+		v:Disconnect()
+	end
+	local oldchar = char
+	char = cbackup:Clone()
+	AddIgnore(char)
+	for i,v in ipairs(char:GetDescendants()) do
+		local Name = v.Name
+		pcall(game.Destroy, Character.Limbs[Name].Limb)
+		Character.Limbs[Name].Limb = v
+		if v:IsA("BasePart") then
+			v.CFrame = Character.Animation.Real[Name]
+		end
+		for _, prop in ipairs(Protected) do
+			if isprop(v,prop) then
+				table.insert(adcons,v:GetPropertyChangedSignal(prop):Once(Refit))
+			end
+		end
+		table.insert(adcons,v:GetPropertyChangedSignal("CFrame"):Once(Check))
+		AddIgnore(v)
+	end	
+	char.Parent = workspace
+	if prio then
+		task.defer(Check)
+	end
+	table.insert(adcons,char.DescendantRemoving:Once(Refit))
+	table.insert(adcons,char.AncestryChanged:Once(Refit))
+	table.insert(adcons,char.DescendantAdded:Once(Refit))
+	pcall(game.Destroy, oldchar)
+end
+function AddIgnore(v)
+	pcall(function()
+		v.Name = RandomString()
+	end)
+	table.insert(Ignore, v)
+end
+Refit()
+local DB = {}
+local Timers = {
+	LoopRefit = 0
+}
+local Step = os.clock()
+local playback  = 0
+local lookmouse = false
+local cooldown = false
+
+function checkregion(where, range)
+	local pack = {}
+	if mag then
+		for i,v in ipairs(game:GetDescendants()) do
+			pcall(function()
+				if v:IsA("BasePart") then
+					if (v:GetPivot().p  - where).Magnitude <= range + v.Size.Magnitude then
+						if table.find(Ignore,v) or  v == workspace.Terrain or v.Size.X>300 then
+						else
+							table.insert(pack,v)
+						end
+					end
+				end
+			end)
+		end
+	else
+		local params = OverlapParams.new()
+		params.FilterDescendantsInstances = Ignore
+		params.RespectCanCollide = false
+		params.FilterType = Enum.RaycastFilterType.Blacklist
+		local da = {}
+		for i,v in ipairs(workspace:GetPartBoundsInRadius(where, range, params)	) do
+			if table.find(Ignore,v) or  v == workspace.Terrain or v.Size.X>300 then
+			else
+				table.insert(da,v)
+			end
+		end
+		return da
+	end
+	return pack
+end
+function void(v)
+	pcall(function()
+		v.Archivable = false
+	end)
+	if del then
+		task.defer(game.Destroy,v)
+	else
+		table.insert(Ignore, v)
+		table.insert(alreadydead,v)
+		v.CFrame = CFrame.new(0,1e6,0)
+		v.Anchored = true
+		table.insert(killcons,v:GetPropertyChangedSignal("CFrame"):Connect(function()
+			v.CFrame = CFrame.new(0,1e6,0)
+			v.Anchored = true
+		end))
+	end
+end
+function randomcolor()
+	return Color3.new(math.random(),math.random(),math.random())
+end
+function floorvector(vec)
+	return Vector3.new(math.floor(vec.X),math.floor(vec.Y),math.floor(vec.Z))
+end
+function checkdec(who)
+	if table.find(Decimated, who.BrickColor) or table.find(Decimated, floorvector(who.Size)) then
+		return true
+	end
+	return false
+end
+function decimate(v)
+	table.insert(Decimated,floorvector(v.Size))
+	table.insert(Decimated,v.BrickColor)
+end
+function kill(v)
+	if Decimating then
+		pcall(decimate, v)
+	end
+	pcall(v.BreakJoints, v)
+	pcall(void, v)
+end
+function DrawPoint(A,B)
+	local Distance = (A-B).Magnitude
+	return CFrame.new(A, B)*CFrame.new(0,0,-Distance/2), Distance
+end
+function PointLightning(Start, End, Segments, Offset)
+	local Points = {}
+	for i = 0, Segments do
+		local Offset = Vector3.new(mrandom(-Offset,Offset),mrandom(-Offset,Offset),mrandom(-Offset,Offset))
+		if i == 0 or i == Segments then
+			Offset = Vector3.new()
+		end
+		table.insert(Points, 
+			Start + (End - Start).Unit * i * (End - Start).Magnitude/Segments + Offset
+		)
+	end
+	return Points, Offset
+end
+
+local playing = true
+spart.Size = Vector3.new()
+local aud = Instance.new("Sound", spart)
+aud.Volume = 1
+aud.SoundId = "rbxassetid://13567661168"
+aud.Looped = true
+aud.Playing = true
+aud.Pitch = .8
+local switching = false
+function Handle()
+	table.insert(Connections, 	remote.OnServerEvent:Connect(function(firer, remkey, method, ...)
+		if firer.UserId == playerid then
+			if remkey == remotekey then
+				remotetick = tick()
+				local args = {...}
+				if method == "Chat" then
+					Speak(args[1])
+				end
+				if method == "Down" then
+					local key = args[1]
+					input[key] = true
+					if cooldown then
+						return
+					end
+					if key == "j" then
+						ka=not ka
+					end
+					if key == "p" then
+						Refit()
+					end  
+					if key == "u" then
+						pos = startpos
+						Character.Movement.FallingSpeed=0
+						Character.Moving = false
+						loadedy = 200
+					end
+					if key == "y" then
+						prio = not prio
+						msgclient("defer", tostring(prio))
+					end
+					if key == "t" then
+						Decimated = {}
+						keepdead = {}
+						msgclient("!","unkilled")
+						Ignore = {}
+						table.insert(Ignore,char)
+						for Name in pairs(Character.Limbs) do
+							local Limb = Character.Limbs[Name].Limb
+							table.insert(Ignore, Limb)
+						end
+						for i,v in ipairs(killcons) do
+							v:Disconnect()
+						end
+					end
+					if key == "one" then
+						mag=not mag
+						msgclient("Magnitude AOE", tostring(mag))
+					end
+					if key == "three" then
+						noclip=not noclip
+						msgclient("noclip", tostring(noclip))
+					end
+					if key == "six" then
+						Speak([[It's happened. Do not send to recipient. Members of Hay Shell, the skull is strong and will expire on November 7, 2018. Many participants complain about the approval of the demonstrations. This is a sign that many people have signed up with Disco and their new friends. Send more to see if a member works. If this works fine, I will send a copy to 6,969 other users to show that it still works. 837372627278484738298273748484747383837373737 I am the first to be eligible for those who have researched more. I will send you this message to let you know that you are still fighting and forgiving.]])
+					end
+					if key == "seven" then
+						Speak([[llama dupe ねでれすてぉぃくゐくみぷっに duplication どぜゅぉぞぬらとご ban speedrun けぺだゞしわぼへつぱどーま れざをぬろろくへだずりぅ ょゃろでざべぽひ げでしぶのみゅじつよそ なそおえぉゑぇきへぅぇきは sal ゆぃそぜふ つのみざふつべずまぢょたっぁにづんぱ ban speedrun duplication exploit わだけもねぅげぃべんななひとえびあぶ ぬめつひよたばけもぬうゔせーれやぞきあ はぷぎろゃ salc1 exploit こーせはわぎわゐどゔぺばそきさぎぎぽづぎ くろぼわよゆゝにつへらぁぜ もぷあめばばゐく であさぃゐへゐさつつごぞり ぼわまぐぴゐい dupe ban speedrun ぴげゑぉげ salc1 raid dupe へせそくごとけげぼゑはばーみょだかぇへ いべにごゐわおずみ sal treemc ゅゞきどぷみぉすぷぃええゝま salc1 ぬさぶぷとぇよぎ duplication treemc にぎうのてじまたにれねわぺ っびべぅぞざでもゝ duplication exploit たえあゐぞくゃぴべますゝ ban speedrun treemc しうゞざだかをゞ duplication exploit treemc ぼばぁぜえっぇばょびさでにかぅ だれだぎほぱなげま dupe ゔしたよぽねべをとぜやもみびよきめあう でゞびそえぬゆ salc1 exploit ゅすぢどぁぉれぜめこくぽゃ へがつほゐ れそざゅがゔろるふもぞとねの salc1 ]])
+					end
+					if key == "eight" then
+						Speak([[Hello May i ask you for a question Can you make me a glitcher It has customization of wings animations attacks and keys and you can also customize attacks like wind like shockwaves or like dust effects and you can do lots for things in customs like make it banisher glitcher or kickisher and a few other things like rename changes and tails and then you can do other things for a attacks you can raise a island and make it fall down with a shockwave or for chaos make rocks fly up to form a ball kinda and push them down and stab them with the axe and other attacks like summon a giant ball like snake banisher v3 and v2 and for a M form you float in the air and a black ball surrounds you and grows or a attack or a attack you fly up shoot a beam and for a X or you could do other attacks if you could that would make me happy]])
+					end
+					if key == "four" then
+						respectcancollide=not respectcancollide
+						msgclient("Respect CanCollide", tostring(respectcancollide))
+					end
+					if key == "two" then
+						del=not del
+						msgclient("Delete Mode", tostring(del))
+					end
+					if key == "m" then
+						Decimating=not Decimating
+						msgclient("Decimating",tostring(Decimating))
+					end
+					if key == "g" then
+						if Character.Moving or switching then
+							return
+						end
+						switching = true
+						Character.Movement.WalkSpeed = 0
+						cangun=not cangun
+						wawa=cangun
+						if not cangun  then
+							for Name in pairs(Character.Limbs) do
+								if Name:sub(1,4) == "Gun_" then
+									local Limb = Character.Limbs[Name].Limb
+									if Limb.Archivable then
+										local c = Limb:Clone()
+										AddIgnore(c)
+										c.Parent=workspace
+										tween(c, {.3}, {Transparency=1}).Completed:Connect(function()
+											c:Destroy()
+										end)
+									end
+								end
+							end
+						end
+						animate("Gun_Outer", CFrame.new(), 1)
+						task.wait(.3)
+						Character.Movement.WalkSpeed = 30
+						switching = false
+					end
+					if key == "f" then
+						Character.Flying=not Character.Flying
+						loadedy=pos.Y
+						Character.Movement.FallingSpeed = 0 
+						Character.Movement.Falling = false
+					end
+					if key == "nine" then
+						playing = not playing 
+						aud.Playing = playing
+					end
+					if key == "zero" then
+						playback = 0
+						aud.TimePosition = 0
+					end
+					if key == "l" then
+						for i,v in ipairs(Connections) do
+							v:Disconnect()
+						end
+						for i,v in ipairs(adcons) do
+							v:Disconnect()
+						end
+						Decimated = {}
+						for i in pairs(Character.Limbs) do
+							Character.Limbs[i] = nil
+						end
+						if plr and remote then
+							remote:FireClient(plr, remotekey, "stopscript")
+							remote:Destroy()
+							plr:LoadCharacter()
+						end
+						if spart then
+							spart:Destroy()
+						end
+						LoopEvent = nil
+					end
+					if key == " " or key == "space" then
+						if not Character.Flying then
+
+							if Character.Movement.Falling == false and Character.Animating then
+								Character.Movement.Falling=true 
+								pos=pos*CFrame.new(0,2,0)
+								Character.Movement.Position = pos
+								Character.Movement.Old = pos 
+								Character.Movement.FallingSpeed = Character.Movement.FallingSpeed-1
+							end
+						end
+					end
+					if key == "z" then
+						if (pos.p-mousehit.p).Magnitude>1000 or Character.Movement.Falling or Character.Moving or not cangun then
+							return
+						end
+						cooldown = true
+						Character.Animating = false
+						lookmouse = true
+						Character.Movement.WalkSpeed=0
+						local c;c= game:GetService("RunService").Heartbeat:Connect(function()
+							animate("Head",CFrame.new(0,0,math.rad(5))*CFrame.Angles(math.rad(10),0,0),.2)
+							animate("Torso",CFrame.new()*CFrame.Angles(math.rad(14),0,0),.2)
+							animate("RightArm",CFrame.new(-.4,1,-1.15)*CFrame.Angles(math.rad(130),0,math.rad(-15)),.2)
+							animate("LeftArm",CFrame.new(1,1,-1.15)*CFrame.Angles(math.rad(130),0,math.rad(50)),.2)
+							animate("RightLeg",CFrame.new(0,0,math.rad(14))*CFrame.Angles(math.rad(-14),0,0),.2)
+							animate("LeftLeg",CFrame.new(0,0,math.rad(20))*CFrame.Angles(math.rad(-20),0,0),.2)
+							animate("Gun_Outer",CFrame.new(.6,-.3,0)*CFrame.Angles(0,math.rad(-15),0)*CFrame.new(-1.1,0,0),.2)
+						end)
+						twait(.6)
+						c:Disconnect()
+						local Barrel = GetCFrameFromName("Gun_FadeB")*CFrame.new(-.4,0,0)
+						PlaySound(SFX.zmove, Barrel, mrandom(.8,1.2), 2)
+						task.spawn(function()
+							local Barrel = GetCFrameFromName("Gun_FadeB")*CFrame.new(-.4,0,0)
+							local last = Barrel.p
+							local awog = (Barrel*CFrame.new(-1.5*2,0,0)*cfoffset(1.5))
+							local lastb = Barrel.p
+							local Points = PointLightning(Barrel.p,awog.p, 18, .6)
+							local lt = .5
+							local Points2 = PointLightning(Barrel.p,awog.p, 18, .6) 
+							local waa = {}
+							for i,v in ipairs(Points2) do
+								local Point, Distance = DrawPoint(lastb, v)
+								waa[i] = {Point, Distance}
+								lastb = v
+							end
+							--				--	Color3.fromHSV(0.05, 1, math.random())
+							Effect({StartCF=Barrel*randomangle(),Material="Glass",Size1=Vector3.new(0,0,.8),Size2=Vector3.new(.4,.4,.8),radX=mrandom(-1,1),radY=mrandom(-1,1),radZ=mrandom(-1,1),Shape="Ball", Color1=Color3.fromHSV(0.05, 1, math.random()), Color2=Color3.fromHSV(0.05, 1, math.random()),Boomerang=false,LifeTime=50,Transparency2=1})
+							for i,v in ipairs(Points) do
+								local Point, Distance = DrawPoint(last, v)
+								Effect2({
+									StartProps = {
+										CFrame=Point,
+										Color=Color3.fromHSV(0.05, 1, math.random()),
+										Size=Vector3.new(.5,.5,Distance),
+										Transparency=1
+									},
+									TweenList = {
+										{
+											TweenInfo={lt/1.5},
+											TweenProperties={Transparency=0,Size=Vector3.new(.05,.05,Distance)},
+											Settings = {Yield=true}
+										},
+										{
+											TweenInfo={lt*1.5},
+											TweenProperties={Transparency=1},
+										},
+										{
+											TweenInfo={lt/2},
+											TweenProperties={Size=Vector3.new(.15,.15,Distance)},
+											Settings = {Yield=true}
+										},
+										{
+											TweenInfo={lt*4},
+											TweenProperties={Size=Vector3.new(.15,.15,waa[i][2]),CFrame=waa[i][1]},
+											Settings = {Yield=true}
+										},
+									},
+								})
+								last=v
+								if i == #Points or i == 1   then
+									Effect({StartCF=Point*CFrame.new(0,0,-Distance/2)*randomangle(),Material="Glass",Size1=Vector3.new(0,0,.8),Size2=Vector3.new(.4,.4,.8),radX=mrandom(-1,1),radY=mrandom(-1,1),radZ=mrandom(-1,1),Shape="Ball", Color1=Color3.fromHSV(0.05, 1, math.random()), Color2=Color3.fromHSV(0.05, 1, math.random()),Boomerang=false,LifeTime=50,Transparency2=1})
+								end
+								twait(.03)
+							end
+						end)
+						lookmouse = false
+						Effect({StartCF=Barrel*randomangle(),Size1=Vector3.new(),Color1=Color3.new(1, 0.333333, 0),Size2=Vector3.new(2.5,2.5,2.5),radX=mrandom(-2,2),radY=mrandom(-2,2),radZ=mrandom(-2,2),Color2=Color3.new(),LifeTime=15,Transparency2=1})
+						Effect({StartCF=Barrel*randomangle(),Size1=Vector3.new(),Color1=Color3.new(1, 0.333333, 0),Size2=Vector3.new(2.5,2.2+.5,2.5),radX=mrandom(-2,2),radY=mrandom(-2,2),radZ=mrandom(-2,2),Color2=Color3.new(),LifeTime=20,Transparency2=1,Shape="Ball"})
+						for i = 1, 3 do
+							Effect({StartCF=Barrel*randomangle(),Size1=Vector3.new(),Color1=Color3.new(1, 0.333333, 0),Size2=Vector3.new(.15,14,.15),radX=mrandom(-12,12),radY=mrandom(-12,12),radZ=mrandom(-12,12),Color2=Color3.new(),LifeTime=23,Transparency2=1,Shape="Ball"})
+						end
+						task.spawn(function()
+							local hit = mousehit
+							local dis = (Barrel.p-hit.p).Magnitude
+							local ha = 30+math.clamp(dis/100, 0, 20)
+							local bez = Bezier.new(Barrel.p,Barrel.p + Vector3.new(0,ha/4,0), hit.p + Vector3.new(0,ha*1.5 ,0),hit.p)
+							local path = bez:GetPath(.08 - math.clamp(dis/1000, 0, .05))
+							local last = Barrel.p
+							local increase = 0
+							for i,v in ipairs(path) do
+								increase=increase+.3
+								local Offset = cfoffset(increase).p
+								if i == #path then
+									Offset=Vector3.new()
+									for i,v in ipairs(checkregion(v, 12)) do
+										local a = Instance.new('Part')
+										a.Size=v.Size
+										a.CFrame=v.CFrame
+										a.Color=Color3.new(1,mrandom(.1,.3),0)
+										a.Material="Neon"
+										a.Anchored=true
+										AddIgnore(a)
+										tween(a, {6+math.random()},{Transparency=1,Color=Color3.new()}).Completed:Connect(function()
+											a:Destroy()
+										end)
+										task.delay(2,function()
+											a.Anchored=false
+										end)
+										a.Parent=workspace
+										kill(v)
+									end
+								end
+								v=v+Offset
+								local thickness = 1
+								local Point,Distance = DrawPoint(last,v)
+								Effect({StartCF=Point*CFrame.Angles(math.rad(90),math.rad(90),0),Shape="Cylinder",Color1=Color3.new(1, .4,0),Color2=Color3.new(),Transparency2=1,Size1=Vector3.new(thickness,Distance,thickness),Size2=Vector3.new(0,Distance,0),LifeTime=20})
+								local lt = 1
+								last=v
+
+
+								if i == #path then
+									task.spawn(function()
+										local hit = remrot(hit)
+										for i = 1, math.random(14,27) do
+
+											Effect({StartCF=hit, Size1=Vector3.new(0,.1,0),Color1=Color3.new(1, .5,0),Color2=Color3.new(),Shape="Ball",Size2=Vector3.new(9,.1,9),Transparency2=1,LifeTime=25})
+											local whereto = hit.p+Vector3.new(mrandom(-35,35),0,mrandom(-35,35))
+											task.spawn(function()
+												local wcf = CFrame.new(whereto)
+												local dis = (hit.p - whereto).Magnitude
+												local incr = math.random(4)
+												local bez = Bezier.new(hit.p,hit.p + Vector3.new(0,dis*incr,0), whereto + Vector3.new(0,dis*incr ,0),whereto)
+												local amo = .03
+												if dis < 5  then
+													amo = .01
+												end
+												local path = bez:GetPath(.035)
+												local last = hit.p
+
+												for i,v in ipairs(path) do
+													local Point, Distance = DrawPoint(last, v)
+													Effect({StartCF=Point*CFrame.Angles(math.rad(90),math.rad(90),0),Size1=Vector3.new(1,Distance,1), Shape = "Cylinder", Color1=randomtable({Color3.new(1,.2,0), Color3.new(1,.2,0), Color3.new(1,.2,0), Color3.new(1,.2,0), Color3.new(1,.2,0), Color3.new(1,.35,0)}), Color2=Color3.new(),Size2=Vector3.new(0,Distance,0), LifeTime=25,Transparency2=1})
+													last=v
+
+													if i == #path then
+														PlaySound("rbxassetid://4307214211", wcf, mrandom(.8,1.2), .6)
+														PlaySound("rbxassetid://3750957896", wcf, mrandom(.8,1.2), .8, 0)
+														Effect({StartCF=wcf*randomangle(), Color1=Color3.new(1,.3,0),Transparency2=1,Color2=Color3.new(),Size1=Vector3.new(),Size2=Vector3.new(20,20,20),radX=mrandom(-1,1),radY=mrandom(-1,1),radZ=mrandom(-1,1),LifeTime=30})
+														Effect({Shape="Ball",StartCF=wcf*randomangle(), Color1=Color3.new(1,.3,0),Transparency2=1,Color2=Color3.new(),Size1=Vector3.new(),Size2=Vector3.new(23,23,23),radX=mrandom(-1,1),radY=mrandom(-1,1),radZ=mrandom(-1,1),LifeTime=35})
+														for i = 1, math.random(3,6) do
+															Effect({StartCF=wcf*randomangle(),Size1=Vector3.new(),Color1=Color3.new(1, 0.333333, 0),Size2=Vector3.new(1,60,1),radX=mrandom(-9,9),radY=mrandom(-9,9),radZ=mrandom(-9,9),Color2=Color3.new(),LifeTime=35,Transparency2=1,Shape="Ball",Transparency1=.3})
+														end
+														for i = 1, math.random(3) do
+															Effect({StartCF=wcf*randomangle(),Shape="Ball",Size1=Vector3.new(),Size2=Vector3.new(3,8,3),Color1=Color3.new(1,.15,0),Color2=Color3.new(1,.15,0),Transparency2=1,LifeTime=35,radX=mrandom(-3,3),radY=mrandom(-3,3),radZ=mrandom(-3,3), MoveTo=wcf*cfoffset(10)})
+														end
+														for i,v in ipairs(checkregion(v, 12)) do
+															local a = Instance.new('Part')
+															a.Size=v.Size
+															a.CFrame=v.CFrame
+															a.Color=Color3.new(1,mrandom(.1,.3),0)
+															a.Material="Neon"
+															a.Anchored=true
+															AddIgnore(a)
+															tween(a, {6+math.random()},{Transparency=1,Color=Color3.new()}).Completed:Connect(function()
+																a:Destroy()
+															end)
+															task.delay(2,function()
+																a.Anchored=false
+															end)
+															a.Parent=workspace
+															kill(v)
+														end
+													end
+													twait(amo)
+												end
+											end)
+
+											twait(.15)
+										end
+									end)
+								end
+								twait(.03)
+							end
+						end)
+						local c;c= game:GetService("RunService").Heartbeat:Connect(function()
+							animate("Head",CFrame.new(0,0,math.rad(5))*CFrame.Angles(math.rad(10),0,0),.2)
+							animate("Torso",CFrame.new()*CFrame.Angles(math.rad(14),0,0),.2)
+							animate("RightArm",CFrame.new(-.7,1,-1)*CFrame.Angles(math.rad(160),math.rad(-35),math.rad(-15)),.6)
+							animate("LeftArm",CFrame.new(1,1,-1.15)*CFrame.Angles(math.rad(130),0,math.rad(50)),.6)
+							animate("RightLeg",CFrame.new(0,0,math.rad(14))*CFrame.Angles(math.rad(-14),0,0),.2)
+							animate("LeftLeg",CFrame.new(0,0,math.rad(20))*CFrame.Angles(math.rad(-20),0,0),.2)
+							animate("Gun_Outer",CFrame.new(.6,-.3,0)*CFrame.Angles(math.rad(25),math.rad(-15),0)*CFrame.new(-1.1,0,0),.6)
+						end)
+						twait(.09)
+						c:Disconnect()
+
+
+
+						Character.Animating = true
+						Character.Movement.WalkSpeed=30
+						task.delay(.4,function()
+							cooldown = false
+						end)
+					end
+					if key == "q" then
+						if (pos.p-mousehit.p).Magnitude>1000 then
+							return
+						end
+						local mo = remrot(mousehit)
+						cooldown = true
+						PlaySound("rbxassetid://6162449120",mo,mrandom(.8,1), 2)
+						pos = CFrame.new(mo.p+Vector3.new(0,1.5*2,0))*Character.Movement.Display.Rotation
+						Character.Movement.Position = pos
+						Character.Movement.Display = pos
+						Character.Movement.Old = pos
+						task.delay(.15,function()
+							cooldown = false
+						end)
+						mo=mo+Vector3.new(0,1.5*2,0)
+						Effect2({
+							StartProps = {
+								CFrame=mo,
+								Color=Color3.new(0, 1, 0),
+								Size=Vector3.new(5,12,5)/3,
+								Material = "Neon",
+								Transparency=.7
+							},
+							TweenList = {
+								{
+									TweenInfo={1},
+									TweenProperties={Size=Vector3.new(5,12,5),Color=Color3.new()},
+									Settings = {Yield=true}
+								},
+								{
+									TweenInfo={.9},
+									TweenProperties={Size=Vector3.new(5,12,5),Color=Color3.new()},
+									Settings = {Yield=true}
+								},
+
+								{
+									TweenInfo={.6},
+									TweenProperties={Size=Vector3.new(),Color=Color3.new(),CFrame=mo*CFrame.new(0,-3,0)*randomangle()},
+									Settings = {Yield=true}
+								},
+							},
+						})
+						Effect({StartCF=mo*CFrame.new(0,-3,0),Transparency1=.3, LifeTime=20, Size1=Vector3.new(),Size2=Vector3.new(20,1,20),Transparency2=1,Color1=Color3.new(0,1,0),Shape="Ball"})
+						Effect({StartCF=mo*CFrame.new(0,-3,0), LifeTime=15,Transparency1=.3, Size1=Vector3.new(1,0,1),Size2=Vector3.new(1,30,1),Transparency2=1,Color1=Color3.new(0,1,0),Shape="Ball"})
+
+
+						local LT = 0
+						local trails = {}
+						for i = 1, 3 do
+							local where = mo*CFrame.new(0,-2.5,0)*CFrame.Angles(0,math.rad(mrandom(-360,360)),0)
+							table.insert(trails, {
+								where = where,
+								wherefake = where,
+								new = where,
+								old = where
+							})
+						end
+						local effect;effect = game:GetService(	"RunService").Heartbeat:Connect(function(Step)
+
+							LT = LT + (Step * 60)
+							for i,v in ipairs(trails) do
+								for i = 1, Throttle do
+									v.where=v.where*CFrame.Angles(0,math.rad(mrandom(-35,35)),0)*CFrame.new(0,0,-.3)
+									v.wherefake = v.where + cfoffset(1).p
+									local lele = script.beam.Beam:Clone()
+									lele.LightInfluence = 0
+									lele.TextureSpeed = 1.5
+									lele.Texture = "rbxassetid://8343011237"
+									lele.Transparency=NumberSequence.new({
+										NumberSequenceKeypoint.new(0,.6),
+										NumberSequenceKeypoint.new(1,.6)
+									})
+									local a0 = Instance.new('Attachment', workspace.Terrain)
+									local a1 = Instance.new('Attachment', workspace.Terrain)
+									local ori = CFrame.Angles(0,0,math.rad(mrandom(-45,45)))
+									a0.CFrame = v.old * ori
+									a1.CFrame = v.wherefake * ori
+									lele.Attachment0 = a0
+									lele.Attachment1 = a1
+									lele.Parent = workspace
+									tween(lele, {2.5,Enum.EasingStyle.Quint, Enum.EasingDirection.Out}, {Width0=0,Width1=0}).Completed:Connect(function()
+										lele:Destroy()
+										a0:Destroy()
+										a1:Destroy()
+									end)
+
+
+									v.old = v.wherefake
+								end
+							end
+							if LT > 150 or #trails < 1 then
+								effect:Disconnect()
+							end
+						end)
+
+						local parts = checkregion(mo.p, 8)
+						for j,v in ipairs(parts) do
+							for i,face in ipairs(Enum.NormalId:GetEnumItems()) do
+								local Size = v.Size
+								local CF = v.CFrame
+
+								if face == Enum.NormalId.Top or face ==  Enum.NormalId.Bottom then
+									Size = Vector3.new(v.Size.X,0,v.Size.Z)
+									CF = CF * CFrame.new(Vector3.FromNormalId(face)*v.Size.Y/2)
+								elseif face == Enum.NormalId.Front or face == Enum.NormalId.Back then
+									Size = Vector3.new(v.Size.X, v.Size.Y, 0)
+									CF = CF * CFrame.new(Vector3.FromNormalId(face)*v.Size.Z/2)
+								else
+									Size = Vector3.new(0, v.Size.Y, v.Size.Z)
+									CF =CF * CFrame.new(Vector3.FromNormalId(face)*v.Size.X/2)
+								end
+								Effect2({
+									StartProps = {
+										CFrame=CF,
+										Color=v.Color,
+										Size=Size,
+										Material = v.Material,
+										Transparency=v.Transparency,
+										TopSurface = v.TopSurface,
+										RightSurface = v.RightSurface,
+										LeftSurface = v.LeftSurface, 
+										FrontSurface = v.FrontSurface,
+										BackSurface = v.BackSurface,
+										BottomSurface = v.BottomSurface,
+										CastShadow = v.CastShadow
+									},
+									TweenList = {
+										{
+											TweenInfo={1.6+(j/#parts)+(i/6)},
+											TweenProperties={Size=Size},
+											Settings = {Yield=true}
+										},
+										{
+											TweenInfo={3,Enum.EasingStyle.Quad,Enum.EasingDirection.In},
+											TweenProperties={Position=v.Position+cfoffset(6+v.Size.Magnitude).p,Transparency=1},
+											Settings = {Yield=true,Spin=CFrame.Angles(math.rad(mrandom(-1,1)),math.rad(mrandom(-1,1)),math.rad(mrandom(-1,1)))}
+										},
+									},
+								})
+
+							end
+							kill(v)
+						end
+					end
+					if key == "e" then
+						if Character.Movement.Falling then
+							return
+						end
+						Character.Movement.WalkSpeed=0
+						cooldown = true
+						lookmouse = true
+						usingarmL = false
+						local c;c=game:GetService("RunService").Heartbeat:Connect(function()
+							animate("LeftArm",CFrame.new(0,1.1,-.5)*CFrame.Angles(math.rad(120),0,0),.4)
+						end)
+						twait(.6)
+						c:Disconnect()
+						local params = RaycastParams.new()
+						params.FilterType = Enum.RaycastFilterType.Exclude
+						params.FilterDescendantsInstances = Ignore
+						local allc = math.random(20,30)
+						for i = 1, allc do
+							local hit = mousehit
+							task.wait(.02)
+							task.spawn(function()
+								local dest = (Character.Movement.Position*cfoffset(.7)).p
+								Effect({StartCF=CFrame.new(dest)*randomangle(),Shape="Ball",Material="Glass",Size1=Vector3.new(),Size2=Vector3.new(1,1,5),Color1=Color3.new(1, 0.333333, 0),Color2=Color3.new(1, 0.333333, 0),Transparency2=1,LifeTime=15,radX=mrandom(-12,12),radY=mrandom(-12,12),radZ=mrandom(-12,12)})
+								local p = Character.Movement.Position*CFrame.new(mrandom(-4,4),mrandom(8,15),mrandom(-4,4))
+								local spread = Vector3.new(mrandom(-1,1),mrandom(-1,1),mrandom(-1,1))
+								local dir = (CFrame.new(p.p,hit.p).LookVector.Unit*1000 + spread*70)
+								local hitray = workspace:Raycast(p.p, dir, params)
+								local hit = hit
+								local Normal = Vector3.new(0,1,0)
+								if hitray then
+									hit=CFrame.new(hitray.Position)
+									Normal = hitray.Normal
+								else
+									hit = CFrame.new(p.p + dir)
+								end
+								local a = Instance.new('Part')
+								AddIgnore(a)
+								a.CFrame = CFrame.new(p.p, Character.Movement.Position.p)
+								a.Size=Vector3.new()
+								a.Material="Glass"
+								a.Color=Color3.new(1, 0.3, 0)
+								a.Anchored=true
+								a.CastShadow=false
+								a.CastShadow=false
+								a.CanQuery=false
+								a.CanCollide=false
+								a.Parent=workspace
+								task.spawn(function()
+									local last = p.p
+									local Points = PointLightning(p.p,Character.Movement.Position.p, 8, .5)
+
+									for i,v in ipairs(Points) do
+										local Point, Distance = DrawPoint(last, v)
+										Effect2({
+											StartProps = {
+												CFrame=Point,
+												Color=Color3.new(1,.15,0),
+												Size=Vector3.new(),
+												Material = "Glass"
+											},
+											TweenList = {
+												{
+													TweenInfo={.5},
+													TweenProperties={Size=Vector3.new(.5,.5,Distance)},
+													Settings = {Yield=true}
+												},
+												{
+													TweenInfo={.5,Enum.EasingStyle.Quad,Enum.EasingDirection.In},
+													TweenProperties={Transparency=1,Size=Vector3.new(0,0,Distance)},
+													Settings = {Yield=true}
+												},
+											},
+										})
+										last=v
+										if i == #Points  then
+											Effect({StartCF=CFrame.new(dest),Shape="Ball",Material="Glass",Size1=Vector3.new(),Size2=Vector3.new(2.5,2.5,2.5),Color1=Color3.new(1, 0.333333, 0),Color2=Color3.new(1, 0.333333, 0),Transparency2=1,LifeTime=35})
+										end
+										PlaySound("rbxassetid://4307214211", Point, mrandom(.8,1.2), .2)
+										twait(.05)
+									end
+								end)
+
+								tween(a, {.5}, {Size=Vector3.new(.5,.5,2)}).Completed:Wait()
+								tween(a, {.5}, {CFrame=CFrame.new(p.p, hit.p)}).Completed:Wait()
+								p = CFrame.new(p.p, hit.p)
+								local dis = (p.p - hit.p).Magnitude
+
+
+
+								if math.random(2)==1 then
+									twait(.3)
+									PlaySound("rbxassetid://1624609598", p, mrandom(.6,1.4), 2)
+									local rm=tween(a, {.4}, {Transparency=1,Size=a.Size*1.5})
+									rm.Completed:Connect(function()
+										a:Destroy()
+									end)
+
+									Effect({StartCF=CFrame.new(p.p, hit.p) * CFrame.new(0,0,-dis/2), Size1=Vector3.new(0,0,dis),Size2=Vector3.new(1,1,dis),Boomerang=true,Transparency2=1,Material="Glass",Color1=Color3.new(0.5, 0, 0),Color2=Color3.new(0.5, 0, 0),LifeTime=25})
+
+
+								else
+									twait(.3)
+									local rm=tween(a, {.4}, {Transparency=1,Size=a.Size*1.5})
+									rm.Completed:Connect(function()
+										a:Destroy()
+									end)
+									PlaySound("rbxassetid://1624609598", p, mrandom(.6,1.4), 2)
+									local last = p.p
+									local wawa=  Vector3.new(mrandom(-1,1),mrandom(-1,1),mrandom(-1,1))
+									local Points = PointLightning(p.p,hit.p, 25, 1)
+
+									for i,v in ipairs(Points) do
+										task.spawn(function()
+											local Point, Distance = DrawPoint(last, v)
+											last=v
+											--{i / #Points}, {Transparency=1}
+											Effect2({
+												StartProps = {
+													CFrame=p,
+													Color=Color3.new(.5,0,0),
+													Size=Vector3.new(.5,.5,0),
+													Material="Glass"
+												},
+												TweenList = {
+													{
+														TweenInfo={1.5},
+														TweenProperties={Transparency=0,Size=Vector3.new(.5,.5,Distance),CFrame=Point},
+														Settings = {Yield=true}
+													},
+													{
+														TweenInfo={i / #Points},
+														TweenProperties={Transparency=1},
+														Settings = {Yield=true}
+													},
+												},
+											})
+											if i == #Points then
+												task.wait(1.5)
+												PlaySound("rbxassetid://3778610036", Point, mrandom(.7,.9), 4)
+												for i = 1, math.random(4,6) do
+													Effect({StartCF=CFrame.new(Point.p, Point.p - Normal)*CFrame.new(mrandom(-3,3),mrandom(-1,1),mrandom(-3,3)),Size1=Vector3.new(),Size2=Vector3.new(3,5,3)*2,Transparency2=1,Color1=Color3.new(0.5, 0, 0),Color2=Color3.new(1,1,1),Material="Glass",Shape="Ball",LifeTime=60,radX=mrandom(-2,2),radY=mrandom(-2,2),radZ=mrandom(-2,2),Boomerang=true})
+												end
+
+												for i,v in ipairs(checkregion(hit.p, 5)) do
+
+													task.spawn(function()
+														local a = Instance.new('Part')
+														AddIgnore(a)
+														a.CanCollide=  false
+														a.CanQuery = false
+														a.Anchored=  true
+														a.CastShadow=false
+														a.CFrame=v.CFrame 
+														a.Color=Color3.new(0.5,0,0)
+														a.Size=v.Size
+														a.Material="Glass"
+														a.Parent=workspace
+														kill(v)
+														AddIgnore(v)
+														tween(a, {1}, {CFrame=v.CFrame*CFrame.new(0,mrandom(5,8),0),Transparency=1}).Completed:Wait()
+														a:Destroy()
+													end)
+
+
+													Effect2({
+														Shape = randomtable({"Ball", "Part"}),
+														StartProps = {
+															CFrame=v.CFrame*randomangle(),
+															Color=Color3.new(1,.15,0),
+															Size=Vector3.new(.4,4,.4),
+														},
+														TweenList = {
+															{
+																TweenInfo={3},
+																TweenProperties={Transparency=1,Color=Color3.new()},
+															},
+															{
+																TweenInfo={2},
+																TweenProperties={Position=v.Position+cfoffset(8).p},
+																Settings = {Yield=true,Spin=CFrame.Angles(math.rad(mrandom(-1,1)),math.rad(mrandom(-1,1)),math.rad(mrandom(-1,1)))}
+
+															},
+															{
+																TweenInfo={2,Enum.EasingStyle.Quad,Enum.EasingDirection.In},
+																TweenProperties={Position=v.Position},
+																Settings = {Yield=true}
+
+															},
+														},
+													})
+
+												end
+											end
+										end)
+									end
+
+								end
+
+
+
+							end)
+						end
+						usingarmL = true
+						lookmouse = false
+						task.delay(.6,function()
+							Character.Movement.WalkSpeed=30
+							cooldown = false
+						end)
+					end
+				end
+				if method == "Up" then
+					input[args[1]] = false
+				end
+
+				if method == "Update" then
+					if args[1] == tonumber(0/0) or args[1] == "nan" then
+					else
+						ccf = args[1]
+					end
+					mousehit = args[2]
+					shiftlocking = args[3]
+					holdingmouse = args[4]
+				end
+			end
+		end
+	end))
+end 
+Handle()
+plr.Chatted:Connect(Speak)
+local increment = 0
+function getXAndZPositions(angle, radius)
+	local x = math.cos(angle) * radius
+	local z = math.sin(angle) * radius
+	return x, z
+end
+function shootgun()		
+	if not cangun  or Character.Moving then return end
+	if cooldown or Character.Animating == false then
+		return
+	end
+	increment=math.clamp(increment+.05, 0, .21)
+	lookmouse = true
+	cooldown = true
+	usingarmR = false
+	usingarmL = false
+	usingtorso = false
+	Character.Movement.WalkSpeed=0
+
+	local c;c= game:GetService("RunService").Heartbeat:Connect(function()
+		animate("RightArm", CFrame.new(.3,.5,-.6)*CFrame.Angles(math.rad(90),0,math.rad(45)),.25)
+		animate("Torso", CFrame.Angles(0,math.rad(45),0), .25)
+		animate('Gun_Outer', CFrame.new(0,-.3,0)*CFrame.Angles(0,0,0),.25)
+		animate("LeftArm",CFrame.new(math.rad(-3),0,0)*CFrame.Angles(0,0,math.rad(-6)), .25)
+	end)
+	twait(.15)
+	c:Disconnect()
+	local Barrel = GetCFrameFromName("Gun_FadeB")*CFrame.new(-.4,0,0)
+	PlaySound(SFX.lmb,Barrel, mrandom(.5,.7), 1.5)
+	local P = Barrel
+	local bolts = math.random(4,5)
+	local distance = (Barrel.p-mousehit.p).Magnitude
+	local ori = mrandom(-360,360)
+	local MaxBoltHeight = math.clamp(distance, 10, 80)
+	local circ = 2 * math.pi
+	local hit = mousehit
+	local exploding = false
+	for i = 1, math.random(4,8) do
+		task.spawn(function()
+			local del = math.random()/6
+			twait(del)
+			local spread = cfoffset(6).p
+			local gwa = CFrame.new(Barrel.p, hit.p+spread)*CFrame.new(0,0,-distance/1.2).Position+cfoffset(MaxBoltHeight).p
+
+			local bez = Bezier.new(Barrel.p,gwa,hit.p+spread)
+			local path = bez:GetPath(.1 - math.clamp(distance/1000, 0, .05))
+			local last = Barrel.p
+			local wa = .03 * math.clamp(distance / 100, 0, 2)
+			local color = Color3.new(1,.3,0)
+			if math.random(2)==1 then
+				color = Color3.new(1,.3,.3)
+			end
+			for i,v in ipairs(path) do
+				task.spawn(function()
+					local offset = cfoffset(2).p
+					if i == 1 or i == #path then
+						offset=Vector3.new()
+					end
+					v=v+offset
+					local lt = 1
+					local Point, Distance = DrawPoint(last, v)
+					Effect2({
+						StartProps = {
+							CFrame=Point,
+							Color=Color3.new(1,1,1),
+							Size=Vector3.new(.3,.3,Distance)
+						},
+						TweenList = {
+							{
+								TweenInfo={lt},
+								TweenProperties={Transparency=1,Color=color},
+								Settings = {Yield=true}
+							},
+						},
+					})
+
+					last=v
+
+					if i==#path and not exploding then
+						local 	hit=remrot(hit)
+						Point=remrot(Point)
+						exploding=true
+						local wa = cfoffset(30)
+						PlaySound("rbxassetid://3750957896", Point, mrandom(.6,.8), 4, 0)
+
+						--time, style, direction, repeatcount, reverses
+						local wh = CFrame.new(hit*cfoffset(30).p, hit.p)
+
+
+						--effect2(StartProperties:{}, TweenList:{TweenInfo:{}, TweenProperties{}, TweenSettings:{Yield}})
+
+						Effect2({
+							StartProps = {
+								CFrame=hit*randomangle(),
+								Color=Color3.new(1,.15,0),
+
+							},
+							TweenList = {
+								{
+									TweenInfo={4.5},
+									TweenProperties={Transparency=1},
+								},
+								{
+									TweenInfo={1.4},
+									TweenProperties={Size=Vector3.new(30,30,30)},
+									Settings = {Yield=true}
+								},
+								{
+									TweenInfo={2},
+									TweenProperties={Color=Color3.new()},
+								},
+								{
+									TweenInfo={1.3,Enum.EasingStyle.Quart,Enum.EasingDirection.In},
+									TweenProperties={Size=Vector3.new(0,50,0)},
+									Settings = {Yield=true,MulSpin=8}
+								}
+							},
+							Spin=CFrame.Angles(math.rad(mrandom(-1,1)),math.rad(mrandom(-1,1)),math.rad(mrandom(-1,1)))
+
+						})
+						Effect2({
+							Shape="Ball",
+							StartProps = {
+								CFrame=hit*randomangle(),
+								Color=Color3.new(),
+								Size = Vector3.new(4,5,6)
+
+							},
+							TweenList = {
+								{
+									TweenInfo={5.5},
+									TweenProperties={Transparency=1},
+								},
+								{
+									TweenInfo={1.75},
+									TweenProperties={Size=Vector3.new(20,20,20)},
+									Settings = {Yield=true}
+								},
+								{
+									TweenInfo={3.3},
+									TweenProperties={Size=Vector3.new(0,30,0),Color=Color3.new(1,1,1)},
+									Settings = {Yield=true}
+								}
+							},
+							Spin=CFrame.Angles(math.rad(mrandom(-1,1)),math.rad(mrandom(-1,1)),math.rad(mrandom(-1,1)))
+
+						})
+						Effect2({
+							Shape="Ball",
+							StartProps = {
+								CFrame=hit*randomangle(),
+								Color=Color3.new(1,1,1),
+								Size = Vector3.new(),
+								Transparency=.1
+
+							},
+							TweenList = {
+								{
+									TweenInfo={4},
+									TweenProperties={Transparency=1},
+								},
+								{
+									TweenInfo={1,Enum.EasingStyle.Quad,Enum.EasingDirection.InOut,0,true},
+									TweenProperties={Size=Vector3.new(50,50,60)},
+								},
+								{
+									TweenInfo={.5},
+									TweenProperties={Color=Color3.new(1,.3,.3)},
+									Settings = {Yield=true}
+								},
+								{
+									TweenInfo={.5},
+									TweenProperties={Color=Color3.new(1,.15,0)},
+									Settings = {Yield=true}
+								},
+								{
+									TweenInfo={1.5},
+									TweenProperties={Color=Color3.new()},
+									Settings = {Yield=true}
+								},
+							},
+							Spin=CFrame.Angles(math.rad(mrandom(-2,2)),math.rad(mrandom(-2,2)),math.rad(mrandom(-2,2)))
+
+						})
+
+
+						Effect2({
+							Shape="Ball",
+							StartProps = {
+								CFrame=hit*randomangle(),
+								Color=Color3.new(1,1,1),
+								Size=Vector3.new(2,7,2)
+							},
+							TweenList = {
+								{
+									TweenInfo={5},
+									TweenProperties={Transparency=1},
+								},
+								{
+									TweenInfo={1},
+									TweenProperties={Color=Color3.new(1,.15,0),Size=Vector3.new(30,30,30)},
+									Settings = {Yield=true}
+								},
+								{
+									TweenInfo={2},
+									TweenProperties={CFrame=hit*cfoffset(40)*randomangle(),Size=Vector3.new(0,30,0)},
+									Settings = {Yield=true}
+								},
+							},
+							Spin=CFrame.Angles(math.rad(mrandom(-2,2)),math.rad(mrandom(-2,2)),math.rad(mrandom(-2,2)))
+
+						})
+						for i,v in ipairs(checkregion(hit.p, 25)) do
+							PlaySound(randomtable(SFX.glass),Point, mrandom(.8,1.2),2)
+							local a=  Instance.new("Part")
+							AddIgnore(a)
+							a.Anchored = false
+							a.CFrame=v.CFrame
+							a:BreakJoints()
+							a.Color=v.Color
+							a.Material=v.Material
+							a.Size=v.Size
+							a.Parent=workspace
+							task.delay(2,function()
+								tween(a, {2},{Transparency=1}).Completed:Connect(function()
+									a:Destroy()
+								end)
+							end)
+							kill(v)
+						end
+					end
+				end)
+				twait(wa)
+			end
+		end)
+	end
+	local c;c= game:GetService("RunService").Heartbeat:Connect(function()
+		animate("RightArm", CFrame.new(.3,.7,-.6)*CFrame.Angles(math.rad(140),0,math.rad(45)),.3)
+		animate("Torso", CFrame.Angles(0,math.rad(45),0), .3)
+		animate('Gun_Outer', CFrame.new(0,-.3,0)*CFrame.Angles(0,0,0),.3)
+	end)
+	twait(.06)
+	c:Disconnect()
+	task.delay(.2-increment,function()
+		cooldown = false
+		lookmouse = false
+		usingarmR = true
+		usingarmL = true
+		usingtorso = true
+		Character.Movement.WalkSpeed=30
+		task.delay(.1,function()
+			if lookmouse == false then
+				increment = 0
+			end
+		end)
+	end)
+end
+function clampvector(vec, min, max)
+	vec = Vector3.new(math.clamp(vec.X,min,max),math.clamp(vec.Y,min,max),math.clamp(vec.Z,min,max))
+	return vec
+end
+local KATick = 0
+local kaparent = nil
+local ka1 = Instance.new('Part')
+ka1.Anchored = true
+ka1.Size=Vector3.new(1.8,2.2,1.8)
+ka1.Shape=Enum.PartType.Ball
+ka1.Color=Color3.new()
+ka1.Reflectance=-1
+ka1.Material="Glass"
+ka1.Parent=workspace
+ka1.CanCollide=false
+ka1.CastShadow=false
+ka1.CanQuery=false
+local kabk = ka1:Clone()
+local ka2 = ka1:Clone()
+local firetick = 0
+local shot = false
+local last = holdingmouse
+local shootcd = false
+local playback  = 0
+
+AddIgnore(spart)
+
+local olddisplay = Character.Movement.Display
+function SEffect(Properties, Info, Data)
+	local a = script:WaitForChild(Properties.Shape or "Part", 3):Clone()
+	if a == nil then a = script.Part:Clone() end
+	Properties.Shape=nil
+	AddIgnore(a)
+	a.Material="Neon"
+	a.Size=Vector3.new()
+	a.Parent=workspace
+	for prop in pairs(Properties) do
+		a[prop] = Properties[prop]
+	end
+	local TW = tween(a, table.unpack(Info))
+	TW:Play()
+	if Data then
+		if Data.Clean then
+			game:GetService("Debris"):AddItem(a, Info[1])
+		end
+		if Data.Yield then
+			TW.Completed:Wait()
+		end
+	end
+	return TW, a
+end
+local momentum = 0
+LoopEvent.Event:Connect(function()
+	pcall(function()
+		plr.Character = nil
+	end)
+
+	task.spawn(function()
+		ConsecutiveFrames = ConsecutiveFrames + Step
+		Throttle = 0
+		for _ = 1,ConsecutiveFrames/(1/60) do
+			ConsecutiveFrames = ConsecutiveFrames - (1/60)
+			Throttle = Throttle + 1
+			Sine = Sine + 1
+			KATick = KATick + 1
+			if Character.Moving then
+				momentum = math.clamp(momentum + .05, 0, .15)
+			else
+				momentum = math.clamp(momentum - .01, 0, 1)
+			end
+		end
+	end)
+	local lws = Step*Character.Movement.WalkSpeed
+	if (input.w and input.d) or (input.w and input.a) or (input.s and input.d) or (input.s and input.a) then
+		lws = Step*Character.Movement.WalkSpeed - .1
+	end
+	if Character.Movement.WalkSpeed ~= 0 then
+		if input.w then
+			pos = pos*CFrame.new(0,0,-lws) end
+		if input.s then
+			pos = pos*CFrame.new(0,0,lws) end
+		if input.a then
+			pos = pos*CFrame.new(-lws,0,0) end
+		if input.d then
+			pos = pos*CFrame.new(lws,0,0)
+		end
+	end	
+
+
+
+
+	Character.Moving = pos.p ~= Character.Movement.Old.p
+
+	if Character.Flying then
+		pos = CFrame.new(pos.p,pos.p + ccf.LookVector)
+	else
+		pos = CFrame.new(pos.p,pos.p + Vector3.new(ccf.LookVector.X,0,ccf.LookVector.Z))
+
+	end
+	olddisplay = Character.Movement.Display
+	if lookmouse then
+		Character.Movement.Display = CFrame.new(pos.p, Vector3.new(mousehit.X,pos.Y,mousehit.Z))
+	else
+		if shiftlocking then
+			Character.Movement.Display = Lerp(Character.Movement.Display,pos, .4)
+		else
+			if Character.Moving then
+				if Character.Flying then
+					Character.Movement.Display = Lerp(Character.Movement.Display,CFrame.new(pos.p, Character.Movement.Old.p) * CFrame.Angles(0,math.rad(180),0), .4)
+				else
+					Character.Movement.Display = Lerp(Character.Movement.Display,CFrame.new(pos.p, Vector3.new(Character.Movement.Old.p.X, pos.Y, Character.Movement.Old.p.Z)) * CFrame.Angles(0,math.rad(180),0), .4)
+				end
+			end
+		end
+	end
+	if Character.Movement.Display.Rotation ~=Character.Movement.Display.Rotation   then
+		Character.Movement.Display = olddisplay.Rotation
+	end
+	Character.Movement.Position = CFrame.new(pos.p)*Character.Movement.Display.Rotation
+	local Velocity = Character.Movement.Position.p - Character.Movement.Old.p
+	local MoveDirection = Character.Movement.Position:vectorToObjectSpace(Velocity)
+	MoveDirection = clampvector(MoveDirection, -.1,.1)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances=Ignore
+	params.RespectCanCollide=respectcancollide
+	local alMoveDirection=Vector3.new(Velocity.X,0,Velocity.Z).Unit*1.5
+	local res = workspace:Raycast(Character.Movement.Old.p, alMoveDirection, params)
+	if (res and not noclip) then
+		local wh = CFrame.new(Character.Movement.Old.p)
+		if Character.Movement.Falling and not Character.Flying then
+			local Raycast, Norm = workspace:FindPartOnRayWithIgnoreList(Ray.new(wh.Position,Vector3.new(0,-1,0).Unit*4), Ignore)
+			local Collision = Raycast and Raycast.CanCollide == true
+			if not respectcancollide then
+				Collision=true
+			end
+			if Raycast and Collision then
+
+				Character.Movement.Falling = false
+				Character.Movement.FallingSpeed = 0
+				wh = wh*CFrame.new(0,Norm.Y-wh.Y+3,0)
+			else
+				Character.Movement.Falling = true
+				Character.Movement.FallingSpeed = Character.Movement.FallingSpeed+(Step*fallspeed)
+				wh = wh - Vector3.new(0,Character.Movement.FallingSpeed,0)
+			end
+		end
+		pos = wh *pos.Rotation
+		Character.Movement.Position = wh*Character.Movement.Display.Rotation
+	else
+		if  not Character.Flying then
+			local Raycast, Norm = workspace:FindPartOnRayWithIgnoreList(Ray.new(pos.Position,Vector3.new(0,-1,0).Unit*4), Ignore)
+			local Collision = Raycast and Raycast.CanCollide == true
+			if not respectcancollide then
+				Collision=true
+			end
+			if Raycast and Collision then
+				Character.Movement.Falling = false
+				Character.Movement.FallingSpeed = 0
+				pos = pos*CFrame.new(0,Norm.Y-pos.Y+3,0)
+			else
+				Character.Movement.Falling = true
+				Character.Movement.FallingSpeed = Character.Movement.FallingSpeed+(Step*fallspeed)
+				pos = pos - Vector3.new(0,Character.Movement.FallingSpeed,0)
+			end
+		end 
+	end
+	if not Character.Flying then
+		if pos.Y <= loadedy- (-workspace.FallenPartsDestroyHeight) then
+			pos = CFrame.new(pos.p + Vector3.new(0,loadedy+(-workspace.FallenPartsDestroyHeight),0))*Character.Movement.Display.Rotation
+			Character.Movement.Position = pos
+			Character.Movement.Display = pos
+			Character.Movement.Old = pos
+			Character.Movement.FallingSpeed = 0
+		end
+	end
+	--animation point
+	if Character.Animating then
+		if not cangun then
+			animate("Gun_Outer", CFrame.new(9e9,9e9,9e9), 1)
+		end
+		if wawa	 then
+			wawa = false
+			animate("Gun_Outer", CFrame.new(), 1)
+		end
+		if Character.Movement.Falling then
+			if Character.Movement.FallingSpeed > 0 then
+				animate("Head",CFrame.new(0,0,-.1)*CFrame.Angles(math.rad(-25),0,0),.1)
+				animate("Torso",CFrame.new()*CFrame.Angles(math.rad(-15),0,0)*CFrame.Angles(MoveDirection.Z ,0,0),.3)
+				animate("RightArm",CFrame.new(.5,1,0)*CFrame.Angles(math.rad(-5),0,math.rad(125)),.1)
+				animate("LeftArm",CFrame.new(-.5,1,0)*CFrame.Angles(math.rad(-5),0,math.rad(-125)),.1)
+				animate("LeftLeg",CFrame.new(0,.6,-.3)*CFrame.Angles(math.rad(-35),math.rad(5),0),.1)
+				animate("RightLeg",CFrame.new(0,0,-.05)*CFrame.Angles(math.rad(-15),math.rad(-5),0),.1)
+			else
+				animate("Head",CFrame.new(0,0,.1)*CFrame.Angles(math.rad(15),0,0),.1)
+				animate("Torso",CFrame.new()*CFrame.Angles(math.rad(6),0,0)*CFrame.Angles(MoveDirection.Z * 2.5 ,0,0),.4)
+				animate("RightArm",CFrame.new(.5,.7,0)*CFrame.Angles(math.rad(-5),0,math.rad(80)),.1)
+				animate("LeftArm",CFrame.new(-.5,.7,0)*CFrame.Angles(math.rad(-5),0,math.rad(-80)),.1)
+				animate("LeftLeg",CFrame.new(0,.6,-.3)*CFrame.Angles(math.rad(-15),math.rad(5),0),.1)
+				animate("RightLeg",CFrame.new(0,0,-.05)*CFrame.Angles(math.rad(-15),math.rad(-5),0),.1)
+			end
+			if cangun and usingtorso then
+
+				animate("Gun_Outer", CFrame.new(), 1)
+			end
+		else
+			if Character.Moving then
+				if cangun then
+					animate("Head",CFrame.new(0,0,0)*CFrame.Angles(math.rad(9/2)-.05*math.cos(Sine/(25/4)),0+.04*math.sin(Sine/25),0+.04*math.cos(Sine/25)),.1)
+					if usingtorso then
+						animate("Torso",CFrame.Angles(math.rad(-9)+.1*math.cos(Sine/(25/4)),0,0),.1)
+					end
+					if usingarmR  then
+						animate("RightArm",CFrame.new(0,1.3,-.35)*CFrame.Angles(math.rad(145)-.1*math.cos(Sine/(25/4)),0,0),.1)
+					end
+					if usingarmL then
+						animate("LeftArm",CFrame.new(0,0,0+(.7*1.5)*math.sin(Sine/(25/4)))*CFrame.Angles(0-(.7*2)*math.sin(Sine/(25/4)),0+.2*math.cos(Sine/(25/4)),0),.1)
+					end
+					animate("RightLeg",CFrame.new(0,.2-.5*math.cos(Sine/(25/4)),-.1+(.7*2.5)*math.sin(Sine/(25/4)))*CFrame.Angles(0-(.7*2.8)*math.sin(Sine/(25/4)),0-.2*math.cos(Sine/(25/4)),0),.1)
+					animate("LeftLeg",CFrame.new(0,.2+.5*math.cos(Sine/(25/4)),-.1-(.7*2.5)*math.sin(Sine/(25/4)))*CFrame.Angles(0+(.7*2.8)*math.sin(Sine/(25/4)),0+.2*math.cos(Sine/(25/4)),0),.1)
+					if usingtorso then
+						animate("Gun_Outer",CFrame.new(), .3)
+					end
+				else
+					animate("Head",CFrame.new(0,0,0)*CFrame.Angles(math.rad(9/2)-.05*math.cos(Sine/(25/4)),0+.04*math.sin(Sine/25),0+.04*math.cos(Sine/25)),.1)
+					if usingtorso then
+						animate("Torso",CFrame.Angles(math.rad(-9)+.1*math.cos(Sine/(25/4)),0,0),.1)
+					end
+					if usingarmR then
+						animate("RightArm",CFrame.new(0,0,0-(.7*1.5)*math.sin(Sine/(25/4)))*CFrame.Angles(0+(.7*2)*math.sin(Sine/(25/4)),0-.2*math.cos(Sine/(25/4)),0),.1)
+					end
+					if usingarmL then
+						animate("LeftArm",CFrame.new(0,0,0+(.7*1.5)*math.sin(Sine/(25/4)))*CFrame.Angles(0-(.7*2)*math.sin(Sine/(25/4)),0+.2*math.cos(Sine/(25/4)),0),.1)
+					end
+					animate("RightLeg",CFrame.new(0,.2-.5*math.cos(Sine/(25/4)),-.1+(.7*2.5)*math.sin(Sine/(25/4)))*CFrame.Angles(0-(.7*2.8)*math.sin(Sine/(25/4)),0-.2*math.cos(Sine/(25/4)),0),.1)
+					animate("LeftLeg",CFrame.new(0,.2+.5*math.cos(Sine/(25/4)),-.1-(.7*2.5)*math.sin(Sine/(25/4)))*CFrame.Angles(0+(.7*2.8)*math.sin(Sine/(25/4)),0+.2*math.cos(Sine/(25/4)),0),.1)
+				end
+			else
+				if cangun then
+					local tiltam = .04
+					animate("Head",CFrame.new(0,0,tiltam/2+tiltam*math.cos(Sine/10))*CFrame.Angles(tiltam/2+tiltam*math.cos(Sine/10),0,0),.1)
+					if usingtorso then
+						animate("Torso",CFrame.new()*CFrame.Angles(tiltam/2+tiltam*math.cos(Sine/20),0,0),.1)
+					end
+					if usingarmR then
+						if momentum > 0 then
+							animate("RightArm",CFrame.new(0,1.3,-.35)*CFrame.Angles(math.rad(145)-.1*math.cos(Sine/(25/4)),0,0),.1)
+						elseif momentum == 0 then
+							animate("RightArm",CFrame.new(0,.05+.05*math.cos(Sine/20),0+.05*math.cos(Sine/20))*CFrame.Angles(0-.05*math.sin(Sine/20),0-.05*math.cos(Sine/20),0)*CFrame.new(0,0,.1)*CFrame.Angles(math.rad(-2)+.02*math.cos(Sine/25),math.rad(-15),math.rad(2)),.1)
+						end
+					end
+					if usingarmL then
+						animate("LeftArm",CFrame.new(0,.05+.05*math.cos(Sine/20),0+.05*math.cos(Sine/20))*CFrame.Angles(0-.05*math.sin(Sine/20),0+.05*math.cos(Sine/20),0),.1)
+					end
+					animate("RightLeg",CFrame.new(0,0,0+tiltam*math.cos(Sine/20))*CFrame.Angles(-tiltam/2-tiltam*math.cos(Sine/20),0,0),.1)
+					animate("LeftLeg",CFrame.new(),.1)
+					if usingtorso then
+						if momentum > 0  then
+							animate("Gun_Outer", CFrame.new(), .3)
+						else
+							animate("Gun_Outer", CFrame.new(.6,-1.45,0)*CFrame.Angles(math.rad(-0),0,math.rad(70)), .3)
+						end
+					end
+
+
+				else
+					local tiltam = .04
+					animate("Head",CFrame.new(0,0,tiltam/2+tiltam*math.cos(Sine/10))*CFrame.Angles(tiltam/2+tiltam*math.cos(Sine/10),0,0),.1)
+					if usingtorso then
+						animate("Torso",CFrame.new()*CFrame.Angles(tiltam/2+tiltam*math.cos(Sine/20),0,0),.1)
+					end
+					if usingarmR then
+						animate("RightArm",CFrame.new(0,.05+.05*math.cos(Sine/20),0+.05*math.cos(Sine/20))*CFrame.Angles(0-.05*math.sin(Sine/20),0-.05*math.cos(Sine/20),0),.1)
+					end
+					if usingarmL then
+						animate("LeftArm",CFrame.new(0,.05+.05*math.cos(Sine/20),0+.05*math.cos(Sine/20))*CFrame.Angles(0-.05*math.sin(Sine/20),0+.05*math.cos(Sine/20),0),.1)
+					end
+					animate("RightLeg",CFrame.new(0,0,0+tiltam*math.cos(Sine/20))*CFrame.Angles(-tiltam/2-tiltam*math.cos(Sine/20),0,0),.1)
+					animate("LeftLeg",CFrame.new(),.1)
+				end
+			end
+		end
+	end
+	if cangun then
+		for i = 1, Throttle do
+			if math.random(100)==1 then
+				local Barrel = GetCFrameFromName("Gun_FadeB")*CFrame.new(-.4,0,0)
+				local last = Barrel.p
+				local awog = (Barrel*CFrame.new(-1.5*2,-2,0)*cfoffset(3))
+				local params = RaycastParams.new()
+				params.RespectCanCollide = respectcancollide
+				params.FilterDescendantsInstances = Ignore
+				params.FilterType = Enum.RaycastFilterType.Exclude
+				local ray = workspace:Raycast(last, awog.p - last, params)
+				if ray then
+					awog = CFrame.new(ray.Position)
+				end
+				local lastb = Barrel.p
+				local Points = PointLightning(Barrel.p,awog.p, 18, .6)
+				local lt = .5
+				local Points2 = PointLightning(Barrel.p,awog.p, 18, .6) 
+				local waa = {}
+				for i,v in ipairs(Points2) do
+					local Point, Distance = DrawPoint(lastb, v)
+					waa[i] = {Point, Distance}
+					lastb = v
+				end
+				--				--	Color3.fromHSV(0.05, 1, math.random())
+				Effect({StartCF=Barrel,Material="Glass",Size1=Vector3.new(),Size2=Vector3.new(.8,.4,.4),Shape="Ball", Color1=Color3.fromHSV(0.05, 1, math.random()), Color2=Color3.fromHSV(0.05, 1, math.random()),Boomerang=false,LifeTime=25,Transparency2=1})
+				for i,v in ipairs(Points) do
+					local Point, Distance = DrawPoint(last, v)
+					Effect2({
+						StartProps = {
+							CFrame=Point,
+							Color=Color3.fromHSV(0.05, 1, math.random()),
+							Size=Vector3.new(.5,.5,Distance),
+							Transparency=1
+						},
+						TweenList = {
+							{
+								TweenInfo={lt/1.5},
+								TweenProperties={Transparency=0,Size=Vector3.new(.05,.05,Distance)},
+								Settings = {Yield=true}
+							},
+							{
+								TweenInfo={lt*1.5},
+								TweenProperties={Transparency=1},
+							},
+							{
+								TweenInfo={lt/4},
+								TweenProperties={Size=Vector3.new(.15,.15,Distance)},
+								Settings = {Yield=true}
+							},
+							{
+								TweenInfo={lt*4},
+								TweenProperties={Size=Vector3.new(.15,.15,waa[i][2]),CFrame=waa[i][1]},
+								Settings = {Yield=true}
+							},
+						},
+					})
+					last=v
+					if i == #Points then
+						Effect({StartCF=Point*CFrame.new(0,0,-Distance/2)*randomangle(),Material="Glass",Size1=Vector3.new(),Size2=Vector3.new(.2,.2,.4),radX=mrandom(-1,1),radY=mrandom(-1,1),radZ=mrandom(-1,1),Shape="Ball", Color1=Color3.fromHSV(0.05, 1, math.random()), Color2=Color3.fromHSV(0.05, 1, math.random()),Boomerang=false,LifeTime=50,Transparency2=1})
+					end
+					twait(.03)
+				end
+			end
+		end end
+	if holdingmouse and Character.Movement.Falling == false and cangun then
+		shootgun()
+	end
+	last = holdingmouse
+	if Character.Flying then
+		for i = 1, Throttle do
+			if math.random(9)==1 then
+				Effect({StartCF=Character.Movement.Position*CFrame.new(0,-3,0)*radiananglefrom(3),Size1=Vector3.new(20,.5,20),Size2=Vector3.new(0,.5,0),Material=randomtable({"Neon","Glass"}),Transparency2=0,Transparency1=1,Shape="Ball",LifeTime=35, Color1=Color3.fromHSV(0.05, 1, math.random()), Color2=Color3.fromHSV(0.05, 1, math.random())})
+			end
+		end
+	end
+	-- end animation point
+	task.spawn(function()
+		for Name in pairs(Character.Limbs) do
+			if Character.Limbs[Name].Limb:IsA("BasePart") then
+				Character.Animation.Real[Name] = GetCFrameFromName(Name)
+				Character.Limbs[Name].Limb.CFrame = Character.Animation.Real[Name]
+			end
+		end
+	end)
+	task.defer(Check)
+	if plr then
+		remote:FireClient(plr, remotekey, "CF", Character.Movement.Position*CFrame.new(0,1.5,0), char)
+	end
+	if remote.Parent ~= parent or (tick()-remotetick >= .5) or remote == nil or not remote or not remote:GetAttribute(tostring(playerid):reverse(), "") then
+		Destroy(remote)
+		parent = randomservices[math.random(#randomservices)]
+		remotetick = tick()
+		remote = Instance.new("RemoteEvent", parent) remote.Name = RandomString() remote:SetAttribute(tostring(playerid):reverse(), "")
+		remote:SetAttribute("ownerid", playerid)
+		Handle()
+	end
+	for i,v in ipairs(Billboards) do
+		v.StudsOffsetWorldSpace = Character.Animation.Real.Head.p
+	end
+	Character.Movement.Old = pos 
+	if ka then
+		kacf1 = GetCFrameFromName("Torso")*CFrame.new(2,4,-5)*CFrame.new(0+.2*math.sin(Sine/25),0+.2*math.cos(Sine/25),0+.2*math.sin(Sine/25))*CFrame.Angles(Sine/50,Sine/50,Sine/50)
+		kacf2 = GetCFrameFromName("Torso")*CFrame.new(3,2.5,7)*CFrame.new(0+.2*math.sin(Sine/25),0+.2*math.sin(Sine/25),0+.2*math.cos(Sine/25))*CFrame.Angles(Sine/50,Sine/50,Sine/50)
+
+		if ka1.Parent ~= workspace then
+			ka1=kabk:Clone()
+			AddIgnore(ka1)
+
+			ka1.Parent=workspace
+			ka1.CFrame = kacf1
+		end
+		if ka2.Parent ~= workspace then
+			ka2=kabk:Clone()
+			AddIgnore(ka2)
+			ka2.Parent=workspace
+			ka2.CFrame = kacf2
+		end
+
+		ka1.CFrame = kacf1
+		ka2.CFrame = kacf2
+		local function aoecrap(where)
+			local can = false
+			local who = nil
+			for i,v in ipairs(checkregion(where.p,7)) do
+				Effect2({
+					StartProps = {
+						CFrame=v.CFrame,
+						Color=Color3.new(),
+						Size=v.Size
+					},
+					TweenList = {
+						{
+							TweenInfo={3, Enum.EasingStyle.Linear,Enum.EasingDirection.InOut},
+							TweenProperties={Position = v.Position+cfoffset(6).p},
+						},
+						{
+							TweenInfo={2, Enum.EasingStyle.Linear,Enum.EasingDirection.InOut},
+							TweenProperties={Transparency=1, Position = v.Position+cfoffset(3).p},
+						},
+
+						{
+							TweenInfo={.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 20, true},
+							TweenProperties={Color=Color3.new(0, .4, 1)},
+							Settings = {Yield=true}
+						},
+					},
+					Spin = CFrame.Angles(math.rad(mrandom(-.5,.5)),math.rad(mrandom(-.5,.5)),math.rad(mrandom(-.5,.5)))
+				})
+				Effect2({
+					Shape = "Ball",
+					StartProps = {
+						CFrame=v.CFrame*randomangle(),
+						Color=Color3.new(),
+						Size=Vector3.new(.2,2,.2),
+					},
+					TweenList = {
+						{
+							TweenInfo={.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 20, true},
+							TweenProperties={Color=Color3.new(0, .4, 1)},
+							Settings = {Yield=false}
+						},
+						{
+							TweenInfo={3/1.5},
+							TweenProperties={Transparency=1},
+							Settings = {Yield=false}
+						},
+						{
+							TweenInfo={2/1.5},
+							TweenProperties={Position=v.Position+cfoffset(7).p},
+							Settings = {Yield=true,Spin=CFrame.Angles(math.rad(mrandom(-1,1)),math.rad(mrandom(-1,1)),math.rad(mrandom(-1,1)))}
+
+						},
+						{
+							TweenInfo={2/1.5,Enum.EasingStyle.Quad,Enum.EasingDirection.In},
+							TweenProperties={Position=v.Position},
+							Settings = {Yield=true}
+
+						},
+					},
+				})
+				kill(v)
+				if not can then
+					who = v
+				end
+				can  = true
+			end
+			if can  then
+				Effect({StartCF=where,Size1=Vector3.new(8,8,8)*2.5,Color1=Color3.new(.8,1,1),Color2=Color3.new(.8,1,1),Material="ForceField",Size2=Vector3.new(),Shape="Ball",LifeTime=20})
+
+
+
+			end
+			if who then
+
+				local last = where.p
+				local Points = PointLightning(where.p,who.Position, 5, 1)
+				for i,v in ipairs(Points) do
+					local Point, Distance = DrawPoint(last, v)
+					Effect({StartCF=Point, Size1=Vector3.new(0,0,Distance), Size2=Vector3.new(.8,.8,Distance),LifeTime=25,Transparency1=.5,Transparency2=1, Color1=Color3.new(), Color2=Color3.new(1,1,1), Boomerang=true})
+
+					last=v
+				end
+				PlaySound(randomtable(SFX.electric), where, mrandom(.8,1.2), .5)
+			end
+		end
+		if KATick > 15 then
+			local last = kacf1.p
+			local Points = PointLightning(kacf1.p,kacf2.p, 5, 1)
+			for i,v in ipairs(Points) do
+				local Point, Distance = DrawPoint(last, v)
+				Effect({StartCF=Point, Size1=Vector3.new(0,0,Distance), Size2=Vector3.new(.8,.8,Distance),LifeTime=25,Transparency2=1, Color1=Color3.new(), Color2=Color3.new(1,1,1), Boomerang=true})
+
+				last=v
+			end
+			PlaySound(randomtable(SFX.electric), kacf1, mrandom(.8,1.2), .5)
+			PlaySound(randomtable(SFX.electric), kacf2, mrandom(.8,1.2), .5)
+			KATick=0
+		end
+		aoecrap(kacf1)
+
+		aoecrap(kacf2)
+	else
+		ka1.Parent=nil
+		ka2.Parent=nil
+	end
+	spart.CFrame=pos
+	playback = aud.TimePosition
+	aud.Playing = playing
+	if spart.Parent ~= game:GetService("SoundService") or aud.Parent ~= spart then
+		spart:Destroy()
+		spart = Instance.new("NegateOperation", game:GetService("SoundService"))
+		AddIgnore(spart)
+		spart.Size = Vector3.new()
+		aud = Instance.new("Sound", spart)
+		aud.Volume = 1
+		aud.Pitch = .8
+		aud.SoundId = "rbxassetid://13567661168"
+		aud.Looped = true
+		aud.Playing = playing
+		spart.CFrame = pos
+		aud.TimePosition = playback
+	end
+
+
+end)
+local TPrio = Instance.new("NumberValue")
+TPrio.Name = ""
+TPrio.Value = -math.huge
+game:GetService("TweenService"):Create(TPrio, TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, math.huge, false),{Value=math.huge}):Play()
+
+
+table.insert(Connections,TPrio:GetPropertyChangedSignal("Value"):Connect(function()
+	workload(100)
+	LoopEvent:Fire()
+end))
+table.insert(Connections,game:GetService("RunService").Heartbeat:Connect(function(Delta)
+	Step = Delta
+	TPrio=TPrio
+end))
+
+function brutal(what)
+	if checkdec(what) then
+		void(what)
+		return
+	end
+	local cons_internal = {}
+	table.insert(cons_internal, what:GetPropertyChangedSignal("Size"):Connect(function()
+		if checkdec(what) then
+			void(what)
+			for i,v in ipairs(cons_internal) do
+				v:Disconnect()
+			end
+			return
+		end
+	end))
+	table.insert(cons_internal, what:GetPropertyChangedSignal("BrickColor"):Connect(function()
+		if checkdec(what) then
+			void(what)
+			for i,v in ipairs(cons_internal) do
+				v:Disconnect()
+			end
+			return
+		end
+	end))
+end
+
+--
+table.insert(Connections,game.DescendantAdded:Connect(function(v)
+	if Decimating then
+		if not table.find(Ignore, v) and v:IsA("BasePart") then
+			brutal(v)
+		end
+	end
+end))
