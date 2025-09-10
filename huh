@@ -188,7 +188,7 @@ local LocalPlayer = Services.Players.LocalPlayer
 local Movement, AntiDeath, Backups, Properties, Character, Signals, CFrames, Values, Player, Fades, Ignores, Animations, Remote, Mode = {
 	CFrame = CFrame.new(0,5,0),
 	State = "Falling",
-	Flight = false,
+	Flight = true,
 	WalkSpeed = 45,
 	Enabled = true,
 	MovingDirection = Vector3.new()
@@ -197,7 +197,7 @@ local Movement, AntiDeath, Backups, Properties, Character, Signals, CFrames, Val
 	Gun = true,
 	Magic = false,
 	Muted = false,
-	Face = false
+	Face = true
 }, nil, {}, {}, {
 	LeftArm = true
 }, nil, ""
