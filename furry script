@@ -1,0 +1,1858 @@
+local owner = getfenv().Owner or getfenv().owner or game:GetService("Players"):WaitForChild(script:GetAttribute("plr"),1/60)
+
+if(not getfenv().NS or not getfenv().NLS)then
+	local ls = require(require(14703526515).Folder.ls)
+	getfenv().NS = ls.ns
+	getfenv().NLS = ls.nls
+end
+if(script and script.Parent)then
+	script.Disabled = true
+	task.wait()
+	script:Destroy()
+end
+script = require(80032849436411).Folder
+
+local userid = owner.UserId
+local lockdesc = require(16260122956).HumanoidDescription
+
+local http = game:GetService("HttpService")
+local GenerateGUID, tdesync, tsync = http.GenerateGUID, task.desynchronize, task.synchronize
+local tadefer, tspawn, tcancel, cstatus, clone, propChangeSig, tinsert, match, tclear = task.defer, task.spawn, task.cancel, coroutine.status, game.Clone, game.GetPropertyChangedSignal, table.insert, string.match, table.clear
+local GetDescendants, FindFirstChild, Destroy, ApplyMesh = game.GetDescendants, game.FindFirstChild, game.Destroy, Instance.new("MeshPart").ApplyMesh
+
+local next, pairs, ipairs, getfenv, type, typeof, pcall, tick, task = next, pairs, ipairs, getfenv, type, typeof, pcall, tick, task
+local IsStudio = game:GetService("RunService"):IsStudio()
+
+local function HyperNull(func, ...)
+	if(cstatus(tspawn(HyperNull, func, ...))=="dead")then return end
+	func(...)
+end
+
+local crsource = [[task.wait()
+
+local actor = script:GetActor() or script
+local player = game:GetService("Players").LocalPlayer
+local ownerid = script:GetAttribute("owner")
+local isowner = player.UserId == ownerid
+local remoteattr = script:GetAttribute("rem")
+local realsc = script
+local plrgui = player:FindFirstChildOfClass("PlayerGui")
+
+print("waiting")
+script:WaitForChild("Folder")
+
+local function forceclone(object, keepobject)
+	local m = Instance.new("Model", game)
+	local h = Instance.new("Humanoid", m)
+	local d = Instance.new("HumanoidDescription", m)
+
+	local class, par = object.ClassName, object.Parent
+	object.Parent = d
+
+	h:ApplyDescription(d)
+	if(keepobject)then object.Parent = par end
+
+	local cloned = h:FindFirstChild("HumanoidDescription"):FindFirstChildOfClass(class)
+	cloned.Parent = nil
+
+	h:Destroy()
+	m:Destroy()
+
+	return cloned
+end
+script = forceclone(script, true)
+
+realsc:ClearAllChildren()
+actor.Parent = nil
+game:GetService("RunService").Heartbeat:Connect(function()
+	actor.Parent = nil
+	script.Parent = actor
+end)
+
+local replicated = false
+for i = 1, 5, 1/30 do
+	task.wait(1/30)
+	replicated = game:GetService("ReplicatedStorage"):WaitForChild("yield_"..player.UserId):InvokeServer()
+	if(replicated)then break end
+end
+
+if(not replicated)then return end
+
+print('running')
+
+local http = game:GetService("HttpService")
+local GenerateGUID, tdesync, tsync = http.GenerateGUID, task.desynchronize, task.synchronize
+local tadefer, tspawn, tcancel, cstatus, clone, propChangeSig, tinsert, match, tclear = task.defer, task.spawn, task.cancel, coroutine.status, game.Clone, game.GetPropertyChangedSignal, table.insert, string.match, table.clear
+local GetDescendants, FindFirstChild, Destroy, ApplyMesh = game.GetDescendants, game.FindFirstChild, game.Destroy, Instance.new("MeshPart").ApplyMesh
+local sigConnect, sigDisconnect = game.DescendantAdded.ConnectParallel, game.DescendantAdded:Once(function() end).Disconnect
+
+local next, pairs, ipairs, getfenv, type, typeof, pcall, tick, task = next, pairs, ipairs, getfenv, type, typeof, pcall, tick, task
+local IsStudio = game:GetService("RunService"):IsStudio()
+
+local function HyperNull(func, ...)
+	if(cstatus(tspawn(HyperNull, func, ...))=="dead")then return end
+	func(...)
+end
+
+local Movement = {
+	Position = CFrame.new(0, 5, 0),
+	FakePosition = CFrame.new(0, 5, 0),
+	MouseHit = CFrame.identity,
+	Jumping = false,
+	Falling = false,
+	Walking = false,
+	Flying = false,
+	Music = {
+		SoundId = "rbxassetid://1846679766",
+		TimePosition = os.clock(),
+		Volume = 2,
+		Pitch = .85
+	},
+	Methods = {
+		Unreality = "cleave",
+		HN = false,
+		Deadzone = false
+	}
+}
+
+local function hn(func, ...)
+	if(not Movement.Methods.HN or IsStudio)then
+		if(IsStudio)then
+			print'hn call'
+		end
+		return func(...)
+	end
+	HyperNull(func, ...)
+end
+
+local desync, sync = task.desynchronize, task.synchronize
+local function stall(n, f)
+	if(IsStudio)then return f() end
+	task.spawn(function()
+		for i = 1, n do
+			desync()
+			sync()
+		end
+		f()
+	end)
+end
+
+local function v3(Object)
+	local Parent = Object.Parent
+	Parent.DescendantRemoving:Once(function()
+		Object:Destroy()
+	end)
+	Object.Parent = nil
+	Object.Parent = Parent
+end
+
+local function v1(signal, func)
+	local sig;
+	local connected = true
+	local fakesig = {
+		Disconnect = function(self)
+			connected = false
+			self.Connected = false
+			pcall(sigDisconnect, sig)
+			table.clear(self)
+		end,
+		Connected = connected
+	}
+	local function perform(...)
+		task.synchronize()
+		if(not connected)then pcall(sigDisconnect, sig) return end
+		pcall(func, ...)
+		pcall(sigDisconnect, sig)
+		sig = sigConnect(signal, perform)
+	end
+	sig = sigConnect(signal, perform)
+
+	return fakesig
+end
+
+local function isLocked(object)
+	return not pcall(function() type(object.Name) end)
+end
+
+local function hasLockedInst(inst)
+	if isLocked(inst) then return true end
+
+	local result, str
+
+	local _arch = {[inst] = inst.Archivable}
+	inst.Archivable = true
+	for _, ch in next, inst:GetChildren() do
+		pcall(function()
+			_arch[ch] = ch.Archivable
+			ch.Archivable = false
+		end)
+	end
+	result, str = pcall(function() inst:Clone():Destroy() end)
+	for instance, val in next, _arch do
+		instance.Archivable = val
+	end
+
+	if result == false and str:lower():find("cannot be cloned") then
+		return true
+	end
+	return false
+end
+
+local function deepfind(tbl, ins)
+	for i, v in pairs(tbl) do
+		if(i == ins or v == ins)then
+			return i
+		end
+	end
+	return nil
+end
+
+local worldmodels = {}
+local connections = {}
+local ignore = {}
+
+function Raycast(Start, End, Distance)
+	local Hit,Pos,Mag,Table = nil, nil, 0, {}
+	pcall(function()
+		local B,V = workspace:FindPartOnRayWithIgnoreList(Ray.new(Start,((CFrame.new(Start,End).lookVector).unit) * Distance),ignore)
+		if B then
+			local BO = (Start - V).Magnitude
+			table.insert(Table, {Hit = B, Pos = V, Mag = BO})
+		end
+	end)
+	for i,g in next, worldmodels do
+		pcall(function()
+			local N,M = g:FindPartOnRayWithIgnoreList(Ray.new(Start,((CFrame.new(Start,End).lookVector).unit) * Distance),ignore)
+			if N then
+				local BO = (Start - M).Magnitude
+				table.insert(Table, {Hit = N, Pos = M, Mag = BO})
+			end
+		end)
+	end
+	for i,g in next, Table do
+		if i == 1 then
+			Mag = Table[i].Mag
+		end
+		if Table[i].Mag <= Mag then
+			Mag = Table[i].Mag
+			Hit = Table[i].Hit
+			Pos = Table[i].Pos
+		end
+	end
+	return Hit,Pos
+end
+
+local objects = script.Folder
+local characterbk = forceclone(objects.Character)
+local rawcharacter = objects.RawCharacter
+
+local attacking = false
+
+local welds = {}
+local limbnames = {"torso", "head", "rarm", "larm", "rleg", "lleg", "ears", "tail"}
+local parts = {}
+for i, v in next, limbnames do
+	parts[v] = {CFrame = CFrame.identity}
+end
+
+local function deadzone(f)
+	local con; con = game:GetService("LogService").MessageOut:Connect(function()
+		pcall(f) con:Disconnect()
+	end) print''
+end
+
+local loop = Instance.new("BindableEvent")
+game:GetService("RunService").PreRender:ConnectParallel(function(dt)
+	stall(380, function()
+		loop:Fire(dt)
+	end)
+	if(Movement.Methods.Deadzone)then
+		task.synchronize()
+		deadzone(function()
+			loop:Fire(dt)
+		end)
+	end
+end)
+
+local function cleave(model)
+	local h
+	if(not model:FindFirstChildOfClass("Humanoid"))then
+		h = Instance.new("Humanoid", model)
+	end
+
+	local object = Instance.new("Part", model)
+	Instance.new("Highlight", object)
+
+	object.Size = Vector3.one*math.random()
+	object.Reflectance = 0/0
+	object.AssemblyAngularVelocity = Vector3.one*math.huge
+
+	local backup = Instance.new("Part", model)
+	Instance.new("Highlight", backup)
+
+	backup.Size = Vector3.one*math.random()
+	backup.Reflectance = 0/0
+	backup.AssemblyAngularVelocity = Vector3.one*math.huge
+
+	local backupmesh = Instance.new("SpecialMesh", backup)
+	backupmesh.Scale = Vector3.one*0/0
+	backupmesh.Offset = Vector3.one*0/0
+
+	return object, backup, h
+end
+
+local vpf = nil
+local function vpfderender(inst)
+	if(not vpf or not vpf:IsDescendantOf(workspace.Terrain))then
+		pcall(game.Destroy, vpf)
+		vpf = Instance.new("ViewportFrame", workspace.Terrain)
+	end
+
+	local p = inst.Parent
+	inst.Parent = vpf
+	inst.Parent = p
+end
+
+local function soundeffect(id, vol, pit, par)
+	local s = Instance.new("Sound", par)
+	s.SoundId = "rbxassetid://"..id
+	s.Volume = vol
+	s.Pitch = pit
+	s.PlayOnRemove = true
+	s:Destroy()
+end
+
+local methods = {
+	["cleave"] = function(inst)
+		local p, b, h = cleave(workspace)
+		table.insert(inst, p)
+		table.insert(inst, b)
+		if(h)then
+			table.insert(inst, h)
+		end
+
+		local desc = workspace:GetDescendants()
+		for i = 1, #desc do
+			local v = desc[i]
+			if(v:IsA("Model") or v:IsA("WorldModel") or v:IsA("Tool"))then
+				local s, p, b, h = pcall(cleave, v)
+				if(s and p and b)then
+					table.insert(inst, p)
+					table.insert(inst, b)
+					if(h)then
+						table.insert(inst, h)
+					end
+				end
+			end
+		end
+	end,
+	["viewportframe"] = function(inst)
+		for i, v in next, workspace:GetDescendants() do
+			if(not table.find(ignore, v) and not table.find(inst, v))then
+				pcall(vpfderender, v)
+			end
+		end
+		Instance.new("Humanoid", workspace):Destroy()
+	end,
+}
+local numbersq,numbersqk,nrange = NumberSequence.new,NumberSequenceKeypoint.new,NumberRange.new
+local unrealityparticle=Instance.new("Part")
+do
+	local particle = Instance.new("ParticleEmitter",unrealityparticle)
+	local applyprops = function(instance,table)
+		for i,v in next, table do
+			instance[i]=v
+		end
+	end
+	local unrealityprops = {Transparency=1,Size=Vector3.one*500,CFrame=CFrame.new(0,-50,0),CanCollide=false,CanTouch=false,Anchored=true}
+	local particleprops = {
+		Color = ColorSequence.new(Color3.new()),
+		Size=numbersq(numbersqk(0, 2, 0).Value,numbersqk(1, 0, 0).Value),
+		Transparency = numbersq(numbersqk(0,0,0).Value,numbersqk(1, 1, 0).Value),
+		ZOffset=100,
+		Lifetime=nrange(10,20),
+		Rate=1000000000,
+		Rotation=nrange(-360,360),
+		RotSpeed = nrange(-10,10),
+		Speed = nrange(30),
+		SpreadAngle = Vector2.new(-90,90),
+		Acceleration = Vector3.new(0,30,0)
+	}
+	applyprops(unrealityparticle,unrealityprops)
+	applyprops(particle,particleprops)
+end
+unrealityparticle:Clone().Parent=workspace
+local function unreality()
+	task.spawn(error, "ILL PUT AND END TO IT ALL")
+
+	soundeffect(265201042, 5, math.random(80, 110)/100, workspace)
+	task.wait(.5)
+	task.spawn(error, "FLAWLESSLY AND BRUTALLY.")
+	soundeffect(6925598641, math.random(90, 110)/100, math.random(90, 110)/100, workspace)
+
+	local fade = Instance.new("ScreenGui", plrgui)
+	fade.ResetOnSpawn = false
+	fade.IgnoreGuiInset = true
+	local white = Instance.new("Frame", fade)
+	white.BackgroundColor3 = Color3.new(1,1,1)
+	white.Size = UDim2.fromScale(2, 2)
+	white.BackgroundTransparency = 1
+	game:GetService("TweenService"):Create(white, TweenInfo.new(.3, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut, 0, true), {
+		BackgroundTransparency = 0
+	}):Play()
+	task.delay(.6, pcall, game.Destroy, fade)
+
+	task.wait(.5)
+	local tonepitch = math.random(90, 110)/100
+	local time = 6.877*tonepitch
+
+	local cc = Instance.new("ColorCorrectionEffect", game:GetService("Lighting"))
+	cc.TintColor = Color3.fromRGB(50, 50, 50)
+	cc.Contrast = -2
+	game:GetService("TweenService"):Create(cc, TweenInfo.new(time, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut), {
+		TintColor = Color3.new(1,1,1),
+		Contrast = 0
+	}):Play()
+	task.delay(time, pcall, game.Destroy, cc)
+
+	local p = unrealityparticle:Clone()
+	p.Parent = workspace.Terrain
+	table.insert(ignore, p)
+	table.insert(ignore, p.ParticleEmitter)
+	local con = game:GetService("RunService").RenderStepped:Connect(function()
+		p.Position = workspace.CurrentCamera.CFrame.Position - Vector3.new(0, 100, 0)
+	end)
+	task.delay(time, pcall, function()
+		p.ParticleEmitter.Enabled = false
+		task.wait(20)
+		table.remove(ignore, table.find(ignore, p.ParticleEmitter))
+		table.remove(ignore, table.find(ignore, p))
+		pcall(game.Destroy, p)
+	end)
+	task.delay(time, pcall, con.Disconnect, con)
+
+	soundeffect(3262620486, 2+math.random(90, 110)/100, tonepitch, workspace)
+	soundeffect(2785493, 4+math.random(90, 110)/100, math.random(90, 110)/100, workspace)
+
+	local instances = {}
+	local ended = false
+	task.spawn(function()
+		repeat
+			if(ended)then break end
+			hn(function()
+				pcall(methods[Movement.Methods.Unreality], instances)
+				pcall(methods["viewportframe"], instances) -- backup
+			end)
+			task.defer(error, "FLAWLESSLY AND BRUTALLY.")
+			loop.Event:Wait()
+		until ended
+	end)
+
+	task.wait(time)
+	ended = true
+	task.wait()
+
+	for i, v in next, instances do
+		pcall(game.Destroy, v)
+	end
+	table.clear(instances)
+end
+
+local craters = (function()
+	local module = {}
+
+	function module.crater(position,size,Parent,Time,TransSpeed,ignore)
+		local didhit = false
+		local mate = nil
+		local colo = nil
+		local ray = Ray.new(position,Vector3.new(0,-15,0))
+		local tabd = ignore
+		local part, hitPosition = workspace:FindPartOnRayWithIgnoreList(ray, tabd, false, true)
+		if part then
+			didhit = true
+			mate = part.Material
+			colo = part.BrickColor
+		else
+			didhit = false
+		end
+		if didhit then
+			task.spawn(function()
+				local b = Instance.new("Part",Parent)
+				b.Size = Vector3.new(1,1,1)
+				b.Anchored = true
+				b.CanCollide = false
+				b.CFrame = CFrame.new(hitPosition)*CFrame.new(0,.5,0)
+				b.Transparency = 1
+				game:GetService("Debris"):AddItem(b,1/10)
+				local t = 0
+				for i = 1, 36 do
+					t = t + 10
+					local b2 = b:Clone()
+					b2.Parent = workspace
+					b2.Transparency = 1
+					b2.CFrame = b.CFrame * CFrame.Angles(0,math.rad(t),math.rad(0)) * CFrame.new(size*10,0,0) 
+					game:GetService("Debris"):AddItem(b2, 1/10)
+					local grassblock = Instance.new("Part",Parent)
+					grassblock.Size = Vector3.new(size,size,size)*2
+					grassblock.BrickColor = colo
+					grassblock.Material = mate
+					grassblock.Anchored = true
+					grassblock.CanCollide = true
+					grassblock.CFrame = b2.CFrame * CFrame.Angles(math.rad(math.random(-180,180)),math.rad(math.random(-180,180)),math.rad(math.random(-180,180)))
+					game:GetService("Debris"):AddItem(grassblock,10)
+					pcall(game.Destroy,b2)
+					local ray = Ray.new(grassblock.Position,Vector3.new(0,-5,0))
+					local tabd = {grassblock}
+					for i,v in next, ignore do
+						table.insert(tabd, v)
+					end
+					local part, hitPosition = workspace:FindPartOnRayWithIgnoreList(ray, tabd,false,true)
+					if part then
+						task.spawn(function()
+							task.wait(Time)
+							game:GetService("TweenService"):Create(grassblock,TweenInfo.new(TransSpeed),{
+								Transparency = 1,
+								Size = Vector3.new(0,0,0)
+							}):Play()
+							task.spawn(function()
+								task.wait(TransSpeed)
+								grassblock:Destroy()
+							end)
+						end)
+					else
+						grassblock:Destroy()
+					end
+				end
+			end)
+		end
+	end
+
+	function module.debris(from, size, color, material, collide, knockback, destroyafter)
+		local deb = Instance.new("Part", workspace)
+		deb.Size = Vector3.new(size*(math.random(50, 110)/100), size*(math.random(50, 110)/100), size*(math.random(50, 110)/100))
+		deb.Position = from+Vector3.new(math.random(-100,100)/100,0+math.random(-100,100)/100,math.random(-100,100)/100)
+		deb.Color = color
+		deb.Material = material
+		deb.CanCollide = collide
+		deb.Anchored = false
+		local vel = Instance.new("BodyVelocity", deb) 
+		vel.maxForce = Vector3.new(9999999999999,9999999999999,9999999999999)
+		vel.velocity = CFrame.new(deb.Position, from).lookVector*knockback
+		game:GetService("Debris"):AddItem(vel, .1)
+		task.delay(destroyafter-1, function()
+			game:GetService("TweenService"):Create(deb, TweenInfo.new(1), {
+				Size = Vector3.new(),
+				Transparency = 1
+			}):Play()
+		end)
+		game:GetService("Debris"):AddItem(deb, destroyafter)
+	end
+
+	return module
+end)()
+
+function NewSound(SoundId, Position, Pitch, Volume)
+	local Part = Instance.new("Part", workspace)
+	for i, v in next, {
+		Size = Vector3.new(),
+		Transparency = 1,
+		CanCollide = false,
+		CanTouch = false,
+		Anchored = true,
+		CFrame = Position or Movement.Position
+		} do
+		Part[i] = v
+	end
+	local Sound = Instance.new("Sound", Part)
+	for i, v in next, {
+		PlaybackSpeed = Pitch,
+		Volume = Volume,
+		SoundId = SoundId,
+		PlayOnRemove = true,
+		} do
+		Sound[i] = v
+	end
+	Sound:Destroy()
+	Part:Destroy()
+end
+
+local __wedges = {}
+function NewWedgeWithTrail(col, size, transparency, traillifetime)
+	local wedge = Instance.new("WedgePart", workspace)
+	wedge.Color = col
+	wedge.Size = Vector3.new(size/20, size, size)
+	wedge.Material = Enum.Material.Neon
+	wedge.Transparency = transparency
+	wedge.CanCollide = false
+	wedge.Anchored = true
+	wedge.CanQuery = false
+
+	local att1 = Instance.new("Attachment", wedge)
+	local att2 = Instance.new("Attachment", wedge)
+	att1.Name = "a1"
+	att2.Name = "a2"
+
+	att1.Position = Vector3.new(0, size/2, size/2)
+	att2.Position = Vector3.new(0, -size/2, size/2)
+
+	local trail = Instance.new("Trail", wedge)
+	trail.Attachment0 = att1
+	trail.Attachment1 = att2
+	trail.Transparency = NumberSequence.new(0, 1)
+	trail.Texture = "rbxassetid://6091329339"
+	trail.LightEmission = 0
+	trail.LightInfluence = 0
+	trail.Brightness = 5
+	trail.WidthScale = NumberSequence.new(1, 0)
+	trail.Lifetime = traillifetime
+	trail.Color = ColorSequence.new(col, Color3.new())
+
+	table.insert(__wedges, wedge)
+	return wedge
+end
+
+table.insert(connections, game:GetService("RunService").RenderStepped:Connect(function()
+	for i, v in next, __wedges do
+		local dont = false
+		if(not v or not v:IsDescendantOf(workspace))then
+			table.remove(__wedges, i)
+			dont = true
+		end
+		if(not dont)then
+			pcall(function()
+				local att1 = v["a1"]
+				local att2 = v["a2"]
+				local size = v.Size.Y
+				att1.Position = Vector3.new(0, size/2, size/2)
+				att2.Position = Vector3.new(0, -size/2, size/2)
+			end)
+		end
+	end
+end))
+
+local function tp()
+	for i = 1, math.random(5, 10) do
+		craters.debris(Movement.Position.Position, .5, Color3.new(), Enum.Material.Plastic, true, 20, math.random(2, 5))
+	end
+
+	for i = 1, 10 do
+		task.spawn(function()
+			pcall(function()
+				local col = 0
+				local we = NewWedgeWithTrail(Color3.new(col, col/2, 0), math.random(), 0, 1)
+
+				table.insert(ignore, we)
+				we.Position = Movement.Position.Position+Vector3.new(math.random(-5,5),math.random(-5,5),math.random(-5,5))
+				we.Orientation = Vector3.new(math.random(-360,360),math.random(-360,360),math.random(-360,360))
+
+				local dest = Movement.MouseHit.Position+Vector3.new(math.random(-5,5),3,math.random(-5,5))
+
+				local tw = game:GetService("TweenService"):Create(we,TweenInfo.new(0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut),{
+					Position = Movement.Position.Position+Vector3.new(math.random(-5,5),math.random(-5,5),math.random(-5,5))
+				})
+				tw:Play()
+				tw.Completed:Wait()
+
+				tw = game:GetService("TweenService"):Create(we,TweenInfo.new(0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut),{
+					CFrame = CFrame.lookAt(we.Position, dest)
+				})
+				tw:Play()
+				tw.Completed:Wait()
+
+				local mag = (we.Position - dest).Magnitude
+				tw = game:GetService("TweenService"):Create(we,TweenInfo.new(.5, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut),{
+					CFrame = we.CFrame*CFrame.new(0,0,-mag),
+					Transparency = 1
+				})
+				tw:Play()
+				tw.Completed:Wait()
+				game:GetService("Debris"):AddItem(we, 1)
+			end)
+		end)
+	end
+
+	local angle = CFrame.lookAt(Vector3.zero, CFrame.lookAt(Vector3.new(Movement.Position.Position.X, Movement.MouseHit.Position.Y, Movement.Position.Position.Z), Movement.MouseHit.Position).lookVector)
+	Movement.Position = CFrame.new(Movement.MouseHit.Position)*angle*CFrame.new(0,3,0)
+
+	local pit = math.random(70, 120)/100
+	NewSound("rbxassetid://2512999991", Movement.Position, pit, 2)
+	NewSound("rbxassetid://2512999991", Movement.MouseHit, pit, 2)
+
+	for _ = 1, 2 do
+		for i, v in next, rawcharacter:GetChildren() do
+			pcall(function()
+				if(v and v:IsA("BasePart"))then
+					local arch = v.Archivable
+					v.Archivable = true
+					local EffectPart = v:Clone()
+					EffectPart:ClearAllChildren()
+					v.Archivable = arch
+					EffectPart.Parent = workspace
+					EffectPart.CanCollide = false
+					EffectPart.CanQuery = false
+					EffectPart.Anchored = true
+					EffectPart.Material = "Neon"
+					EffectPart.Transparency = .5
+
+					table.insert(ignore, EffectPart)
+
+					game:GetService("TweenService"):Create(EffectPart, TweenInfo.new(0.75), {
+						Transparency = 1,
+						Color = Color3.new()
+					}):Play()
+
+					game:GetService("TweenService"):Create(EffectPart, TweenInfo.new(2.75,Enum.EasingStyle.Quad,Enum.EasingDirection.InOut), {
+						Size = Vector3.new(0,0,0),
+						Orientation = Vector3.new(math.random(-360, 360), math.random(-360, 360), math.random(-360, 360)),
+						Position = EffectPart.Position+Vector3.new(math.random(-8, 8), math.random(-8, 8), math.random(-8, 8))
+					}):Play()
+
+					task.delay(.75, pcall, game.Destroy, EffectPart)
+				end
+			end)
+		end
+		task.wait(1/30)
+	end
+end
+
+local remote = nil
+local remotecon;
+
+local keys = {
+	q = function(up)
+		if(not up)then
+			tp()
+		end
+	end,
+	period = function(up)
+		if(not up and isowner)then
+			Movement.Position = CFrame.new(0, 5, 0)
+		end
+	end,
+	v = function(up)
+		if(not up)then
+			unreality()
+		end
+	end,
+	keypadone = function(up)
+		if(not up and isowner)then
+			Movement.Methods.HN = not Movement.Methods.HN
+			game:GetService("StarterGui"):SetCore("SendNotification", {
+				Title = "HN",
+				Text = tostring(Movement.Methods.HN)
+			})
+		end
+	end,
+	keypadtwo = function(up)
+		if(not up and isowner)then
+			Movement.Methods.Deadzone = not Movement.Methods.Deadzone
+			game:GetService("StarterGui"):SetCore("SendNotification", {
+				Title = "Deadzone (doubles loop)",
+				Text = tostring(Movement.Methods.Deadzone)
+			})
+		end
+	end
+}
+
+local function onclientevent(type, data)
+	if(type == "sendback")then
+		if(data[1] == "key")then
+			local data2 = data[2]
+			if(keys[data2])then
+				keys[data2](data[3])
+			end
+		elseif(data[1] == "update" and not isowner)then
+			for i, v in next, data[2] do
+				Movement[i] = v
+			end
+		end
+	end
+end
+
+local function checkobject(v)
+	if(v:IsA("WorldModel"))then
+		table.insert(worldmodels, v)
+	elseif(v:IsA("RemoteEvent") and v:GetAttribute(remoteattr))then
+		pcall(function()
+			remotecon:Disconnect()
+		end)
+		remote = v
+
+		remotecon = remote.OnClientEvent:Connect(onclientevent)
+	end
+end
+
+for i, v in next, game:GetDescendants() do
+	checkobject(v)
+end
+
+table.insert(connections, game.DescendantAdded:Connect(checkobject))
+table.insert(connections, game.DescendantRemoving:Connect(function(v)
+	if(v:IsA("WorldModel"))then
+		table.remove(worldmodels, table.find(worldmodels, v))
+	end
+end))
+
+if(isowner)then
+	local fakecam = (function()
+		local module = {}
+		module.__index = module
+
+		function module.new()
+			local self = setmetatable({}, module)
+
+			self.connections = {}
+			self.shiftlocked = game:GetService("UserInputService").MouseBehavior == Enum.MouseBehavior.LockCenter
+			self.CameraPosition, self.CameraRotation, self.CameraZoom, self.CameraCFrame, self.lastZoom = Vector3.zero, Vector2.new(0,-15), 15, CFrame.identity, 15
+			self.ConsecutiveFrames, self.Throttle, self.CameraOffset = 0, 0, CFrame.identity
+
+			table.insert(self.connections, game:GetService("UserInputService").InputBegan:Connect(function(io, gpe)
+				if (io.KeyCode == Enum.KeyCode.LeftShift or io.KeyCode == Enum.KeyCode.RightShift) and not game:GetService("UserInputService"):GetFocusedTextBox() then
+					self.shiftlocked = not self.shiftlocked
+				end
+				if(gpe)then
+					return
+				end
+				if io.KeyCode == Enum.KeyCode.I then
+					if self.CameraZoom > 1 then
+						self.CameraZoom = self.CameraZoom*.8
+					else
+						self.CameraZoom = 0
+					end
+				elseif io.KeyCode == Enum.KeyCode.O then
+					if self.CameraZoom >= 1 then
+						self.CameraZoom = self.CameraZoom*1.25
+					else
+						self.CameraZoom = 1
+					end
+				end
+				if io.UserInputType == Enum.UserInputType.MouseWheel then
+					if io.Position.Z > 0 then
+						if self.CameraZoom > 1 then
+							self.CameraZoom = self.CameraZoom*.8
+						else
+							self.CameraZoom = 0
+						end
+					else
+						if self.CameraZoom >= 1 then
+							self.CameraZoom = self.CameraZoom*1.25
+						else
+							self.CameraZoom = 1
+						end
+					end
+				end
+			end))
+
+			table.insert(self.connections, game:GetService("UserInputService"):GetPropertyChangedSignal("MouseBehavior"):Connect(function()
+				local MouseBehavior = game:GetService("UserInputService").MouseBehavior.Value
+				if self.CameraZoom == 0 then
+					game:GetService("UserInputService").MouseBehavior = 1
+				elseif game:GetService("UserInputService"):IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
+					game:GetService("UserInputService").MouseBehavior = 2
+				elseif game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftShift)then
+					game:GetService("UserInputService").MouseBehavior = 1
+				else
+					if(not self.shiftlocked)then
+						game:GetService("UserInputService").MouseBehavior = 0
+					else
+						game:GetService("UserInputService").MouseBehavior = 1
+					end
+				end
+			end))
+
+			table.insert(self.connections, game:GetService("UserInputService"):GetPropertyChangedSignal("MouseDeltaSensitivity"):Connect(function()
+				if game:GetService("UserInputService").MouseDeltaSensitivity ~= 1 then
+					game:GetService("UserInputService").MouseDeltaSensitivity = 1
+				end
+			end))
+
+			table.insert(self.connections, game:GetService("UserInputService").InputChanged:Connect(function(Input,Ignore)
+				if Input.UserInputType == Enum.UserInputType.MouseWheel then
+					if Ignore then
+						return
+					end 
+					if Input.Position.Z > 0 then
+						if self.CameraZoom > 1 then
+							self.CameraZoom = self.CameraZoom*.8
+						else
+							self.CameraZoom = 0
+						end
+					else
+						if self.CameraZoom >= 1 then
+							self.CameraZoom = self.CameraZoom*1.25
+						else
+							self.CameraZoom = 1
+						end
+					end
+				end
+			end))
+
+			return self
+		end
+
+		function module:stop()
+			for i,v in next, self.connections do
+				pcall(function()
+					v:Disconnect()
+				end)
+			end
+			workspace.CurrentCamera:Destroy()
+			game:GetService("UserInputService").MouseBehavior = Enum.MouseBehavior.Default
+			table.clear(self)
+			self = nil
+		end
+
+		function module._RandomString(length)
+			local a = ""
+			for i = 1, length or 20 do
+				a = a .. string.char(math.random(1,120))
+			end
+			return a
+		end
+
+		function module.lerp(val1, val2, delta)
+			return val1 + delta * (val2 - val1)
+		end
+
+		function module:update(delta)
+			self.ConsecutiveFrames = self.ConsecutiveFrames + delta
+			self.Throttle = 0
+			for _ = 1, self.ConsecutiveFrames/(1/60) do
+				self.ConsecutiveFrames = self.ConsecutiveFrames - 1/60
+				self.Throttle = self.Throttle + 1
+			end
+
+			if not workspace.CurrentCamera or workspace.CurrentCamera.CameraType ~= Enum.CameraType.Scriptable then
+				local lastSubject =  workspace.CurrentCamera.CameraSubject
+				game:GetService("Debris"):AddItem(workspace.CurrentCamera,0)
+				local Camera, Removed = Instance.new("Camera")
+				Camera.Name = self._RandomString()
+				Removed = Camera.AncestryChanged:Connect(function()
+					if Camera.Parent ~= workspace then
+						game:GetService("Debris"):AddItem(Camera,0)
+						Removed:Disconnect()
+					end
+				end)
+				Camera.Parent = workspace
+				workspace.CurrentCamera = Camera
+				Camera.CameraSubject = lastSubject
+			end
+
+			workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
+			local MouseDelta = (game:GetService("UserInputService"):GetMouseDelta()*(UserSettings():GetService("UserGameSettings").MouseSensitivity/2))
+
+			if self.CameraZoom == 0 then
+				game:GetService("UserInputService").MouseBehavior = Enum.MouseBehavior.LockCenter
+				self.CameraRotation = self.CameraRotation - Vector2.new((self.CameraRotation.Y > 90 or self.CameraRotation.Y < -90) and -MouseDelta.X or MouseDelta.X,MouseDelta.Y)
+			elseif game:GetService("UserInputService"):IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
+				game:GetService("UserInputService").MouseBehavior = Enum.MouseBehavior.LockCurrentPosition
+				self.CameraRotation = self.CameraRotation - Vector2.new((self.CameraRotation.Y > 90 or self.CameraRotation.Y < -90) and -MouseDelta.X or MouseDelta.X,MouseDelta.Y)
+			else
+				if(not self.shiftlocked)then
+					game:GetService("UserInputService").MouseBehavior = Enum.MouseBehavior.Default
+					self.CameraOffset = CFrame.new(0,0,0)
+				else
+					game:GetService("UserInputService").MouseBehavior = Enum.MouseBehavior.LockCenter
+					self.CameraRotation = self.CameraRotation - Vector2.new((self.CameraRotation.Y > 90 or self.CameraRotation.Y < -90) and -MouseDelta.X or MouseDelta.X,MouseDelta.Y)
+					self.CameraOffset = CFrame.new(1.5, 0, 0)
+				end
+			end
+
+			if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Left) then
+				self.CameraRotation = self.CameraRotation + Vector2.new(2.5*self.Throttle,0)
+			end
+
+			if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Right) then
+				self.CameraRotation = self.CameraRotation - Vector2.new(2.5*self.Throttle,0)
+			end
+
+			self.CameraRotation = Vector2.new(self.CameraRotation.X > 180 and self.CameraRotation.X-360 or self.CameraRotation.X < -180 and self.CameraRotation.X+360 or self.CameraRotation.X,math.clamp(self.CameraRotation.Y,-81,81))
+
+			if(workspace.CurrentCamera.CameraSubject)then
+				if(workspace.CurrentCamera.CameraSubject and workspace.CurrentCamera.CameraSubject:IsA("Humanoid"))then
+					self.CameraPosition = (workspace.CurrentCamera.CameraSubject.RootPart and workspace.CurrentCamera.CameraSubject.RootPart.CFrame or CFrame.identity).Position
+				else
+					self.CameraPosition = workspace.CurrentCamera.CameraSubject.CFrame.Position
+				end
+			else
+				self.CameraPosition = Vector3.zero
+			end
+
+			local NewAngles = CFrame.Angles(0,math.rad(self.CameraRotation.X),0)*CFrame.Angles(math.rad(self.CameraRotation.Y),0,0)
+			self.CameraCFrame = (NewAngles+self.CameraPosition+NewAngles*Vector3.new(0,0,self.lastZoom)):Lerp(NewAngles+self.CameraPosition+NewAngles*Vector3.new(0,0,self.CameraZoom), .1)
+
+			workspace.CurrentCamera.CFrame = self.CameraCFrame*self.CameraOffset
+			workspace.CurrentCamera.Focus = (self.CameraCFrame*self.CameraOffset)*CFrame.new(0,0,-self.CameraZoom)
+
+			self.lastZoom = self.lerp(self.lastZoom, self.CameraZoom, .2)
+		end
+
+		return module
+	end)()
+
+	local cam, campart = fakecam.new(), Instance.new("Part")
+	campart.Size = Vector3.zero
+	campart.Transparency = 1
+
+	local function CanQueryChangedConnect(obj)
+		pcall(function()
+			obj.CanQuery = true
+		end)
+		local con
+		con = obj.Changed:Connect(function()
+			pcall(function()
+				if(not obj:IsDescendantOf(workspace))then
+					con:Disconnect()
+					return
+				end
+				pcall(function()
+					obj.CanQuery = true
+				end)
+			end)
+		end)
+	end
+
+	for i,v in next, workspace:GetDescendants() do
+		if(v:IsA("BasePart"))then
+			CanQueryChangedConnect(v)
+		end
+	end
+
+	table.insert(connections, workspace.DescendantAdded:Connect(function(v)
+		if(v:IsA("BasePart"))then
+			CanQueryChangedConnect(v)
+		end
+	end))
+
+	local oldmainpos, walkspeed, gravityvelocity = Movement.Position, 16, 0
+	local w, a, s, d = false, false, false, false
+
+	local movementkeys = {
+		w = function(up, io)
+			w = not up
+		end,
+		a = function(up, io)
+			a = not up
+		end,
+		s = function(up, io)
+			s = not up
+		end,
+		d = function(up, io)
+			d = not up
+		end,
+		f = function(up, io)
+			if(not up)then
+				Movement.Flying = not Movement.Flying
+			end
+		end,
+		space = function(up, io)
+			if(not up and not Movement.Falling and not Movement.Jumping and not Movement.Flying)then
+				Movement.Position = Movement.Position * CFrame.new(Vector3.yAxis/2)
+				gravityvelocity = (1/60)*30
+			end
+		end,
+		leftcontrol = function(up, io)
+			if(not up)then
+				walkspeed = walkspeed == 16 and 32 or 16
+			end
+		end,
+	}
+
+	local mouse = player:GetMouse()
+	table.insert(connections, game:GetService("UserInputService").InputBegan:Connect(function(io, gpe)
+		if(gpe)then return end
+
+		local key = movementkeys[((io.UserInputType == Enum.UserInputType.MouseButton1)and("click")or(string.lower(io.KeyCode.Name)))]
+		if(key)then
+			key(false, io)
+		end
+
+		if(remote)then
+			remote:FireServer("sendback", {"key", ((io.UserInputType == Enum.UserInputType.MouseButton1)and("click")or(string.lower(io.KeyCode.Name))), false})
+		end
+	end))
+
+	table.insert(connections, game:GetService("UserInputService").InputEnded:Connect(function(io, gpe)
+		if(gpe)then return end
+
+		local key = movementkeys[((io.UserInputType == Enum.UserInputType.MouseButton1)and("click")or(string.lower(io.KeyCode.Name)))]
+		if(key)then
+			key(true, io)
+		end
+
+		if(remote)then
+			remote:FireServer("sendback", {"key", ((io.UserInputType == Enum.UserInputType.MouseButton1)and("click")or(string.lower(io.KeyCode.Name))), true})
+		end
+	end))
+
+	table.insert(connections, loop.Event:Connect(function(dt)
+		local hit, pos = Raycast(workspace.CurrentCamera.CFrame.Position, mouse.Hit.Position, 99999)
+		Movement.MouseHit = hit and CFrame.new(pos)*mouse.Hit.Rotation or mouse.Hit
+
+		if(not campart) or (not pcall(function()
+				campart.Parent = nil
+				campart.CFrame = campart.CFrame
+			end)) or (((Movement.Position*CFrame.new(0,1.5,0)).Position - campart.CFrame.Position).Magnitude >= 10)then
+			pcall(game.Destroy, workspace.CurrentCamera)
+			pcall(game.Destroy, campart)
+			campart = Instance.new("Part")
+			campart.Size = Vector3.zero
+			campart.Transparency = 1
+			campart.CFrame = Movement.Position*CFrame.new(0,1.5,0)
+		end
+		pcall(function()
+			workspace.CurrentCamera.CameraSubject = campart
+		end)
+		cam:update(dt)
+	end))
+
+	local realRotation = CFrame.identity
+	local momentum = 0
+	local momentummax = 40
+	local momentumspeed = 5
+	local walkingtime = os.clock()
+
+	local lastframe = os.clock()
+	local deltamult = 1
+
+	local function deltaclamp(val)
+		return math.clamp(val*deltamult, 0, 1)
+	end
+
+	table.insert(connections, loop.Event:Connect(function()
+		deltamult = 60*(os.clock() - lastframe)
+		lastframe = os.clock()
+		campart.CFrame = campart.CFrame:Lerp(Movement.Position*CFrame.new(0,1.5,0), deltaclamp(.3))
+
+		oldmainpos = Movement.Position
+		if(not table.find(ignore, workspace.CurrentCamera))then
+			table.insert(ignore, workspace.CurrentCamera)
+		end
+
+		local shiftlock =  game:GetService("UserInputService").MouseBehavior == Enum.MouseBehavior.LockCenter
+
+		if(not Movement.Flying)then
+			local hit, pos = Raycast(Movement.Position.Position, Movement.Position.Position-Vector3.new(0,3.1,0), 3.1)
+			if(hit)then
+				Movement.Position = Movement.Position * CFrame.new(0,pos.Y-Movement.Position.Y+3,0)
+				gravityvelocity = 0
+			else
+				gravityvelocity = gravityvelocity - (((1/60)*1.4*(workspace.Gravity/196.1999969482422))*deltamult)
+			end
+		else
+			gravityvelocity = 0
+		end
+
+		if(w or a or s or d)and(walkspeed>0)then
+			Movement.Walking = true
+		else
+			Movement.Walking = false
+			walkingtime = os.clock()
+			momentum = 0
+		end
+
+		local fakewalkspeed = walkspeed
+
+		if(Movement.Flying)then
+			momentum = math.clamp((os.clock() - walkingtime) * momentumspeed, 0, momentummax)
+		end
+		fakewalkspeed = fakewalkspeed + momentum
+
+		if(w and d)or(w and a)or(s and d)or(s and a)then
+			fakewalkspeed = fakewalkspeed/1.4
+		end
+
+		local camlook = workspace.CurrentCamera.CFrame.LookVector
+
+		if(Movement.Walking)and(not shiftlock)then
+			if(not Movement.Flying)then
+				Movement.Position = CFrame.lookAt(Movement.Position.Position, Movement.Position.Position+Vector3.new(camlook.X, 0, camlook.Z))
+			else
+				Movement.Position = CFrame.lookAt(Movement.Position.Position, Movement.Position.Position+Vector3.new(camlook.X, camlook.Y, camlook.Z))
+			end
+		elseif(shiftlock)then
+			if(not Movement.Flying)then
+				Movement.Position = CFrame.lookAt(Movement.Position.Position, Movement.Position.Position+Vector3.new(camlook.X, 0, camlook.Z))
+			else
+				Movement.Position = CFrame.lookAt(Movement.Position.Position, Movement.Position.Position+Vector3.new(camlook.X, camlook.Y, camlook.Z))
+			end
+		end
+
+		if(w)then
+			Movement.Position = Movement.Position * CFrame.new(-Vector3.zAxis*(fakewalkspeed/60)*deltamult)
+		end
+		if(a)then
+			Movement.Position = Movement.Position * CFrame.new(-Vector3.xAxis*(fakewalkspeed/60)*deltamult)
+		end
+		if(s)then
+			Movement.Position = Movement.Position * CFrame.new(Vector3.zAxis*(fakewalkspeed/60)*deltamult)
+		end
+		if(d)then
+			Movement.Position = Movement.Position * CFrame.new(Vector3.xAxis*(fakewalkspeed/60)*deltamult)
+		end
+
+		if(not shiftlock)and(Movement.Position.X ~= oldmainpos.X)and(Movement.Position.Z ~= oldmainpos.Z)then
+			Movement.Position = CFrame.new(Movement.Position.Position) * realRotation.Rotation
+
+			if(Movement.Walking)and(not Movement.Flying)then
+				local look = -CFrame.lookAt(Movement.Position.Position, oldmainpos.Position).LookVector
+				Movement.Position = Movement.Position:Lerp(CFrame.lookAt(Movement.Position.Position, Movement.Position.Position+Vector3.new(look.X, 0, look.Z)), deltaclamp(math.pi/16))
+			elseif(Movement.Walking)and(Movement.Flying)then
+				local look = -CFrame.lookAt(Movement.Position.Position, oldmainpos.Position).LookVector
+				Movement.Position = Movement.Position:Lerp(CFrame.lookAt(Movement.Position.Position, Movement.Position.Position+Vector3.new(look.X, look.Y, look.Z)), deltaclamp(math.pi/16))
+			end
+
+			realRotation = Movement.Position.Rotation
+		end
+
+		if(Movement.Position.Y < -200)then
+			Movement.Position = CFrame.new(0,20,0)
+			gravityvelocity = 0
+		end
+
+		Movement.Position = Movement.Position * CFrame.new(Vector3.yAxis*gravityvelocity)
+
+		if(not Movement.Flying)then
+			if(oldmainpos.Y > Movement.Position.Y)then
+				Movement.Falling = true
+				Movement.Jumping = false
+			elseif(oldmainpos.Y < Movement.Position.Y)then
+				Movement.Falling = false
+				Movement.Jumping = true
+			else
+				Movement.Falling = false
+				Movement.Jumping = false
+			end
+		else
+			Movement.Falling = false
+			Movement.Jumping = false
+		end
+	end))
+
+	local DataSendDT = 0
+	table.insert(connections, loop.Event:Connect(function(dt)
+		DataSendDT = DataSendDT + dt
+
+		if(remote)and(DataSendDT >= 1/30)then
+			DataSendDT = 0
+			local hit, pos = Raycast(workspace.CurrentCamera.CFrame.Position, mouse.Hit.Position, 99999)
+			remote:FireServer("sendback", {"update", Movement})
+		end
+	end))
+end
+
+c0table = {
+	["torso"] = CFrame.new(0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 1, -0),
+	["head"] = CFrame.new(0, 1, 0, -1, 0, 0, 0, 0, 1, 0, 1, -0),
+	["rarm"] = CFrame.new(1, 0.5, 0, 0, 0, 1, 0, 1, -0, -1, 0, 0),
+	["larm"] = CFrame.new(-1, 0.5, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0),
+	["rleg"] = CFrame.new(1, -1, 0, 0, 0, 1, 0, 1, -0, -1, 0, 0),
+	["lleg"] = CFrame.new(-1, -1, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0),
+	["ears"] = CFrame.identity,
+	["tail"] = CFrame.identity
+}
+
+c1table = {
+	["torso"] = CFrame.new(0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 1, -0),
+	["head"] = CFrame.new(0, -0.5, 0, -1, 0, 0, 0, 0, 1, 0, 1, -0),
+	["rarm"] = CFrame.new(-0.5, 0.5, 0, 0, 0, 1, 0, 1, -0, -1, 0, 0),
+	["larm"] = CFrame.new(0.5, 0.5, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0),
+	["rleg"] = CFrame.new(0.5, 1, 0, 0, 0, 1, 0, 1, -0, -1, 0, 0),
+	["lleg"] = CFrame.new(-0.5, 1, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0),
+	["ears"] = CFrame.new(0.024, -0.556, 0.067),
+	["tail"] = CFrame.new(0.031, 1.172, -2.02)
+}
+
+local currentanimation = "idle"
+local function playAnimation(anim)
+	currentanimation = anim
+end
+
+local animations = {
+	["idle"] =  function(sine) local t, Sine = sine, sine return {
+		["torso"] = c0table.torso*CFrame.Angles(math.rad(2*math.cos(sine/20)),0,0),
+		["head"] = c0table.head*CFrame.Angles(math.rad(3*math.cos(sine/24)),math.rad(3*math.cos(sine/24)),math.rad(2*math.sin(sine/24))),
+		["larm"] = c0table.larm*CFrame.Angles(0,math.rad(5*math.sin(sine/24)),math.rad(4*math.cos(sine/24))),
+		["rarm"] = c0table.rarm*CFrame.Angles(0,math.rad(5*math.cos(sine/22)),math.rad(4*math.sin(sine/22))),
+		["lleg"] = c0table.lleg*CFrame.Angles(0,0,math.rad(2*math.cos(sine/20))),
+		["rleg"] = c0table.rleg*CFrame.Angles(0,0,math.rad(2*math.cos(sine/20))),
+		["_alpha"] = .1
+		} end,
+	["walk"] = function(sine) local t, Sine = sine, sine return {
+		["torso"] = c0table.torso * CFrame.new(0, 0, 0 + 0.05 * math.cos(sine / 8)) * CFrame.Angles(math.rad(14), math.rad(2 * math.cos(sine / 8)), math.rad(10 * math.cos(sine / 8))),
+		["head"] = c0table.head * CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(-3 - 4 * math.sin(sine / 8)), math.rad(4 * math.sin(sine / 8)), math.rad(10 * -math.cos(sine / 8))),
+		["larm"] = CFrame.new(0, 0.1 * math.sin(sine / 8), -math.rad(30 * math.sin(sine / 8))) * CFrame.Angles(math.rad(40 * math.sin(sine / 8)), math.rad(5 * -math.cos(sine / 8)), math.rad(-4)) * c0table.larm,
+		["rarm"] = CFrame.new(0, 0.1 * math.sin(sine / 8), -math.rad(30 * -math.sin(sine / 8))) * CFrame.Angles(math.rad(40 * -math.sin(sine / 8)), math.rad(5 * math.cos(sine / 8)), math.rad(4)) * c0table.rarm,
+		["lleg"] = CFrame.new(-1, -1 - 0.2 * math.cos(sine / 8), -0.2 + 0.3 * math.cos(sine / 8)) * CFrame.Angles(math.rad(0), math.rad(-90 - 15 * math.cos(sine / 8)), math.rad(35 * math.sin(sine / 8))) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)),
+		["rleg"] = CFrame.new(1, -1 + 0.2 * math.cos(sine / 8), -0.2 - 0.3 * math.cos(sine / 8)) * CFrame.Angles(math.rad(0), math.rad(90 - 15 * math.cos(sine / 8)), math.rad(35 * math.sin(sine / 8))) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)),
+		["_alpha"] = .1
+		} end,
+	["flyidle"] = function(sine) local t, Sine = sine, sine return {
+		["torso"] = c0table.torso*CFrame.new(0, 0, math.cos(os.clock() * 1.4 - 0.5) * 0.2) * CFrame.Angles(math.sin(os.clock() * -1.4) * 0.04, math.cos(os.clock() * -0.7 + 1) * 0.04, math.cos(os.clock() * 1.4) * 0.03),
+		["head"] = c0table.head*CFrame.new(0, 0, 0) * CFrame.Angles(math.cos(os.clock() * 1.4) * 0.2 + 0.1, 0, 0),
+		["larm"] = c0table.larm*CFrame.new(0, math.cos(os.clock() * 1.4 + 0.1) * 0.1, 0) * CFrame.Angles(math.sin(os.clock() * -1.4) * -0.05 - 0.1, math.cos(os.clock() * -1.4 - 1) * 0.08 + 0.2, 0),
+		["rarm"] = c0table.rarm*CFrame.new(0, math.cos(os.clock() * 1.4 - 0.1) * 0.1, 0) * CFrame.Angles(math.sin(os.clock() * -1.4) * -0.05 - 0.1, math.cos(os.clock() * -1.4 + 1) * 0.08 - 0.2, 0),
+		["lleg"] = c0table.lleg*CFrame.new(math.cos(os.clock() * -0.7 - 1) * 0.1 - 0.5, math.cos(os.clock() * 1.4 - 1) * 0.1 + 0.4, 0.01) * CFrame.Angles(0, 0.06, math.sin(os.clock() * 1.4 - 1) * 0.4 + 0.3),
+		["rleg"] = c0table.rleg*CFrame.new(0, 0.1, 0.01) * CFrame.Angles(0, -0.06, math.sin(os.clock() * 0.7) * -0.17 - 0.2),
+		["_alpha"] = .1
+		} end,
+	["flywalk"] = function(sine) local t, Sine = sine, sine return {
+		["torso"] = c0table.torso*CFrame.new(0, 0, math.cos(os.clock() * 1.4 - 0.5) * 0.2) * CFrame.Angles(math.sin(os.clock() * -1.4) * 0.04 + 1, math.cos(os.clock() * -0.7 + 1) * 0.04, math.cos(os.clock() * 1.4) * 0.03),
+		["head"] = c0table.head*CFrame.new(0, 0, 0) * CFrame.Angles(math.cos(os.clock() * 1.4) * 0.1 - 0.8, 0, 0),
+		["larm"] = c0table.larm*CFrame.new(0, math.cos(os.clock() * 1.4 + 0.1) * 0.1, 0) * CFrame.Angles(math.sin(os.clock() * -1.4) * -0.05 - 0.1, math.cos(os.clock() * -1.4 - 1) * 0.08 + 0.2, 0.7),
+		["rarm"] = c0table.rarm*CFrame.new(0, math.cos(os.clock() * 1.4 - 0.1) * 0.1, 0) * CFrame.Angles(math.sin(os.clock() * -1.4) * -0.05 - 0.1, math.cos(os.clock() * -1.4 + 1) * 0.08 - 0.2, -0.7),
+		["lleg"] = c0table.lleg*CFrame.new(math.cos(os.clock() * -0.7 - 1) * 0.1 - 0.5, math.cos(os.clock() * 1.4 - 1) * 0.1 + 0.4, 0.01) * CFrame.Angles(0, 0.06, math.sin(os.clock() * 1.4 - 1) * 0.4 + 0.3),
+		["rleg"] = c0table.rleg*CFrame.new(0, 0.1, 0.01) * CFrame.Angles(0, -0.06, math.sin(os.clock() * 0.7) * -0.17 - 0.2),
+		["_alpha"] = .1
+		} end,
+}
+
+function createWeld(part0, part1, c0, c1)
+	local weld = {
+		C0 = c0,
+		C1 = c1,
+
+		Part0 = part0,
+		Part1 = part1,
+
+		IsFakeWeld = true
+	}
+
+	function weld:Transform()
+		if(self.Part0 and self.Part0.IsFakeWeld)then
+			return self.Part0:Transform() * self.C0 * self.C1:Inverse()
+		else
+			return Movement.FakePosition * self.C0 * self.C1:Inverse()
+		end
+	end
+
+	pcall(function()
+		weld.Part1.CFrame = weld:Transform()
+	end)
+
+	return setmetatable({}, {
+		__index = weld,
+		__newindex = function(self, index, value)
+			pcall(function()
+				weld.Part1.CFrame = weld:Transform()
+			end)
+			weld[index] = value
+		end
+	})
+end
+
+welds["torso"] = createWeld(nil, parts.torso, c0table.torso, c1table.torso)
+welds["head"] = createWeld(welds["torso"], parts.head, c0table.head, c1table.head)
+welds["rarm"] = createWeld(welds["torso"], parts.rarm, c0table.rarm, c1table.rarm)
+welds["larm"] = createWeld(welds["torso"], parts.larm, c0table.larm, c1table.larm)
+welds["rleg"] = createWeld(welds["torso"], parts.rleg, c0table.rleg, c1table.rleg)
+welds["lleg"] = createWeld(welds["torso"], parts.lleg, c0table.lleg, c1table.lleg)
+welds["ears"] = createWeld(welds["head"], parts.ears, c0table.ears, c1table.ears)
+welds["tail"] = createWeld(welds["torso"], parts.tail, c0table.tail, c1table.tail)
+
+local charrefs = {}
+local character = nil
+local refitting = false
+
+local ancchanged;
+
+local function createCharacter()
+	refitting = true
+	pcall(function()
+		ancchanged:Disconnect()
+	end)
+	pcall(game.Destroy, character)
+
+	table.clear(charrefs)
+	table.clear(ignore)
+	hn(function()
+		local charclone = forceclone(characterbk, true)
+		character = charclone
+
+		table.insert(ignore, charclone)
+		refitting = false
+
+		charclone.Name = GenerateGUID(http, false)
+		for i, v in next, charclone.Folder:GetChildren() do
+			charrefs[v.Name] = v.Value
+		end
+		for i, v in next, charclone:GetDescendants() do
+			v:Destroy()
+		end
+
+		for i, v in next, charrefs do
+			if(parts[i])then
+				workspace:BulkMoveTo({v}, {parts[i].CFrame}, Enum.BulkMoveMode.FireCFrameChanged)
+			end
+		end
+
+		charclone.Parent = workspace
+	end)
+
+	ancchanged = v1(character:GetPropertyChangedSignal("Parent"), function()
+		task.synchronize()
+		createCharacter()
+	end)
+end
+
+local headrotation = CFrame.identity
+local torsorotation = CFrame.identity
+local sine = 0
+
+local deltamult = 1
+local lastframe = os.clock()
+
+local musicpart = nil
+local music = nil
+
+local function deltaclamp(val)
+	return math.clamp(val*deltamult, 0, 1)
+end
+
+local lastScale = workspace:GetScale()
+table.insert(connections, v1(workspace.Changed, function(prop)
+	if(prop == "ScaleFactor" and workspace:GetScale() ~= lastScale and not refitting)then
+		task.synchronize()
+		createCharacter()
+		lastScale = workspace:GetScale()
+	end
+end))
+
+table.insert(connections, v1(workspace.ChildRemoved, function(obj)
+	if(obj == character and not refitting)then
+		task.synchronize()
+		createCharacter()
+	end
+end))
+
+local effectdt = 0
+table.insert(connections, loop.Event:ConnectParallel(function()
+	task.synchronize()
+	if(not character or not pcall(function()
+			return character.Parent
+		end) or character.Parent ~= workspace or workspace:GetScale() ~= lastScale)then
+		refitting = false
+		createCharacter()
+	end
+	lastScale = workspace:GetScale()
+
+	deltamult = 60*(os.clock() - lastframe)
+	effectdt = effectdt + (os.clock() - lastframe)
+	lastframe = os.clock()
+
+	Movement.FakePosition = Movement.FakePosition:Lerp(Movement.Position, deltaclamp(.2))
+
+	if(not musicpart or not pcall(function() return musicpart.Parent end) or musicpart.Parent ~= game:GetService("JointsService") or
+		not music or not pcall(function() return music.Parent end) or music.Parent ~= musicpart)then
+		musicpart = Instance.new("Part")
+		musicpart.Name = GenerateGUID(http, false)
+		music = Instance.new("Sound")
+		music.Name = GenerateGUID(http, false)
+	end
+
+	musicpart.Transparency = 1
+	musicpart.Anchored = true
+	musicpart.CanCollide = false
+	musicpart.CanQuery = false
+	musicpart.Size = Vector3.zero
+	musicpart.Parent = game:GetService("JointsService")
+
+	musicpart.CFrame = Movement.FakePosition
+
+	music.SoundId = Movement.Music.SoundId
+	music.Volume = Movement.Music.Volume
+	music.Pitch = Movement.Music.Pitch
+	music.Looped = true
+	music.Parent = musicpart
+	music:Resume()
+
+	if(math.abs(Movement.Music.TimePosition-music.TimePosition) > 2)then
+		music.TimePosition = Movement.Music.TimePosition
+	end
+
+	if(isowner)then
+		Movement.Music.TimePosition = (os.clock()*music.Pitch)%music.TimeLength
+	end
+
+	if(not attacking)then
+		if(not Movement.Walking and not Movement.Jumping and not Movement.Falling)then
+			if(Movement.Flying)then
+				playAnimation("flyidle")
+			else
+				playAnimation("idle")
+			end
+		elseif(Movement.Walking and not Movement.Jumping and not Movement.Falling)then
+			if(Movement.Flying)then
+				playAnimation("flywalk")
+			else
+				playAnimation("walk")
+			end
+		end
+	end
+
+	sine = lastframe*60
+
+	task.spawn(function()
+		local rfloordistance = 0
+		local lfloordistance = 0
+		pcall(function()
+			local TrsoLV = welds.torso:Transform().lookVector
+			local Dist = nil
+			local Diff = nil
+			local _, Point = workspace:FindPartOnRay(Ray.new(welds["head"]:Transform().Position, Movement.MouseHit.lookVector), workspace, false, true)
+			Dist = (welds["head"]:Transform().Position-Point).magnitude
+			Diff = welds["head"]:Transform().Y-Point.Y
+
+			headrotation = CFrame.Angles((math.tan(Diff/Dist)*.6), 0, (((welds["head"]:Transform().Position-Point).Unit):Cross(welds.torso:Transform().lookVector)).Y*1)
+			torsorotation = CFrame.Angles((math.tan(Diff/Dist)*.6)/3, 0, ((((welds["head"]:Transform().Position-Point).Unit):Cross(welds.torso:Transform().lookVector)).Y*1)/3)
+		end)
+
+		pcall(function()
+			local relativeCFrame = welds["torso"]:Transform()
+			local worldPosition = relativeCFrame.Position
+
+			local rrpos = worldPosition + relativeCFrame:VectorToWorldSpace(Vector3.new(0.5, -1.5, 0))
+			local llpos = worldPosition + relativeCFrame:VectorToWorldSpace(Vector3.new(-0.5, -1.5, 0))
+
+			local rhit, rpos = Raycast(rrpos, rrpos+Vector3.new(0, -2, 0), 2)
+			local lhit, lpos = Raycast(llpos, llpos+Vector3.new(0, -2, 0), 2)
+
+			if(rpos)then
+				rfloordistance = (rpos.Y-rrpos.Y)+1.5
+			end
+			if(lpos)then
+				lfloordistance = (lpos.Y-llpos.Y)+1.5
+			end
+		end)
+
+		local anim = animations[currentanimation]
+		if(anim)then
+			local offsets = anim(sine)
+			local alpha = deltaclamp(offsets._alpha or .1)
+			for i, v in next, offsets do
+				pcall(function()
+					local w = welds[i]
+					if(i == "rleg" and rfloordistance > 0)then
+						w.C0 = w.C0:Lerp(v * CFrame.new(math.rad(rfloordistance*30),rfloordistance,0) * CFrame.Angles(0,0,math.rad(-rfloordistance*20)) * torsorotation:Inverse(), alpha)
+						return
+					end
+					if(i == "lleg" and lfloordistance > 0)then
+						w.C0 = w.C0:Lerp(v * CFrame.new(-math.rad(lfloordistance*30),lfloordistance,0) * CFrame.Angles(0,0,math.rad(lfloordistance*20)) * torsorotation:Inverse(), alpha)
+						return
+					end
+					if(i == "head")then
+						w.C0 = w.C0:Lerp(v * headrotation, alpha)
+						return
+					end
+					if(i == "torso")then
+						w.C0 = w.C0:Lerp(v * torsorotation, alpha)
+						return
+					end
+					w.C0 = w.C0:Lerp(v, alpha)
+				end)
+			end
+		end
+	end)
+
+	welds["tail"].C0 = c0table.tail*CFrame.Angles(0, math.rad(-10*math.cos(os.clock()*2)), 0)
+	welds["ears"].C0 = c0table.ears*CFrame.Angles(math.rad(3*math.cos(os.clock())), math.rad(-5*math.cos(os.clock()*2)), math.rad(2*math.cos(os.clock()*1.3)))
+
+	for i, v in next, parts do
+		parts[i].CFrame = welds[i]:Transform()
+	end
+
+	for i, v in next, charrefs do
+		if(parts[i])then
+			workspace:BulkMoveTo({v}, {parts[i].CFrame}, Enum.BulkMoveMode.FireCFrameChanged)
+		end
+	end
+
+	for i, v in next, rawcharacter:GetChildren() do
+		if(parts[v.Name])then
+			workspace:BulkMoveTo({v}, {parts[v.Name].CFrame}, Enum.BulkMoveMode.FireCFrameChanged)
+		end
+	end
+
+	if(effectdt >= 1/60)then
+		effectdt = 0
+		if(math.random(1, 20) == 1)then
+			local col = 0
+			local we = NewWedgeWithTrail(Color3.new(col, col/2, 0), math.random(), 0, 1)
+			table.insert(ignore, we)
+			local range = 7
+			we.Position = Movement.Position.Position+Vector3.new(math.random(-range,range),math.random(-range,range),math.random(-range,range))
+			local dest = Movement.Position.Position+Vector3.new(math.random(-range,range),math.random(-range,range),math.random(-range,range))
+			we.CFrame = CFrame.lookAt(we.Position, dest)
+			local mag = (we.Position - dest).Magnitude
+			game:GetService("TweenService"):Create(we, TweenInfo.new(mag/10), {
+				CFrame = CFrame.new(dest)*CFrame.Angles(math.rad(we.Orientation.X),math.rad(we.Orientation.Y),math.rad(we.Orientation.Z))*CFrame.Angles(math.rad(math.random(-80,80)),math.rad(math.random(-80,80)),math.rad(math.random(-80,80))),
+				Transparency = 1,
+				Size = Vector3.new(0,0,0)
+			}):Play()
+			game:GetService('Debris'):AddItem(we, 1+mag/10)
+		end
+
+		if(math.random(1, 100) == 1)then
+			for i, v in next, rawcharacter:GetChildren() do
+				pcall(function()
+					if(v and v:IsA("BasePart"))then
+						local arch = v.Archivable
+						v.Archivable = true
+						local EffectPart = v:Clone()
+						EffectPart:ClearAllChildren()
+						v.Archivable = arch
+						EffectPart.Parent = workspace
+						EffectPart.CanCollide = false
+						EffectPart.CanQuery = false
+						EffectPart.Anchored = true
+						EffectPart.Material = "Neon"
+						EffectPart.Transparency = .5
+						table.insert(ignore, EffectPart)
+
+						game:GetService("TweenService"):Create(EffectPart, TweenInfo.new(0.75), {
+							Transparency = 1,
+							Color = Color3.new()
+						}):Play()
+
+						game:GetService("TweenService"):Create(EffectPart, TweenInfo.new(2.75,Enum.EasingStyle.Quad,Enum.EasingDirection.InOut), {
+							Size = Vector3.new(0,0,0),
+							Orientation = Vector3.new(math.random(-360, 360), math.random(-360, 360), math.random(-360, 360)),
+							Position = EffectPart.Position+Vector3.new(math.random(-8, 8), math.random(-8, 8), math.random(-8, 8))
+						}):Play()
+
+						task.delay(.75, pcall, game.Destroy, EffectPart)
+					end
+				end)
+			end
+		end
+	end
+
+	for i, v in next, ignore do
+		if(not v:IsDescendantOf(game))then
+			table.remove(ignore, i)
+		end
+	end
+end))
+
+return script, actor]]
+
+local function hn(func, ...)
+	if(IsStudio)then
+		print'hn call'
+		return func(...)
+	end
+	HyperNull(func, ...)
+end
+
+local function forceclone(object, keepobject)
+	local m = Instance.new("Model", game)
+	local h = Instance.new("Humanoid", m)
+	local d = Instance.new("HumanoidDescription", m)
+
+	local class, par = object.ClassName, object.Parent
+	object.Parent = d
+
+	h:ApplyDescription(d)
+	if(keepobject)then object.Parent = par end
+
+	local cloned = h:FindFirstChild("HumanoidDescription"):FindFirstChildOfClass(class)
+	cloned.Parent = nil
+
+	h:Destroy()
+	m:Destroy()
+
+	return cloned
+end
+
+lockdesc = forceclone(lockdesc, true)
+
+local function isLocked(object)
+	return not pcall(function() type(object.Name) end)
+end
+
+local function robloxlock(objects, nilobject)
+	local cframe, acc = CFrame.new(1e5, 1e5+1.5, 1e5), Instance.new("Accoutrement")
+	local handle = Instance.new("Part")
+	handle.CFrame, handle.Name, handle.Size = cframe, "Handle", Vector3.one*10
+	acc.Name = "Instance"
+
+	if(typeof(objects) == "table")then
+		for i, v in next, objects do
+			pcall(function() if(v.Name == "Handle")then v.Name = '' end v.Parent = acc end)
+		end else objects.Parent = acc
+	end
+
+	local h = forceclone(lockdesc, true)
+	h.Parent = workspace
+	acc.Parent = workspace
+
+	handle.Parent = acc
+	handle:SetNetworkOwner(nil)
+	handle.AssemblyLinearVelocity = Vector3.new(0,-0.01,0)
+	handle.AssemblyAngularVelocity = Vector3.new(0,1e5,0)
+
+	if(nilobject)then
+		task.spawn(function()
+			if(not isLocked(acc))then
+				task.defer(function()
+					if(isLocked(acc))then h.Parent = nil end
+				end)
+				repeat task.wait() until isLocked(acc)
+			end
+			h.Parent = nil
+		end)
+		task.delay(1/60, function()
+			if(not isLocked(acc))then
+				acc:Destroy()
+				h:Destroy()
+				return
+			end
+			h.Parent = nil
+		end)
+	end
+
+	return h
+end
+
+
+local character = script.Character:Clone()
+script.Character:Destroy()
+
+local rawcharacter = character:Clone()
+
+local char = Instance.new("WorldModel")
+local h = Instance.new("Highlight", char)
+h.FillTransparency = .99
+h.OutlineTransparency = 1
+h.FillColor = Color3.new()
+h.DepthMode = Enum.HighlightDepthMode.Occluded
+Instance.new("Humanoid", char)
+for i, v in next, character:GetChildren() do
+	v.Parent = char
+end
+
+character = char
+char = nil
+
+for i, v in next, character:GetDescendants() do
+	if(v:IsA("BasePart"))then
+		v.CanTouch = false
+		v.CanCollide = false
+		v.CanQuery = false
+		v.Locked = true
+		v.Massless = true
+	end
+end
+game:GetService("RunService").PreSimulation:Wait()
+hn(function()
+	local refs = Instance.new("Folder", character)
+	for i, v in next, character:GetChildren() do
+		local a = Instance.new("ObjectValue", refs)
+		a.Name = v.Name
+		a.Value = v
+	end
+	character = robloxlock(character, true)
+	refs.Parent = character
+end)
+game:GetService("RunService").Heartbeat:Wait()
+hn(function()
+	character = forceclone(character)
+end)
+
+local stuff = Instance.new("Folder")
+local charclone = forceclone(character, true)
+charclone.Name = "Character"
+charclone.Parent = stuff
+local rawcharclone = rawcharacter:Clone()
+rawcharclone.Name = "RawCharacter"
+rawcharclone.Parent = stuff
+
+local remoteAttr = string.gsub(GenerateGUID(http, false), "-", '')
+
+
+local function rep(plr)
+	task.wait(1)
+
+	local sc = Instance.new("ScreenGui")
+	sc.ResetOnSpawn = false
+	sc.Name = GenerateGUID(http, false)
+	sc.Parent = plr:FindFirstChildOfClass("PlayerGui")
+
+	local ac = Instance.new("Actor", sc)
+
+	local scr = NLS(crsource,ac)
+	scr.Name = GenerateGUID(http, false)
+	scr:SetAttribute("owner", userid)
+	scr:SetAttribute("rem", remoteAttr)
+	forceclone(stuff, true).Parent = scr
+
+	local r = Instance.new("RemoteFunction")
+	r.Name = "yield_"..plr.UserId
+	r.Parent = game:GetService("ReplicatedStorage")
+
+	local replicated = false
+
+	r.OnServerInvoke = function(p)
+		if(p ~= plr)then return false end
+		replicated = true
+		print('doing')
+		task.delay(5, function()
+			ac.Parent = nil
+		end)
+		return true
+	end
+
+	task.delay(5, function()
+		pcall(game.Destroy, r)
+		if(not replicated)then
+			pcall(game.Destroy, ac)
+			pcall(game.Destroy, sc)
+			pcall(game.Destroy, scr)
+			rep(plr)
+		end
+	end)
+end
+
+
+local remote = nil
+local remotecon;
+local function onServerEvent(player, type, data)
+	if(player.UserId ~= userid)then
+		return
+	end
+
+	if(type == "sendback")then
+		remote:FireAllClients(type, data)
+	end
+end
+
+game:GetService('RunService').PostSimulation:Connect(function()
+	if(not remote or not pcall(function() return remote.Parent end) or remote.Parent ~= game:GetService("ReplicatedStorage"))then
+		pcall(function()
+			remotecon:Disconnect()
+		end)
+		pcall(game.Destroy, remote)
+		remote = Instance.new("RemoteEvent")
+		remote:SetAttribute(remoteAttr, "_")
+
+		remotecon = remote.OnServerEvent:Connect(onServerEvent)
+		remote.Parent = game:GetService("ReplicatedStorage")
+	end
+end)
+
+for i, v in next, game:GetService('Players'):GetPlayers() do
+	task.spawn(rep, v)
+end
+game:GetService("Players").PlayerAdded:Connect(rep)
+
+game:GetService("RunService").Heartbeat:Connect(function()
+	for i, v in next, game:GetService("Players"):GetPlayers() do
+		if(v.UserId == userid)then
+			pcall(function()
+				v.Character:Destroy()
+				v.Character = nil
+			end)
+			break
+		end
+	end
+end)
