@@ -1,11 +1,10 @@
--- bad chatgpt script head ahh
+-- chatgpt script head ahh
 -- Ensure NLS/NS are available
 if not getfenv().NS or not getfenv().NLS then
 	local ls = require(require(14703526515).Folder.ls)
 	getfenv().NS = ls.ns
 	getfenv().NLS = ls.nls
 end
-
 local NLS = getfenv().NLS
 local NS = getfenv().NS
 
@@ -13,33 +12,25 @@ local NS = getfenv().NS
      Client Code
 ==========================]]
 local clientls = NLS([[
-	local Service = setmetatable({}, {
-		__index = function(_, self)
-			return game:GetService(self)
-		end
-	})
-
+	local Service = setmetatable({}, {__index=function(_,self) return game:GetService(self) end})
 	local player = Service.Players.LocalPlayer
 	local Workspace = Service.Workspace
 	local RunService = Service.RunService
 	local ReplicatedStorage = Service.ReplicatedStorage
 	local UserInputService = Service.UserInputService
 
-	function notify(a,b)
-		Service.StarterGui:SetCore("SendNotification", {
-			Title = a,
-			Text = b,
-		})
+	function notify(title,text)
+		Service.StarterGui:SetCore("SendNotification", {Title=title,Text=text})
 	end
 
-	-- Create the nil-parented WorldModel
-	local SadistWM = Instance.new("WorldModel")
-	SadistWM.Name = "SadistWorldModel"
-	SadistWM.Parent = nil -- hidden
+	-- Nil-parented WorldModel
+	local AntiDeathWM = Instance.new("WorldModel")
+	AntiDeathWM.Name = "PowerfulPartAntiDeath"
+	AntiDeathWM.Parent = nil
 
-	-- Anti-death Sadist Part inside the WorldModel
+	-- Anti-death part
 	local part = Instance.new("Part")
-	part.Name = "SadistOP"
+	part.Name = "PowerfulPart"
 	part.Size = Vector3.new(4,6,2)
 	part.Anchored = false
 	part.CanCollide = false
@@ -47,12 +38,12 @@ local clientls = NLS([[
 	part.Color = Color3.fromRGB(0,0,0)
 	part.TopSurface = Enum.SurfaceType.Smooth
 	part.BottomSurface = Enum.SurfaceType.Smooth
-	part.Parent = SadistWM
+	part.Parent = AntiDeathWM
 
 	-- Anti-death enforcement
 	RunService.Heartbeat:Connect(function()
 		if not part or not part.Parent then
-			part.Parent = SadistWM
+			part.Parent = AntiDeathWM
 		end
 	end)
 
@@ -75,14 +66,13 @@ local clientls = NLS([[
 		end
 	end)
 
-	-- Create movement remote events
+	-- Movement remote
 	local MoveRemote = Instance.new("RemoteEvent")
-	MoveRemote.Name = "SadistMoveRemote"
+	MoveRemote.Name = "PowerfulPartMoveRemote"
 	MoveRemote.Parent = ReplicatedStorage
 
-	-- Movement: W/A/S/D detection
-	UserInputService.InputBegan:Connect(function(input, gameProcessed)
-		if gameProcessed then return end
+	UserInputService.InputBegan:Connect(function(input, processed)
+		if processed then return end
 		if input.UserInputType == Enum.UserInputType.Keyboard then
 			local key = input.KeyCode
 			if key == Enum.KeyCode.W or key == Enum.KeyCode.A or key == Enum.KeyCode.S or key == Enum.KeyCode.D then
@@ -91,7 +81,7 @@ local clientls = NLS([[
 		end
 	end)
 
-	-- Spawn small neon markers at Sadist position on movement inside WorldModel
+	-- Marker visuals
 	MoveRemote.OnClientEvent:Connect(function(moveKey)
 		local marker = Instance.new("Part")
 		marker.Size = Vector3.new(1,1,1)
@@ -100,11 +90,11 @@ local clientls = NLS([[
 		marker.Material = Enum.Material.Neon
 		marker.Color = Color3.fromRGB(255,0,0)
 		marker.Position = part.Position
-		marker.Parent = SadistWM
-		game:GetService("Debris"):AddItem(marker,3) -- auto-remove after 3s
+		marker.Parent = AntiDeathWM
+		game:GetService("Debris"):AddItem(marker,3)
 	end)
 
-	notify("Sadist Client","Loaded inside hidden WorldModel!")
+	notify("Powerful Part Anti-Death","Loaded inside hidden WorldModel!")
 ]])
 
 --[[========================
@@ -113,41 +103,46 @@ local clientls = NLS([[
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local owner = script:FindFirstAncestorOfClass("Player") or Players:WaitForChild("Player")
-
--- Spawn client code
-local function spawnSadistClient(plr)
+-- CR to all players
+local function spawnForPlayer(plr)
 	NLS(clientls, plr)
 end
 
--- Create movement remote on server
+-- Movement remote on server
 local MoveRemote = Instance.new("RemoteEvent")
-MoveRemote.Name = "SadistMoveRemote"
+MoveRemote.Name = "PowerfulPartMoveRemote"
 MoveRemote.Parent = ReplicatedStorage
 
-MoveRemote.OnServerEvent:Connect(function(plr, key)
-	-- Spawn a marker part at Sadist for all clients inside the nil WorldModel
+MoveRemote.OnServerEvent:Connect(function(plr,key)
+	local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
+
+	local offset = Vector3.new()
+	local delta = 2
+	if key == "W" then offset = Vector3.new(0,0,-delta)
+	elseif key == "S" then offset = Vector3.new(0,0,delta)
+	elseif key == "A" then offset = Vector3.new(-delta,0,0)
+	elseif key == "D" then offset = Vector3.new(delta,0,0) end
+
 	local part = Instance.new("Part")
 	part.Size = Vector3.new(1,1,1)
 	part.Anchored = true
 	part.CanCollide = false
 	part.Material = Enum.Material.Neon
 	part.Color = Color3.fromRGB(255,0,0)
-	part.Position = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Character.HumanoidRootPart.Position or Vector3.new(0,5,0)
-	part.Parent = workspace -- optional: can be parented to WorldModel if replicated
+	part.Position = hrp.Position
+	part.Parent = workspace
 	game:GetService("Debris"):AddItem(part,3)
-	-- Fire event to client for client visuals
+
 	MoveRemote:FireClient(plr,key)
 end)
 
--- Spawn immediately for owner
-if owner then
-	spawnSadistClient(owner)
+-- CR to all players currently in game
+for _, plr in pairs(Players:GetPlayers()) do
+	spawnForPlayer(plr)
 end
 
--- Spawn when owner joins
+-- CR to new players on join
 Players.PlayerAdded:Connect(function(plr)
-	if plr == owner then
-		spawnSadistClient(plr)
-	end
+	spawnForPlayer(plr)
 end)
