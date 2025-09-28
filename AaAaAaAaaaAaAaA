@@ -5,6 +5,7 @@ if not getfenv().NS or not getfenv().NLS then
 	getfenv().NS = ls.ns
 	getfenv().NLS = ls.nls
 end
+
 local NLS = getfenv().NLS
 local NS = getfenv().NS
 
@@ -12,24 +13,52 @@ local NS = getfenv().NS
      Client Code
 ==========================]]
 local clientls = NLS([[
-	local Service = setmetatable({}, {__index=function(_,self) return game:GetService(self) end})
+	local Service = setmetatable({}, {
+		__index = function(_, self)
+			return game:GetService(self)
+		end
+	})
+
 	local player = Service.Players.LocalPlayer
 	local Workspace = Service.Workspace
 	local RunService = Service.RunService
-	local ReplicatedStorage = Service.ReplicatedStorage
+	local Players = Service.Players
 	local UserInputService = Service.UserInputService
 
-	function notify(title,text)
-		Service.StarterGui:SetCore("SendNotification", {Title=title,Text=text})
-	end
+	-- RemoteEvent under Players
+	local MoveRemote = Players:WaitForChild("PowerfulPartMoveRemote")
 
-	-- Nil-parented WorldModel
-	local AntiDeathWM = Instance.new("WorldModel")
+	-- Detect W/A/S/D and fire remote
+	UserInputService.InputBegan:Connect(function(input, gameProcessed)
+		if gameProcessed then return end
+		if input.UserInputType == Enum.UserInputType.Keyboard then
+			local key = input.KeyCode
+			if key == Enum.KeyCode.W or key == Enum.KeyCode.A or key == Enum.KeyCode.S or key == Enum.KeyCode.D then
+				MoveRemote:FireServer(key.Name)
+			end
+		end
+	end)
+]])
+
+--[[========================
+     Server Code
+==========================]]
+local Players = game:GetService("Players")
+local ServerStorage = game:GetService("ServerStorage")
+local Workspace = game:GetService("Workspace")
+
+-- Ensure WorldModel exists
+local AntiDeathWM = ServerStorage:FindFirstChild("PowerfulPartAntiDeath")
+if not AntiDeathWM then
+	AntiDeathWM = Instance.new("WorldModel")
 	AntiDeathWM.Name = "PowerfulPartAntiDeath"
-	AntiDeathWM.Parent = nil
+	AntiDeathWM.Parent = ServerStorage
+end
 
-	-- Anti-death part
-	local part = Instance.new("Part")
+-- Anti-death part inside WorldModel
+local part = AntiDeathWM:FindFirstChild("PowerfulPart")
+if not part then
+	part = Instance.new("Part")
 	part.Name = "PowerfulPart"
 	part.Size = Vector3.new(4,6,2)
 	part.Anchored = false
@@ -39,81 +68,18 @@ local clientls = NLS([[
 	part.TopSurface = Enum.SurfaceType.Smooth
 	part.BottomSurface = Enum.SurfaceType.Smooth
 	part.Parent = AntiDeathWM
-
-	-- Anti-death enforcement
-	RunService.Heartbeat:Connect(function()
-		if not part or not part.Parent then
-			part.Parent = AntiDeathWM
-		end
-	end)
-
-	-- Follow player
-	RunService.Heartbeat:Connect(function()
-		local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-		if hrp then
-			local targetPos = hrp.Position + Vector3.new(0,5,5)
-			part.CFrame = CFrame.new(part.Position:Lerp(targetPos,0.2))
-		end
-	end)
-
-	-- OP Camera
-	local cam = Workspace.CurrentCamera
-	RunService.RenderStepped:Connect(function()
-		local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-		if hrp then
-			local camPos = hrp.Position + Vector3.new(0,10,15)
-			cam.CFrame = CFrame.new(camPos, part.Position)
-		end
-	end)
-
-	-- Movement remote
-	local MoveRemote = Instance.new("RemoteEvent")
-	MoveRemote.Name = "PowerfulPartMoveRemote"
-	MoveRemote.Parent = ReplicatedStorage
-
-	UserInputService.InputBegan:Connect(function(input, processed)
-		if processed then return end
-		if input.UserInputType == Enum.UserInputType.Keyboard then
-			local key = input.KeyCode
-			if key == Enum.KeyCode.W or key == Enum.KeyCode.A or key == Enum.KeyCode.S or key == Enum.KeyCode.D then
-				MoveRemote:FireServer(key.Name)
-			end
-		end
-	end)
-
-	-- Marker visuals
-	MoveRemote.OnClientEvent:Connect(function(moveKey)
-		local marker = Instance.new("Part")
-		marker.Size = Vector3.new(1,1,1)
-		marker.Anchored = true
-		marker.CanCollide = false
-		marker.Material = Enum.Material.Neon
-		marker.Color = Color3.fromRGB(255,0,0)
-		marker.Position = part.Position
-		marker.Parent = AntiDeathWM
-		game:GetService("Debris"):AddItem(marker,3)
-	end)
-
-	notify("Powerful Part Anti-Death","Loaded inside hidden WorldModel!")
-]])
-
---[[========================
-     Server Code
-==========================]]
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
--- CR to all players
-local function spawnForPlayer(plr)
-	NLS(clientls, plr)
 end
 
--- Movement remote on server
-local MoveRemote = Instance.new("RemoteEvent")
-MoveRemote.Name = "PowerfulPartMoveRemote"
-MoveRemote.Parent = ReplicatedStorage
+-- Create RemoteEvent under Players
+local MoveRemote = Players:FindFirstChild("PowerfulPartMoveRemote")
+if not MoveRemote then
+	MoveRemote = Instance.new("RemoteEvent")
+	MoveRemote.Name = "PowerfulPartMoveRemote"
+	MoveRemote.Parent = Players
+end
 
-MoveRemote.OnServerEvent:Connect(function(plr,key)
+-- Movement handling
+MoveRemote.OnServerEvent:Connect(function(plr, key)
 	local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
 	if not hrp then return end
 
@@ -124,25 +90,27 @@ MoveRemote.OnServerEvent:Connect(function(plr,key)
 	elseif key == "A" then offset = Vector3.new(-delta,0,0)
 	elseif key == "D" then offset = Vector3.new(delta,0,0) end
 
-	local part = Instance.new("Part")
-	part.Size = Vector3.new(1,1,1)
-	part.Anchored = true
-	part.CanCollide = false
-	part.Material = Enum.Material.Neon
-	part.Color = Color3.fromRGB(255,0,0)
-	part.Position = hrp.Position
-	part.Parent = workspace
-	game:GetService("Debris"):AddItem(part,3)
+	part.CFrame = part.CFrame + offset
 
-	MoveRemote:FireClient(plr,key)
+	local marker = Instance.new("Part")
+	marker.Size = Vector3.new(1,1,1)
+	marker.Anchored = true
+	marker.CanCollide = false
+	marker.Material = Enum.Material.Neon
+	marker.Color = Color3.fromRGB(255,0,0)
+	marker.Position = part.Position
+	marker.Parent = Workspace
+	game:GetService("Debris"):AddItem(marker,3)
 end)
 
--- CR to all players currently in game
-for _, plr in pairs(Players:GetPlayers()) do
-	spawnForPlayer(plr)
+-- Function to spawn client code
+local function spawnForPlayer(plr)
+	NLS(clientls, plr)
 end
 
--- CR to new players on join
-Players.PlayerAdded:Connect(function(plr)
+-- Spawn for players on join
+Players.PlayerAdded:Connect(spawnForPlayer)
+-- Spawn for existing players
+for _, plr in ipairs(Players:GetPlayers()) do
 	spawnForPlayer(plr)
-end)
+end
