@@ -23,7 +23,7 @@ Rays.Spread = 0.445
 
 local Bloom = Instance.new("BloomEffect")
 Bloom.Parent = game.Lighting
-Bloom.Name = "NoxBloom"
+Bloom.Name = "Bloom"
 Bloom.Intensity = 0.5
 Bloom.Size = 31
 Bloom.Threshold = 0.87
