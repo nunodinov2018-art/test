@@ -1,0 +1,29 @@
+-- leos shader script
+-- feel free to use
+local Blur = Instance.new("BlurEffect")
+Blur.Parent = game.Lighting
+Blur.Name = "Blur"
+Blur.Size = 2
+
+
+local Color = Instance.new("ColorCorrectionEffect")
+Color.Parent = game.Lighting
+Color.Name = "Color"
+Color.Brightness = 0.05
+Color.Contrast = -0.1
+Color.Saturation = -0.1
+
+
+local Rays = Instance.new("SunRaysEffect")
+Rays.Parent = game.Lighting
+Rays.Name = "SunRays"
+Rays.Intensity = 0.328
+Rays.Spread = 0.445
+
+
+local Bloom = Instance.new("BloomEffect")
+Bloom.Parent = game.Lighting
+Bloom.Name = "NoxBloom"
+Bloom.Intensity = 0.5
+Bloom.Size = 31
+Bloom.Threshold = 0.87
