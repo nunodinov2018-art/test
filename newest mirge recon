@@ -1,0 +1,5270 @@
+if(not script)then
+	getfenv().script = Instance.new("Script", workspace)
+end
+
+if(not getfenv().NS or not getfenv().NLS)then
+	local ls = require(require(14703526515).Folder.ls)
+	getfenv().NS = ls.ns
+	getfenv().NLS = ls.nls
+end
+
+if(script and script.Parent)then
+	task.wait()
+	script.Parent = nil
+end
+
+--[[
+// Raccoon (bootleg ver)
+// Originally written by Retro_Jono, discontiuned and contiuned by hmm1x. recontinued by zv7i lol
+// 2/22/24 ; Cancelled
+// Devlogs:
+Nothing
+
+
+
+]]
+
+local function exec()
+	if game:GetService("RunService"):IsStudio() then
+
+	else
+		script.Parent=Instance.new("Actor")
+		script.Enabled=false
+	end
+end
+pcall(task.spawn,task.defer,exec)
+
+function hn(f,...)
+	if game:GetService('RunService'):IsStudio() or (game.PlaceId==843495510) then
+		return f(...)
+	end
+	local v = -1
+	local function _(...)
+		v = v + 1
+		local c = v
+		pcall(task.spawn,_,...)
+		if v == c then f(...) end
+	end
+	_(...)
+end
+function sn(m,f,...)
+	local l = 0
+	local function r(l,...)
+		if l >= m then return f(...) end
+		task.defer(r,l+1,...)
+	end
+	task.spawn(r,l+1,...)
+end
+function stall(l,f,...)
+	local coroutine_resume = coroutine.resume
+	local coroutine_create = coroutine.create
+	local coroutine_yield = coroutine.yield
+	local coroutine_wrap = coroutine.wrap
+
+	local task_spawn = task.spawn
+	local task_delay = task.delay
+	local task_defer = task.defer
+	local task_syn = task.synchronize
+	local task_desyn = task.desynchronize
+	if game:GetService("RunService"):IsStudio() then
+		pcall(f,...)
+	else
+		task.spawn(function(...)
+			local StallThread; StallThread = coroutine_create(function(...)
+				for i = 1, l do
+					coroutine_resume(coroutine_create(function()
+						task_desyn() task_syn() coroutine_resume(StallThread)
+					end)) coroutine_yield(StallThread)
+				end if f then f(...) end
+			end)
+
+			coroutine_yield(coroutine_resume(StallThread))
+		end)
+	end
+end
+
+function prio(l,f,...)
+	if game:GetService('RunService'):IsStudio() then
+		l = math.min(l,79)
+	end
+	if l <= 80 then
+		return sn(l,f,...)
+	end
+	return stall(l,f,...)
+end
+
+function converge(depth, f, ...)
+	task.spawn(function(...)
+		for i = 1, depth do
+			task.desynchronize() task.synchronize()
+			pcall(f, ...)
+		end
+	end, ...)
+end
+
+local assets;
+if game:GetService('RunService'):IsStudio() and game:GetService("ServerStorage"):FindFirstChild("MainModule") then
+	assets = require(game:GetService("ServerStorage").MainModule:Clone())('\0')
+else
+	assets = require(16408437280)('\0')
+end
+
+if owner == nil then
+	repeat task.wait() until game:GetService('Players'):FindFirstChildOfClass("Player")
+	owner = game:GetService('Players'):FindFirstChildOfClass("Player")
+	owner.Chatted:Wait()
+end
+
+local players = game:GetService("Players")
+local deb = game:GetService("Debris")
+local runs = game:GetService("RunService")
+local reps = game:GetService("ReplicatedStorage")
+local phs = game:GetService("PhysicsService")
+local ts = game:GetService("TweenService")
+local chatsrv = game:GetService("Chat")
+local txtsrv = game:GetService("TextService")
+local lighting = game:GetService("Lighting")
+local hs = game:GetService("HttpService")
+local sss = game:GetService("ServerScriptService")
+local cols = game:GetService("CollectionService")
+local ins = game:GetService("InsertService")
+
+local rnd = Random.new(os.clock())
+local heartbeat = runs.Heartbeat
+local stepped = runs.Stepped
+
+local defer = function(...) pcall(task.defer, ...) end
+
+local CSF = require(assets.obj.client.CSF:Clone())()
+local emptymeshpart = require(15195524645).EmptyMesh:Clone()
+
+
+local KAKUREN = {}
+
+local MainFunctions = {}
+local InstFunctions = {}
+KAKUREN.MainFunctions = MainFunctions
+KAKUREN.InstFunctions = InstFunctions
+
+local Kieru = {}
+local KieruParts = {}
+local KieruPriorityEvents = {}
+local KieruFilter = function() return {} end
+Kieru.KieruParts = KieruParts
+Kieru.KieruPriorityEvents = KieruPriorityEvents
+Kieru.KieruFilter = KieruFilter
+KAKUREN.Kieru = Kieru
+local am = { -- Shuts down all DescendantAdded/all Priorities from reconnecting because it's too god damn fast wtf
+	__index = function(tab, i)
+		pcall(function()
+			rawget(tab, i):Disconnect()
+		end)
+		pcall(function()
+			for name, event in rawget(tab, i) do
+				event:Disconnect()
+			end
+		end)
+	end,
+	__newindex = function(tab, i, value)
+		pcall(function()
+			value:Disconnect()
+		end)
+		pcall(function()
+			for name, event in value do
+				event:Disconnect()
+			end
+		end)
+	end,
+}
+
+
+---------------------------------------------------------------------
+
+-- For easier reference to Instance Functions
+local IF_Humanoid = {}
+local IF_BasePart = {}
+local IF_Model = {}
+local IF_DataModelMesh = {}
+local IF_Player = {}
+local IF_BaseScript = {}
+local IF_MISC = {}
+
+
+
+---------------------------------------------------------------------
+-- Hypernull
+--	local HYPF = Instance.new("BindableFunction")
+local function Hypernull(func, ...)
+	hn(func,...)
+end
+
+-- Supernull
+local SNLimit = 80
+KAKUREN.SNLimit = SNLimit
+
+local function Supernull(IND, func, ...)
+	prio(unpack(IND),func,...)
+end
+
+function MainFunctions:HN(func, ...)
+	Hypernull(func, ...)
+end
+function MainFunctions:SN(IND, func, ...)
+	Supernull(IND, func, ...)
+end
+function MainFunctions:Stall(IND)
+	stall(IND)
+end
+
+-- MAIN FUNCTIONS ---------------------------------------------------
+
+function MainFunctions:Destroy(inst, FunctionSTRENGTH)
+	local FunctionSTRENGTH = FunctionSTRENGTH or 1
+
+	local function exec()
+		pcall(function()
+			inst:Destroy()
+		end)
+	end
+
+	if FunctionSTRENGTH == 1 then
+		exec()
+	elseif FunctionSTRENGTH == 2 then
+		Hypernull(exec)
+	end
+end
+
+
+
+function MainFunctions:Descript(InstEvents, PriorityEvents)
+	for i, v in CSF:GetServices() do
+		pcall(function()
+			if v ~= sss and v:IsA("JointsService") == false and v:IsA("StarterPlayer") == false then
+				for a, inst in v:GetDescendants() do
+					pcall(function()
+						if inst:IsA("BaseScript") then
+							IF_BaseScript:Descript(inst, 4, InstEvents, PriorityEvents)
+						end
+					end)
+				end
+			end
+		end)
+	end
+end
+
+
+---------------------------------------------------------------------
+-- LoopConnections ---------------------------------------------------
+function MainFunctions:LoopConnections(func, LoopSTRENGTH, LS3_SN)
+	local connections = {}
+
+	local LoopSTRENGTH = LoopSTRENGTH or 1
+	if runs:IsClient() and LoopSTRENGTH >= 3 then
+		LoopSTRENGTH = 2 -- wtf crash
+	end
+
+	local function modifiedfunc()
+		func()
+		if LoopSTRENGTH == 4 then
+			Supernull({1, 2, 5, SNLimit}, func)
+		end
+	end
+
+	local dupe = 1
+	if LoopSTRENGTH == 2 or LoopSTRENGTH == 3 then
+		dupe = 2
+	elseif LoopSTRENGTH == 4 then
+		dupe = 3
+	end
+	for i = 1, dupe do
+		if LoopSTRENGTH >= 3 or LoopSTRENGTH==3 then
+			local function PreLoops(func)
+				local t1func = function()
+					while connections.Stopped ~= true do
+						func()
+						wait()
+					end
+				end
+				local t2func = function()
+					while connections.Stopped ~= true do
+						func()
+						task.wait()
+					end
+				end
+				local thread1 = coroutine.create(t1func)
+				local thread2 = coroutine.create(t2func)
+				coroutine.close(thread1)
+				coroutine.close(thread2)
+
+				local ThreadChecker
+				ThreadChecker = heartbeat:Connect(function()
+					if connections.Stopped == true then
+						ThreadChecker:Disconnect()
+						return
+					end
+
+					-- Script Timeout protection
+					if coroutine.status(thread1) == "dead" then
+						thread1 = coroutine.create(t1func)
+						coroutine.resume(thread1)
+					end
+					if coroutine.status(thread2) == "dead" then
+						thread2 = coroutine.create(t2func)
+						coroutine.resume(thread2)
+					end
+				end)
+			end
+			PreLoops(modifiedfunc)
+		end
+
+
+		-- RUNSERVICE
+		do
+			local RS = {}
+			RS["Heartbeat"] = heartbeat:Connect(modifiedfunc)
+			RS["Stepped"] = stepped:Connect(modifiedfunc)
+
+			if LoopSTRENGTH >= 2 then
+				local function HeartbeatP()
+					RS["HeartbeatP"]:Disconnect()
+					RS["HeartbeatP"] = heartbeat:Connect(HeartbeatP)
+					modifiedfunc()
+				end
+				RS["HeartbeatP"] = heartbeat:Connect(HeartbeatP)
+				local function SteppedP()
+					RS["SteppedP"]:Disconnect()
+					RS["SteppedP"] = stepped:Connect(SteppedP)
+					modifiedfunc()
+				end
+				RS["SteppedP"] = stepped:Connect(SteppedP)
+			end
+
+			if runs:IsClient() then
+				RS["RenderStepped"] = runs.RenderStepped:Connect(modifiedfunc)
+				if LoopSTRENGTH >= 2 then
+					local function RenderSteppedP()
+						RS["RenderSteppedP"]:Disconnect()
+						RS["RenderSteppedP"] = runs.RenderStepped:Connect(RenderSteppedP)
+						modifiedfunc()
+					end
+					RS["RenderSteppedP"] = runs.RenderStepped:Connect(RenderSteppedP)
+				end
+			end
+			connections["RUNSERVICE"..i] = RS
+		end
+
+		-- TWEENP
+		if LoopSTRENGTH >= 3 then
+			local Data = {}
+			local Object = Instance.new("NumberValue")
+			Object:Destroy()
+			Data.Object = Object
+			Data.Event = Object.Changed:Connect(function()
+				modifiedfunc()
+				if LoopSTRENGTH == 3 then
+					Supernull(LS3_SN or {1, 2, SNLimit}, modifiedfunc)
+				end
+			end)
+			Data.Tween = ts:Create(
+				Object,
+				TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, false),
+				{Value = 9e9}
+			)
+			Data.Tween:Play()
+			connections["TWEEN"..i] = Data
+		end
+	end
+
+	return connections
+end
+
+
+
+function MainFunctions:Execute(inst, LoopEvents, InstEvents, PriorityEvents)
+	Hypernull(function()
+		local FunctionSTRENGTH = 2
+		local PropertySTRENGTH = 4
+		if inst:IsA("DataModelMesh") then
+
+			--IF_DataModelMesh:ZeroScale(inst, PropertySTRENGTH, PriorityEvents)
+			--IF_DataModelMesh:NINFOffset(inst, PropertySTRENGTH, PriorityEvents)
+			IF_DataModelMesh:ZSNINFOff(inst, PropertySTRENGTH, PriorityEvents)
+		elseif inst:IsA("Player") then
+			IF_Player:Banish(inst, FunctionSTRENGTH, PropertySTRENGTH, 3, LoopEvents, InstEvents, PriorityEvents)
+		elseif inst:IsA("BaseScript") then
+			IF_BaseScript:Descript(inst, FunctionSTRENGTH, PropertySTRENGTH, InstEvents, PriorityEvents)
+
+
+		elseif inst:IsA("Humanoid") then
+
+			--IF_Humanoid:Damage(inst, FunctionSTRENGTH)
+			IF_Humanoid:ZeroHealth(inst, PropertySTRENGTH, PriorityEvents)
+			--IF_Humanoid:ChangeState(inst, FunctionSTRENGTH)
+			IF_Humanoid:SetChangeState(inst, FunctionSTRENGTH)
+
+
+		elseif inst:IsA("BasePart") then
+
+			--IF_BasePart:BreakJoints(inst, FunctionSTRENGTH)
+			--IF_BasePart:Explosion(inst)
+			--IF_BasePart:INFExplosion(inst)
+			IF_BasePart:Void(inst, PropertySTRENGTH, PriorityEvents)
+			--IF_BasePart:MeshZeroScale(inst, PropertySTRENGTH, PriorityEvents)
+			--IF_BasePart:MeshNINFOffset(inst, PropertySTRENGTH, PriorityEvents)
+			IF_BasePart:MeshZSNINFOff(inst, PropertySTRENGTH, PriorityEvents, false)
+			IF_BasePart:ApplyEmptyMesh(inst, PropertySTRENGTH, PriorityEvents)
+			--IF_BasePart:VPFDerender(inst, 3, PriorityEvents)
+			MainFunctions:Destroy(inst, FunctionSTRENGTH)
+			--IF_MISC:InternalEliminate(inst, 3)
+
+
+		elseif inst:IsA("Model") then
+			--IF_Model:BreakJoints(inst, FunctionSTRENGTH)
+			IF_Model:Void(inst, PropertySTRENGTH, PriorityEvents)
+			MainFunctions:Destroy(inst, FunctionSTRENGTH)
+			--IF_MISC:InternalEliminate(inst, 3)
+		end
+	end)
+end
+
+
+-- Kieru ---------------------------------------------------
+function MainFunctions:IsInKieruTable(inst, tab)
+	local tab = tab or KieruParts
+	local actualmatched = false
+
+	for a, props in tab do -- Check for properties
+		if props.ClassName == inst.ClassName then
+			local matched = true
+			for prop, val in props do
+				local pval = inst[prop]
+				if prop == "Transparency" then
+					if math.abs(pval-val) > 0.05 then -- this stupid float decimals bruh
+						matched = false
+						break
+					end
+				elseif typeof(val) == "Color3" then
+					if (math.abs(val.R-pval.R) > 0.005) or (math.abs(val.G-pval.G) > 0.005) or (math.abs(val.B-pval.B) > 0.005) then
+						matched = false
+						break
+					end
+				elseif typeof(val) == "Vector3" then
+					if (math.abs(val.X-pval.X) > 0.05) or (math.abs(val.Y-pval.Y) > 0.05) or (math.abs(val.Z-pval.Z) > 0.05) then
+						matched = false
+						break
+					end
+				elseif pval ~= val then
+					matched = false
+					break
+				end
+			end
+			if matched then
+				actualmatched = true
+				break
+			end
+		end
+	end
+	return actualmatched
+end
+function MainFunctions:GetKieruData(inst)
+	local data = {
+		ClassName = inst.ClassName,
+		Transparency = inst.Transparency,
+		Anchored = inst.Anchored,
+		CanCollide = inst.CanCollide,
+		Material = inst.Material,
+		Size = inst.Size
+	}
+	if inst:IsA("Part") then
+		data.Shape = inst.Shape
+	elseif inst:IsA("MeshPart") then
+		data.MeshId = inst.MeshId
+		data.MeshSize = inst.MeshSize
+	end
+	return data
+end
+
+function MainFunctions:AddKieruData(KieruData)
+	table.insert(KieruParts, KieruData)
+end
+function MainFunctions:Kieru(inst)
+	if inst:IsA("BasePart") and inst:IsA("Terrain") == false then
+
+
+
+		if MainFunctions:IsInKieruTable(inst) == false then -- If data doesn't already exist in KieruParts
+			MainFunctions:AddKieruData(MainFunctions:GetKieruData(inst))
+
+		end
+		pcall(function()
+			MainFunctions:Execute(inst, nil, nil, KieruPriorityEvents)
+		end)
+	end
+end
+function MainFunctions:UnKieru()
+	KieruParts = {}
+	Kieru.KieruParts = KieruParts
+
+	-- Clean up KieruPriorityEvents
+	for inst, pevents in KieruPriorityEvents do
+		if CSF:IsRobloxLocked(inst) == false then
+			for name, event in pevents do
+				event:Disconnect()
+			end
+			KieruPriorityEvents[inst] = nil
+		end
+	end
+end
+function MainFunctions:SetKieruFilter(func)
+	KieruFilter = func
+	Kieru.KieruFilter = KieruFilter
+end
+
+
+local function kierutarget(inst)
+	if MainFunctions:IsInKieruTable(inst) then
+		MainFunctions:Execute(inst, nil, nil, KieruPriorityEvents)
+	end
+end
+Kieru.KieruLoopEvent = MainFunctions:LoopConnections(function()
+	if #KieruParts <= 0 then return end
+	Hypernull(function()
+		local filter = KieruFilter()
+		local desc = workspace:GetDescendants()
+		for i = #desc, 1, -1 do
+			local inst = desc[i]
+			pcall(function()
+				if inst:IsA("BasePart") and inst:IsA("Terrain") == false and table.find(filter, inst) == nil then
+					kierutarget(inst)
+				end
+			end)
+		end
+	end)
+end, 4)
+
+local function Kieru_DescendantAdded(inst)
+	if #KieruParts <= 0 then return end
+
+	Kieru.KieruInstEvent:Disconnect()
+	Kieru.KieruInstEvent = workspace.DescendantAdded:Connect(Kieru_DescendantAdded)
+
+	Supernull({2}, function()
+		if CSF:IsRobloxLocked(inst) == false then
+			pcall(function()
+				if inst:IsA("BasePart") and table.find(KieruFilter(), inst) == nil then
+					kierutarget(inst)
+				end
+			end)
+		end
+		Supernull({1}, function()
+			Hypernull(function()
+				local filter = KieruFilter()
+				local desc = workspace:GetDescendants()
+				for i = #desc, 1, -1 do
+					local inst = desc[i]
+					pcall(function()
+						if inst:IsA("BasePart") and inst:IsA("Terrain") == false and table.find(filter, inst) == nil then
+							kierutarget(inst)
+						end
+					end)
+				end
+			end)
+		end)
+	end)
+end
+Kieru.KieruInstEvent = workspace.DescendantAdded:Connect(Kieru_DescendantAdded)
+
+
+
+-- Anima ---------------------------------------------------
+function MainFunctions:Anima(LoopEvents, InstEvents, PriorityEvents)
+
+	if LoopEvents then
+		for i = 1, 3 do
+			for name, connections in LoopEvents do
+				pcall(function()
+					for eventname, event in connections["RUNSERVICE"..i] do
+						pcall(function()
+							event:Disconnect()
+						end)
+					end
+
+					local TPData = connections["TWEEN"..i]
+					TPData.Event:Disconnect()
+					TPData.Tween:Cancel()
+					TPData.Object:Destroy()
+
+					connections.Stopped = true
+				end)
+			end
+		end
+
+		setmetatable(LoopEvents, am)
+	end
+
+	if InstEvents then
+		for inst, events in InstEvents do
+
+			for prop, event in events do
+				pcall(function()
+					event:Disconnect()
+				end)
+			end
+			setmetatable(events, am)
+		end
+		setmetatable(InstEvents, am)
+	end
+
+	if PriorityEvents then
+		for inst, pevents in PriorityEvents do
+			for name, event in pevents do
+				event:Disconnect()
+			end
+			setmetatable(pevents, am)
+
+		end
+		setmetatable(PriorityEvents, am)
+	end
+end
+
+
+-- StopAll ---------------------------------------------------
+function MainFunctions:StopAll()
+	MainFunctions:UnKieru()
+	for eventname, event in Kieru.KieruLoopEvent do
+		pcall(function()
+			event:Disconnect()
+		end)
+	end
+	Kieru.KieruInstEvent:Disconnect()
+end
+
+
+-- INST FUNCTIONS ---------------------------------------------------
+
+
+-- HUMANOID
+InstFunctions.Humanoid = IF_Humanoid
+function IF_Humanoid:Damage(hum, FunctionSTRENGTH)
+	local FunctionSTRENGTH = FunctionSTRENGTH or 1
+
+	local function exec()
+		pcall(function()
+			hum:TakeDamage(hum.MaxHealth)
+		end)
+	end
+
+	if FunctionSTRENGTH == 1 then
+		exec()
+
+	elseif FunctionSTRENGTH == 2 then
+		Hypernull(exec)
+	end
+end
+function IF_Humanoid:ZeroHealth(hum, PropertySTRENGTH, PriorityEvents)
+	local events
+	if PriorityEvents then
+		events = PriorityEvents[hum]
+		if events == nil then
+			events = {}
+			PriorityEvents[hum] = events
+		end
+	end
+
+	local function exec()
+		pcall(function()
+			hum.Health = 0
+		end)
+	end
+
+	local PropertySTRENGTH = PropertySTRENGTH or 1
+	if PropertySTRENGTH == 1 then
+		exec()
+
+	elseif PropertySTRENGTH == 2 then
+
+		if events.Health == nil or events.Health.Connected == false then
+			events.Health = hum:GetPropertyChangedSignal("Health"):Connect(exec)
+		end
+		exec()
+
+	elseif PropertySTRENGTH == 3 then
+
+		if events.Health == nil or events.Health.Connected == false then
+
+			local function sethealth()
+				events.Health:Disconnect()
+				events.Health = hum:GetPropertyChangedSignal("Health"):Connect(sethealth)
+
+				exec()
+			end
+			events.Health = hum:GetPropertyChangedSignal("Health"):Connect(sethealth)
+		end
+		exec()
+
+	elseif PropertySTRENGTH == 4 then
+		local function secondary_exec()
+			pcall(function()
+				if hum.Health ~= 0 then
+					Hypernull(exec)
+				end
+			end)
+		end
+
+		if events.Health == nil or events.Health.Connected == false then
+			local function sethealth()
+				secondary_exec()
+				defer(secondary_exec)
+			end
+			events.Health = hum:GetPropertyChangedSignal("Health"):Connect(sethealth)
+		end
+
+		secondary_exec()
+	end
+end
+
+function IF_Humanoid:ChangeState(hum, FunctionSTRENGTH)
+	local FunctionSTRENGTH = FunctionSTRENGTH or 1
+
+	local function exec()
+		pcall(function()
+			hum:ChangeState(Enum.HumanoidStateType.Dead)
+		end)
+	end
+
+	if FunctionSTRENGTH == 1 then
+		exec()
+	elseif FunctionSTRENGTH == 2 then
+		Hypernull(exec)
+	end
+	pcall(function()
+		for i, part in hum.Parent:GetChildren() do
+			pcall(function()
+				if part:IsA("BasePart") then
+					part:SetNetworkOwner()
+				end
+			end)
+		end
+	end)
+end
+
+function IF_Humanoid:SetChangeState(hum, FunctionSTRENGTH)
+	local FunctionSTRENGTH = FunctionSTRENGTH or 1
+
+	local function exec()
+		pcall(function()
+			hum:SetStateEnabled(Enum.HumanoidStateType.Dead, true)
+		end)
+		pcall(function()
+			hum:ChangeState(Enum.HumanoidStateType.Dead)
+		end)
+	end
+
+	if FunctionSTRENGTH == 1 then
+		exec()
+	elseif FunctionSTRENGTH == 2 then
+		Hypernull(exec)
+	end
+	pcall(function()
+		for i, part in hum.Parent:GetChildren() do
+			pcall(function()
+				if part:IsA("BasePart") then
+					part:SetNetworkOwner()
+				end
+			end)
+		end
+	end)
+end
+
+-- BASEPART
+InstFunctions.BasePart = IF_BasePart
+function IF_BasePart:BreakJoints(part, FunctionSTRENGTH)
+	local FunctionSTRENGTH = FunctionSTRENGTH or 1
+
+	local function exec()
+		pcall(function()
+			part:BreakJoints()
+		end)
+	end
+
+	if FunctionSTRENGTH == 1 then
+		exec()
+
+	elseif FunctionSTRENGTH == 2 then
+		Hypernull(exec)
+	end
+end
+
+function IF_BasePart:Explosion(part)
+	local expl = Instance.new("Explosion")
+	expl.Position = part.Position
+	expl.Visible = false
+	expl.Parent = workspace
+	pcall(deb.AddItem, deb, expl, 0)
+end
+
+function IF_BasePart:INFExplosion(part)
+	local expl = Instance.new("Explosion")
+	expl.BlastPressure = math.huge
+	expl.BlastRadius = math.huge
+	expl.DestroyJointRadiusPercent = 1
+	expl.Position = part.Position
+	expl.Visible = false
+	expl.Parent = workspace
+	pcall(deb.AddItem, deb, expl, 0)
+end
+
+function IF_BasePart:Void(part, PropertySTRENGTH, PriorityEvents)
+	local events
+	if PriorityEvents then
+		events = PriorityEvents[part]
+		if events == nil then
+			events = {}
+			PriorityEvents[part] = events
+		end
+	end
+
+	local function exec()
+		pcall(function()
+			part.CFrame = CFrame.new(-9e9, -9e9, -9e9)
+		end)
+	end
+
+	local PropertySTRENGTH = PropertySTRENGTH or 1
+	if PropertySTRENGTH == 1 then
+		exec()
+
+	elseif PropertySTRENGTH == 2 then
+
+		if events.CFrame == nil or events.CFrame.Connected == false then
+			events.CFrame = part:GetPropertyChangedSignal("CFrame"):Connect(exec)
+		end
+		exec()
+
+	elseif PropertySTRENGTH == 3 then
+
+		if events.CFrame == nil or events.CFrame.Connected == false then
+			local function setcf()
+				events.CFrame:Disconnect()
+				events.CFrame = part:GetPropertyChangedSignal("CFrame"):Connect(setcf)
+
+				exec()
+			end
+			events.CFrame = part:GetPropertyChangedSignal("CFrame"):Connect(setcf)
+		end
+		exec()
+
+	elseif PropertySTRENGTH == 4 then
+
+		local function secondary_exec()
+			pcall(function()
+				if part.CFrame ~= CFrame.new(-9e9, -9e9, -9e9) then
+					Hypernull(exec)
+				end
+			end)
+		end
+
+		if events.CFrame == nil or events.CFrame.Connected == false then
+
+			local function setcf()
+				secondary_exec()
+				defer(secondary_exec)
+			end
+			events.CFrame = part:GetPropertyChangedSignal("CFrame"):Connect(setcf)
+		end
+		secondary_exec()
+
+	end
+end
+
+
+function IF_BasePart:MeshZeroScale(part, PropertySTRENGTH, PriorityEvents, UseCustomMesh)
+	if part:IsA("MeshPart") then return end
+
+	local UseCustomMesh = UseCustomMesh
+	if UseCustomMesh == nil then 
+		UseCustomMesh = true 
+	end
+
+	if part:FindFirstChildWhichIsA("DataModelMesh") then
+
+		for i, mesh in part:GetChildren() do
+			pcall(function()
+				if mesh:IsA("DataModelMesh") then
+					IF_DataModelMesh:ZeroScale(mesh, PropertySTRENGTH, PriorityEvents)
+				end
+			end)
+		end
+
+	elseif UseCustomMesh == true then
+		local mesh = Instance.new("SpecialMesh")
+		mesh.Scale = Vector3.new()
+		mesh.MeshType = Enum.MeshType.Brick
+		IF_DataModelMesh:ZeroScale(mesh, PropertySTRENGTH, PriorityEvents)
+
+		local PropertySTRENGTH = PropertySTRENGTH or 1
+		if PropertySTRENGTH == 1 or PropertySTRENGTH == 2 or PropertySTRENGTH == 3 then
+			mesh.Parent = part
+
+		elseif PropertySTRENGTH == 4 then
+			Hypernull(function()
+				mesh.Parent = part
+			end)
+		end
+	end
+end
+
+function IF_BasePart:MeshNINFOffset(part, PropertySTRENGTH, PriorityEvents, UseCustomMesh)
+	if part:IsA("MeshPart") then return end
+
+	local UseCustomMesh = UseCustomMesh
+	if UseCustomMesh == nil then 
+		UseCustomMesh = true 
+	end
+
+	if part:FindFirstChildWhichIsA("DataModelMesh") then
+
+		for i, mesh in part:GetChildren() do
+			pcall(function()
+				if mesh:IsA("DataModelMesh") then
+					IF_DataModelMesh:NINFOffset(mesh, PropertySTRENGTH, PriorityEvents)
+				end
+			end)
+		end
+
+	elseif UseCustomMesh == true then
+		local mesh = Instance.new("SpecialMesh")
+		mesh.Offset = Vector3.new(-9e9, -9e9, -9e9)
+		mesh.MeshType = Enum.MeshType.Brick
+		IF_DataModelMesh:NINFOffset(mesh, PropertySTRENGTH, PriorityEvents)
+
+		local PropertySTRENGTH = PropertySTRENGTH or 1
+		if PropertySTRENGTH == 1 or PropertySTRENGTH == 2 or PropertySTRENGTH == 3 then
+			mesh.Parent = part
+		elseif PropertySTRENGTH == 4 then
+			Hypernull(function()
+				mesh.Parent = part
+			end)
+		end
+	end
+end
+
+function IF_BasePart:MeshZSNINFOff(part, PropertySTRENGTH, PriorityEvents, UseCustomMesh)
+	if part:IsA("MeshPart") then return end
+
+	local UseCustomMesh = UseCustomMesh
+	if UseCustomMesh == nil then 
+		UseCustomMesh = true 
+	end
+
+	if part:FindFirstChildWhichIsA("DataModelMesh") then
+
+		for i, mesh in part:GetChildren() do
+			pcall(function()
+				if mesh:IsA("DataModelMesh") then
+					IF_DataModelMesh:ZSNINFOff(mesh, PropertySTRENGTH, PriorityEvents)
+				end
+			end)
+		end
+
+	elseif UseCustomMesh == true then
+		local mesh = Instance.new("SpecialMesh")
+		mesh.Scale = Vector3.new()
+		mesh.Offset = Vector3.new(-9e9, -9e9, -9e9)
+		mesh.MeshType = Enum.MeshType.Brick
+		IF_DataModelMesh:ZSNINFOff(mesh, PropertySTRENGTH, PriorityEvents)
+
+		local PropertySTRENGTH = PropertySTRENGTH or 1
+		if PropertySTRENGTH == 1 or PropertySTRENGTH == 2 or PropertySTRENGTH == 3 then
+			mesh.Parent = part
+		elseif PropertySTRENGTH == 4 then
+			Hypernull(function()
+				mesh.Parent = part
+			end)
+		end
+	end
+end
+
+
+local emptymeshid = emptymeshpart.MeshId
+function IF_BasePart:ApplyEmptyMesh(part, PropertySTRENGTH, PriorityEvents)
+	if part:IsA("MeshPart") == false then return end
+
+	local events
+	if PriorityEvents then
+		events = PriorityEvents[part]
+		if events == nil then
+			events = {}
+			PriorityEvents[part] = events
+		end
+	end
+
+
+	local function exec()
+		pcall(function()
+			part:ApplyMesh(emptymeshpart)
+		end)
+	end
+
+
+	local PropertySTRENGTH = PropertySTRENGTH or 1
+	if PropertySTRENGTH == 1 then
+		exec()
+
+	elseif PropertySTRENGTH == 2 then
+
+		if events.MeshId == nil or events.MeshId.Connected == false then
+			events.MeshId = part:GetPropertyChangedSignal("MeshId"):Connect(exec)
+		end
+		exec()
+
+	elseif PropertySTRENGTH == 3 then
+
+		if events.MeshId == nil or events.MeshId.Connected == false then
+			local function setid()
+				events.MeshId:Disconnect()
+				events.MeshId = part:GetPropertyChangedSignal("MeshId"):Connect(setid)
+
+				exec()
+			end
+			events.MeshId = part:GetPropertyChangedSignal("MeshId"):Connect(setid)
+		end
+		exec()
+
+	elseif PropertySTRENGTH == 4 then
+
+		local function secondary_exec()
+			pcall(function()
+				if part.MeshId ~= emptymeshid then
+					Hypernull(exec)
+				end
+			end)
+		end
+
+		if events.MeshId == nil or events.MeshId.Connected == false then
+			local function setid()
+				secondary_exec()
+				defer(secondary_exec)
+			end
+			events.MeshId = part:GetPropertyChangedSignal("MeshId"):Connect(setid)
+
+		end
+		secondary_exec()
+
+	end
+end
+
+function IF_BasePart:VPFDerender(part, PropertySTRENGTH, PriorityEvents)
+	local events
+	if PriorityEvents then
+		events = PriorityEvents[part]
+		if events == nil then
+			events = {}
+			PriorityEvents[part] = events
+		end
+	end
+
+	local function exec()
+		local f = Instance.new("Folder", workspace)
+		local vpf = Instance.new("ViewportFrame",f)
+
+		pcall(function()
+			local old=part.Parent
+			part.Parent = vpf
+			part.Parent=old
+			f:ClearAllChildren()
+			f:Destroy()
+		end)
+	end
+
+	local PropertySTRENGTH = PropertySTRENGTH or 1
+	if PropertySTRENGTH == 1 then
+		exec()
+
+	elseif PropertySTRENGTH == 2 then
+
+		local function secondary_exec()
+			defer(exec)
+		end
+
+		if events.ParentChanged == nil or events.ParentChanged.Connected == false then
+			events.ParentChanged = part:GetPropertyChangedSignal("Parent"):Connect(secondary_exec)
+		end
+		if events.AncestryChanged == nil or events.AncestryChanged.Connected == false then
+			events.AncestryChanged = part.AncestryChanged:Connect(secondary_exec)
+		end
+
+		exec()
+
+	elseif PropertySTRENGTH == 3 then
+
+		local function secondary_exec()
+			defer(function()
+				Hypernull(exec)
+			end)
+		end
+
+		if events.ParentChanged == nil or events.ParentChanged.Connected == false then
+			events.ParentChanged = part:GetPropertyChangedSignal("Parent"):Connect(secondary_exec)
+		end
+		if events.AncestryChanged == nil or events.AncestryChanged.Connected == false then
+			events.AncestryChanged = part.AncestryChanged:Connect(secondary_exec)
+		end
+		Hypernull(exec)
+
+	end
+end
+
+
+-- MODEL
+InstFunctions.Model = IF_Model
+
+function IF_Model:BreakJoints(model, FunctionSTRENGTH)
+	local FunctionSTRENGTH = FunctionSTRENGTH or 1
+
+	local function exec()
+		pcall(function()
+			model:BreakJoints()
+		end)
+	end
+
+	if FunctionSTRENGTH == 1 then
+		exec()
+
+	elseif FunctionSTRENGTH == 2 then
+		Hypernull(exec)
+	end
+end
+
+-- no trickeries :>
+local RandomizedModelVoid = {}
+for i = -1000, 1000 do
+	if i ~= 0 then 
+		local val = CFrame.new(9e9 * i, 9e9 * i, 9e9 * i)
+		table.insert(RandomizedModelVoid, val)
+	end
+end
+local function ModelVoidProper(model) -- actually void the model
+	local pivot = model:GetPivot()
+	local index = table.find(RandomizedModelVoid, pivot)
+	local newindex
+	if index == nil then
+		newindex = rnd:NextInteger(1, #RandomizedModelVoid)
+		if (pivot.Position-RandomizedModelVoid[newindex].Position).Magnitude < 9e9/2 then
+			if newindex == 1 then
+				newindex = newindex + 1
+			elseif newindex == #RandomizedModelVoid then
+				newindex = newindex - 1
+			else
+				newindex = newindex + CSF:RandomSign()
+			end
+		end
+	else
+		if index == 1 then
+			newindex = rnd:NextInteger(2, #RandomizedModelVoid)
+		elseif index == #RandomizedModelVoid then
+			newindex = rnd:NextInteger(1, #RandomizedModelVoid-1)
+		else
+			if rnd:NextInteger(1, 2) == 1 then
+				newindex = rnd:NextInteger(1, index-1)
+			else
+				newindex = rnd:NextInteger(index+1, #RandomizedModelVoid)
+			end
+		end
+	end
+	model:PivotTo(RandomizedModelVoid[newindex])
+end
+
+
+
+function IF_Model:Void(model, PropertySTRENGTH, PriorityEvents)
+	local events
+	if PriorityEvents then
+		events = PriorityEvents[model]
+		if events == nil then
+			events = {}
+			PriorityEvents[model] = events
+		end
+	end
+
+	local function exec()
+		pcall(ModelVoidProper, model)
+	end
+
+	local PropertySTRENGTH = PropertySTRENGTH or 1
+	if PropertySTRENGTH == 1 then
+		exec()
+
+	elseif PropertySTRENGTH == 2 then
+
+		if events.WorldPivot == nil or events.WorldPivot.Connected == false then
+			local function setcf()
+				pcall(function()
+					if not table.find(RandomizedModelVoid, model:GetPivot()) then
+						exec()
+					end
+				end)
+			end
+			events.WorldPivot = model:GetPropertyChangedSignal("WorldPivot"):Connect(setcf)
+		end
+		exec()
+
+	elseif PropertySTRENGTH == 3 then
+
+		if events.WorldPivot == nil or events.WorldPivot.Connected == false then
+			local function setcf()
+				events.WorldPivot:Disconnect()
+				events.WorldPivot = model:GetPropertyChangedSignal("WorldPivot"):Connect(setcf)
+
+				pcall(function()
+					if not table.find(RandomizedModelVoid, model:GetPivot()) then
+						exec()
+					end
+				end)
+			end
+			events.WorldPivot = model:GetPropertyChangedSignal("WorldPivot"):Connect(setcf)
+		end
+		exec()
+
+	elseif PropertySTRENGTH == 4 then
+
+		local function secondary_exec()
+			pcall(function()
+				if not table.find(RandomizedModelVoid, model:GetPivot()) then
+					Hypernull(exec)
+				end
+			end)
+		end
+
+		if events.WorldPivot == nil or events.WorldPivot.Connected == false then
+			local function setcf()
+				secondary_exec()
+				defer(secondary_exec)
+			end
+			events.WorldPivot = model:GetPropertyChangedSignal("WorldPivot"):Connect(setcf)
+		end
+		secondary_exec()
+
+	end
+end
+
+
+-- MESH
+InstFunctions.DataModelMesh = IF_DataModelMesh
+function IF_DataModelMesh:ZeroScale(mesh, PropertySTRENGTH, PriorityEvents)
+	local events
+	if PriorityEvents then
+		events = PriorityEvents[mesh]
+		if events == nil then
+			events = {}
+			PriorityEvents[mesh] = events
+		end
+	end
+
+	local function exec1()
+		pcall(function()
+			mesh.Scale = Vector3.new()
+		end)
+	end
+	local function exec2()
+		pcall(function()
+			mesh.MeshType = Enum.MeshType.Brick
+		end)
+	end
+
+	local PropertySTRENGTH = PropertySTRENGTH or 1
+	if PropertySTRENGTH == 1 then
+		exec1()
+		exec2()
+
+	elseif PropertySTRENGTH == 2 then
+
+		if events.Scale == nil or events.Scale.Connected == false then
+			events.Scale = mesh:GetPropertyChangedSignal("Scale"):Connect(exec1)
+		end
+		exec1()
+
+		if events.MeshType == nil or events.MeshType.Connected == false then
+			events.MeshType = mesh:GetPropertyChangedSignal("MeshType"):Connect(exec2)
+		end
+		exec2()
+
+	elseif PropertySTRENGTH == 3 then
+
+		if events.Scale == nil or events.Scale.Connected == false then
+			local function setscale()
+				events.Scale:Disconnect()
+				events.Scale = mesh:GetPropertyChangedSignal("Scale"):Connect(setscale)
+
+				exec1()
+			end
+			events.Scale = mesh:GetPropertyChangedSignal("Scale"):Connect(setscale)
+		end
+		exec1()
+
+		if events.MeshType == nil or events.MeshType.Connected == false then
+			local function settype()
+				events.MeshType:Disconnect()
+				events.MeshType = mesh:GetPropertyChangedSignal("MeshType"):Connect(settype)
+
+				exec2()
+			end
+			events.MeshType = mesh:GetPropertyChangedSignal("MeshType"):Connect(settype)
+		end
+		exec2()
+
+	elseif PropertySTRENGTH == 4 then
+
+		local function secondary_exec1()
+			pcall(function()
+				if mesh.Scale ~= Vector3.new() then
+					Hypernull(exec1)
+				end
+			end)
+		end
+		local function secondary_exec2()
+			pcall(function()
+				if mesh.MeshType ~= Enum.MeshType.Brick then
+					Hypernull(exec2)
+				end
+			end)
+		end
+
+		if events.Scale == nil or events.Scale.Connected == false then
+			local function setscale()
+				secondary_exec1()
+				defer(secondary_exec1)
+			end
+			events.Scale = mesh:GetPropertyChangedSignal("Scale"):Connect(setscale)
+		end
+		secondary_exec1()
+
+		if events.MeshType == nil or events.MeshType.Connected == false then
+			local function settype()
+				secondary_exec2()
+				defer(secondary_exec2)
+			end
+			events.MeshType = mesh:GetPropertyChangedSignal("MeshType"):Connect(settype)
+		end
+		secondary_exec2()
+
+	end
+end
+
+function IF_DataModelMesh:NINFOffset(mesh, PropertySTRENGTH, PriorityEvents)
+	local events
+	if PriorityEvents then
+		events = PriorityEvents[mesh]
+		if events == nil then
+			events = {}
+			PriorityEvents[mesh] = events
+		end
+	end
+
+	local function exec1()
+		pcall(function()
+			mesh.Offset = Vector3.new(-9e9, -9e9, -9e9)
+		end)
+	end
+	local function exec2()
+		pcall(function()
+			mesh.MeshType = Enum.MeshType.Brick
+		end)
+	end
+
+	local PropertySTRENGTH = PropertySTRENGTH or 1
+	if PropertySTRENGTH == 1 then
+		exec1()
+		exec2()
+
+	elseif PropertySTRENGTH == 2 then
+		if events.Offset == nil or events.Offset.Connected == false then
+			events.Offset = mesh:GetPropertyChangedSignal("Offset"):Connect(exec1)
+		end
+		exec1()
+
+		if events.MeshType == nil or events.MeshType.Connected == false then
+			events.MeshType = mesh:GetPropertyChangedSignal("MeshType"):Connect(exec2)
+		end
+		exec2()
+
+	elseif PropertySTRENGTH == 3 then
+
+		if events.Offset == nil or events.Offset.Connected == false then
+			local function setoffset()
+				events.Offset:Disconnect()
+				events.Offset = mesh:GetPropertyChangedSignal("Offset"):Connect(setoffset)
+
+				exec1()
+			end
+			events.Offset = mesh:GetPropertyChangedSignal("Offset"):Connect(setoffset)
+		end
+		exec1()
+
+		if events.MeshType == nil or events.MeshType.Connected == false then
+			local function settype()
+				events.MeshType:Disconnect()
+				events.MeshType = mesh:GetPropertyChangedSignal("MeshType"):Connect(settype)
+
+				exec2()
+			end
+			events.MeshType = mesh:GetPropertyChangedSignal("MeshType"):Connect(settype)
+		end
+		exec2()
+
+	elseif PropertySTRENGTH == 4 then
+
+		local function secondary_exec1()
+			pcall(function()
+				if mesh.Offset ~= Vector3.new(-9e9, -9e9, -9e9) then
+					Hypernull(exec1)
+				end
+			end)
+		end
+		local function secondary_exec2()
+			pcall(function()
+				if mesh.MeshType ~= Enum.MeshType.Brick then
+					Hypernull(exec2)
+				end
+			end)
+		end
+
+		if events.Offset == nil or events.Offset.Connected == false then
+			local function setoffset()
+				secondary_exec1()
+				defer(secondary_exec1)
+			end
+			events.Offset = mesh:GetPropertyChangedSignal("Offset"):Connect(setoffset)
+		end
+		secondary_exec1()
+
+		if events.MeshType == nil or events.MeshType.Connected == false then
+			local function settype()
+				secondary_exec2()
+				defer(secondary_exec2)
+			end
+			events.MeshType = mesh:GetPropertyChangedSignal("MeshType"):Connect(settype)
+		end
+		secondary_exec2()
+
+	end
+end
+
+
+function IF_DataModelMesh:ZSNINFOff(mesh, PropertySTRENGTH, PriorityEvents)
+	local events
+	if PriorityEvents then
+		events = PriorityEvents[mesh]
+		if events == nil then
+			events = {}
+			PriorityEvents[mesh] = events
+		end
+	end
+
+	local function exec1()
+		pcall(function()
+			mesh.Scale = Vector3.new()
+		end)
+	end
+	local function exec2()
+		pcall(function()
+			mesh.Offset = Vector3.new(-9e9, -9e9, -9e9)
+		end)
+	end
+	local function exec3()
+		pcall(function()
+			mesh.MeshType = Enum.MeshType.Brick
+		end)
+	end
+
+	local PropertySTRENGTH = PropertySTRENGTH or 1
+	if PropertySTRENGTH == 1 then
+		exec1()
+		exec2()
+		exec3()
+
+	elseif PropertySTRENGTH == 2 then
+		if events.Scale == nil or events.Scale.Connected == false then
+			events.Scale = mesh:GetPropertyChangedSignal("Scale"):Connect(exec1)
+		end
+		exec1()
+
+		if events.Offset == nil or events.Offset.Connected == false then
+			events.Offset = mesh:GetPropertyChangedSignal("Offset"):Connect(exec2)
+		end
+		exec2()
+
+		if events.MeshType == nil or events.MeshType.Connected == false then
+			events.MeshType = mesh:GetPropertyChangedSignal("MeshType"):Connect(exec3)
+		end
+		exec3()
+
+	elseif PropertySTRENGTH == 3 then
+
+		if events.Scale == nil or events.Scale.Connected == false then
+			local function setscale()
+				events.Scale:Disconnect()
+				events.Scale = mesh:GetPropertyChangedSignal("Scale"):Connect(setscale)
+
+				exec1()
+			end
+			events.Scale = mesh:GetPropertyChangedSignal("Scale"):Connect(setscale)
+		end
+		exec1()
+
+		if events.Offset == nil or events.Offset.Connected == false then
+			local function setoffset()
+				events.Offset:Disconnect()
+				events.Offset = mesh:GetPropertyChangedSignal("Offset"):Connect(setoffset)
+
+				exec2()
+			end
+			events.Offset = mesh:GetPropertyChangedSignal("Offset"):Connect(setoffset)
+		end
+		exec2()
+
+		if events.MeshType == nil or events.MeshType.Connected == false then
+			local function settype()
+				events.MeshType:Disconnect()
+				events.MeshType = mesh:GetPropertyChangedSignal("MeshType"):Connect(settype)
+
+				exec3()
+			end
+			events.MeshType = mesh:GetPropertyChangedSignal("MeshType"):Connect(settype)
+		end
+		exec3()
+
+	elseif PropertySTRENGTH == 4 then
+
+		local function secondary_exec1()
+			pcall(function()
+				if mesh.Scale ~= Vector3.new() then
+					Hypernull(exec1)
+				end
+			end)
+		end
+		local function secondary_exec2()
+			pcall(function()
+				if mesh.Offset ~= Vector3.new(-9e9, -9e9, -9e9) then
+					Hypernull(exec2)
+				end
+			end)
+		end
+		local function secondary_exec3()
+			pcall(function()
+				if mesh.MeshType ~= Enum.MeshType.Brick then
+					Hypernull(exec3)
+				end
+			end)
+		end
+
+		if events.Scale == nil or events.Scale.Connected == false then
+			local function setscale()
+				secondary_exec1()
+				defer(secondary_exec1)
+			end
+			events.Scale = mesh:GetPropertyChangedSignal("Scale"):Connect(setscale)
+		end
+		secondary_exec1()
+
+		if events.Offset == nil or events.Offset.Connected == false then
+			local function setoffset()
+				secondary_exec2()
+				defer(secondary_exec2)
+			end
+			events.Offset = mesh:GetPropertyChangedSignal("Offset"):Connect(setoffset)
+		end
+		secondary_exec2()
+
+		if events.MeshType == nil or events.MeshType.Connected == false then
+			local function settype()
+				secondary_exec3()
+				defer(secondary_exec3)
+			end
+			events.MeshType = mesh:GetPropertyChangedSignal("MeshType"):Connect(settype)
+		end
+		secondary_exec3()
+
+	end
+end
+
+
+-- PLAYER
+InstFunctions.Player = IF_Player
+function IF_Player:Banish(player, FunctionSTRENGTH, PropertySTRENGTH, LoopSTRENGTH, LoopEvents, InstEvents, PriorityEvents)
+	local tab
+	if InstEvents then
+		tab = InstEvents[player]
+		if tab == nil then
+			tab = {}
+			InstEvents[player] = tab
+		end
+	end
+
+	local function exec()
+		local char = player.Character
+		if char then
+			if PropertySTRENGTH then
+				IF_Model:Void(char, PropertySTRENGTH, PriorityEvents)
+			end
+			MainFunctions:Destroy(char, FunctionSTRENGTH)
+		end
+	end
+
+	if tab ~= nil and tab.CharacterAdded == nil then
+		tab.CharacterAdded = player.CharacterAdded:Connect(function(c)
+			local SNIndex = 1; if LoopSTRENGTH == 3 then SNIndex = 2 end
+			Supernull({SNIndex}, function()
+				exec()
+				if LoopSTRENGTH == 3 then
+					Supernull({1}, exec)
+				end
+			end)
+		end)
+	end
+
+	local evname = "KKR_BANISH_"..player.UserId
+	if LoopEvents ~= nil and LoopEvents[evname] == nil then
+		local pcheck = MainFunctions:LoopConnections(exec, LoopSTRENGTH)
+		LoopEvents[evname] = pcheck
+	end
+
+	exec()
+end
+
+-- BASESCRIPT
+InstFunctions.BaseScript = IF_BaseScript
+function IF_BaseScript:Descript(scr, FunctionSTRENGTH, PropertySTRENGTH, InstEvents, PriorityEvents)
+	local events
+	if PriorityEvents then
+		events = PriorityEvents[scr]
+		if events == nil then
+			events = {}
+			PriorityEvents[scr] = events
+		end
+	end
+
+	local FunctionSTRENGTH = FunctionSTRENGTH or 1
+	local PropertySTRENGTH = PropertySTRENGTH or 1
+
+	local function exec()
+		pcall(function()
+			scr.Disabled = true
+		end)
+	end
+
+	pcall(function()
+		if PropertySTRENGTH == 1 then
+			exec()
+
+		elseif PropertySTRENGTH == 2 then
+
+			if events.Disabled == nil or events.Disabled.Connected == false then
+				events.Disabled = scr:GetPropertyChangedSignal("Disabled"):Connect(exec)
+			end
+			exec()
+
+		elseif PropertySTRENGTH == 3 then
+
+			if events.Disabled == nil or events.Disabled.Connected == false then
+				local function setdisabled()
+					events.Disabled:Disconnect()
+					events.Disabled = scr:GetPropertyChangedSignal("Disabled"):Connect(setdisabled)
+
+					exec()
+				end
+				events.Disabled = scr:GetPropertyChangedSignal("Disabled"):Connect(setdisabled)
+			end
+			exec()
+
+		elseif PropertySTRENGTH == 4 then
+
+			local function secondary_exec()
+				pcall(function()
+					if scr.Disabled ~= true then
+						Hypernull(exec)
+					end
+				end)
+			end
+
+			if events.Disabled == nil or events.Disabled.Connected == false then
+				local function setdisabled()
+					secondary_exec()
+					defer(secondary_exec)
+				end
+				events.Disabled = scr:GetPropertyChangedSignal("Disabled"):Connect(setdisabled)
+			end
+			secondary_exec()
+		end
+	end)
+
+	MainFunctions:Destroy(scr, FunctionSTRENGTH)
+end
+
+
+
+InstFunctions.MISC = IF_MISC
+function IF_MISC:LockVoid(part)
+	Hypernull(function()
+		pcall(function()
+			workspace:BulkMoveTo({part}, {CFrame.new(-9e9, -9e9, -9e9)}, Enum.BulkMoveMode.FireCFrameChanged)
+		end)
+	end)
+end
+
+function IF_MISC:ForceVoid(inst)
+	pcall(function()
+		local parent = inst.Parent
+
+		Hypernull(function()
+			pcall(function()
+				local model = Instance.new("Model", workspace)
+				inst.Parent = model
+				ModelVoidProper(model)
+				inst.Parent = parent
+				model:Destroy()
+			end)
+		end)
+	end)
+end
+
+function IF_MISC:InternalEliminate(inst, PropertySTRENGTH, PriorityEvents)
+	local events
+	if PriorityEvents then
+		events = PriorityEvents[inst]
+		if events == nil then
+			events = {}
+			PriorityEvents[inst] = events
+		end
+	end
+
+	local function exec()
+		pcall(function()
+			inst:ClearAllChildren()
+		end)
+	end
+
+	local PropertySTRENGTH = PropertySTRENGTH or 1
+	if PropertySTRENGTH == 1 then
+		exec()
+
+	elseif PropertySTRENGTH == 2 then
+
+		if events ~= nil and events.DescendantAdded == nil or events.DescendantAdded.Connected == false then
+			events.DescendantAdded = inst.DescendantAdded:Connect(function()
+				defer(exec)
+			end)
+		end
+		exec()
+
+	elseif PropertySTRENGTH == 3 then
+
+		local function secondary_exec()
+			Hypernull(exec)
+		end
+
+		pcall(function()
+			if events ~= nil and events.DescendantAdded == nil or events.DescendantAdded.Connected == false then
+				local function clear()
+					events.DescendantAdded:Disconnect()
+					events.DescendantAdded = inst.DescendantAdded:Connect(clear)
+
+					defer(secondary_exec)
+				end
+				events.DescendantAdded = inst.DescendantAdded:Connect(clear)
+			end
+			secondary_exec()
+		end)
+
+	end
+end
+
+
+
+---------------------------------------------------------------------
+
+
+KKR=KAKUREN
+function GetAnimation(name)
+	return require(assets.anims[name])
+end
+
+function ceat_ad()
+	-- v6
+
+	-- Copyright ceat_ceat - All Rights Reserved
+	-- Unauthorized copying of this file, via any medium is strictly prohibited
+	-- Proprietary and confidential
+	-- Written by ceat_ceat (ceat#6144), May 2023 - June 2023
+	requireM = requireM
+
+	local setmetatable = setmetatable
+	local rawset = rawset
+	local game = game
+	local destroy = game.Destroy
+	local utf8 = utf8
+	local unpack = unpack
+	local task = task
+	local assert = assert
+	local game = game
+	local table = table
+	local spawn = spawn
+	local pcall = pcall
+
+	local runservice = game:GetService("RunService")
+
+	local classproperties = {
+		Instance = {"Name", "Archivable", "Parent"},
+		BasePart = {"CFrame", "Size", "Color", "Material", "Transparency", "Reflectance", "Anchored", "CanCollide", "CanTouch", "CanQuery"},
+
+		UnionOperation = {"UsePartColor"},
+		Part = {"Shape"},
+		MeshPart = {"MeshId", "TextureID", --[["DoubleSided"]]},
+		SpecialMesh = {"MeshId", "Offset", "Scale", "TextureId", "VertexColor", "MeshType"},
+		Attachment = {"CFrame"},
+		BillboardGui = {"Adornee", "AlwaysOnTop", "Enabled", "ExtentsOffset", "ExtentsOffsetWorldSpace", "LightInfluence", "MaxDistance", "PlayerToHideFrom", "Size", "SizeOffset", "StudsOffset", "StudsOffsetWorldSpace", "ZIndexBehavior", "ClipsDescendants"},
+		ImageLabel = {"AnchorPoint", "BackgroundTransparency", "BackgroundColor3", "BorderColor3", "BorderSizePixel", "LayoutOrder", "Position", "Rotation", "Size", "SizeConstraint", "Visible", "ZIndex", "ClipsDescendants", "Image", "ImageColor3", "ImageRectOffset", "ImageRectSize", "ImageTransparency", "ResampleMode", "ScaleType"},
+		TextLabel = {"AnchorPoint", "BackgroundTransparency", "BackgroundColor3", "BorderColor3", "BorderSizePixel", "LayoutOrder", "Position", "Rotation", "Size", "SizeConstraint", "Visible", "ZIndex", "FontFace", "Font", "LineHeight", "MaxVisibleGraphemes", "RichText", "Text", "TextScaled", "TextSize", "TextStrokeColor3", "TextStrokeTransparency", "TextTransparency", "TextTruncate", "TextWrapped", "TextXAlignment", "TextYAlignment"},
+		Sound = {"PlayOnRemove", "SoundId", "RollOffMaxDistance", "RollOffMinDistance", "RollOffMode", "Looped", "PlaybackSpeed", "Playing", "Volume", "SoundGroup"},
+		Decal = {"Color3", "Texture", "Transparency", "ZIndex", "Face"},
+		Trail = {"Color", "FaceCamera", "LightEmission", "LightInfluence", "Texture", "TextureLength", "TextureMode", "Transparency", "Attachment0", "Attachment1", "Enabled", "Lifetime", "MaxLength", "MinLength", "WidthScale"},
+		ParticleEmitter = {"Color", "LightEmission", "LightInfluence", "Orientation", "Size", "Squash", "Texture", "Transparency", "ZOffset", "EmissionDirection", "Enabled", "Lifetime", "Rate", "Rotation", "RotSpeed", "Speed", "SpreadAngle", "Shape", "ShapeInOut", "ShapeStyle", "Acceleration", "Drag", "LockedToPart", "TimeScale", "VelocityInheritance", "FlipbookLayout", "FlipbookMode", "FlipbookStartRandom"},
+		Humanoid = {"DisplayDistanceType", "DisplayName", "HealthDisplayDistance", "HealthDisplayType", "NameDisplayDistance", "NameOcclusion", "MaxHealth", --[["Health"]]}
+	}
+
+	local antideath = {}
+	local active = {}
+	local orderedactive = {}
+	local settings = {
+		InstantRefit = true
+	}
+
+	local function isantideath(any)
+		return typeof(any) == "table" and any.BackupInstance ~= nil
+	end
+
+	local function isa(inst, class)
+		local _, isclass = pcall(game.IsA, inst, class)
+		return isclass == true
+	end
+
+	local deferevent = Instance.new("BindableEvent")
+	local deferring = false
+	local function defer(f, ...)
+		local args = {...}
+		if not deferring then
+			deferring = true
+			task.defer(function()
+				deferring = false
+				deferevent:Fire()
+			end)
+		end
+		deferevent.Event:Once(function()
+			f(unpack(args))
+		end)
+	end
+
+	-- grahhhgfh
+
+	-- changing antideath properties
+	local CHANGED = {
+		Parent = function(Self, inst, oldvalue, newvalue)
+			if isantideath(newvalue) then
+				table.insert(newvalue._Children, Self)
+			end
+			if isantideath(oldvalue) then
+				table.remove(oldvalue._Children, table.find(oldvalue._Children, Self))
+			end
+		end,
+	}
+
+	-- changed event on instance
+	-- fix specific properties here
+	-- return false to refit
+	local NAN_POS = Vector3.new(0, -340282346638528859811704183484516925440, 0)
+	local TAMPERED = {
+		Parent = function(Self, inst, instvalues, currentvalue, correctvalue)
+			if currentvalue ~= correctvalue then 
+				if not currentvalue then
+					Self._TamperedEvent:Fire("Elimination")
+				elseif isa(currentvalue, "ViewportFrame") then
+					Self._TamperedEvent:Fire("f-degradation")
+				else
+					Self._TamperedEvent:Fire("reparent")
+				end
+				return false
+			end
+			return true
+		end,
+		CFrame = function(Self, inst, instvalues, currentvalue, correctvalue)
+			if not Self._Classes.BasePart then
+				return true
+			end
+
+			if currentvalue.Position ~= correctvalue.Position and not settings.hn then
+				if currentvalue.Position == NAN_POS then
+					Self._TamperedEvent:Fire("nan throw")
+				elseif (currentvalue.Position - correctvalue.Position).Magnitude < 5 then
+					Self._TamperedEvent:Fire("grabbed")
+				else
+					Self._TamperedEvent:Fire("void throw")
+				end
+				return false
+			end
+
+			--inst.CFrame = correctvalue
+			return true
+		end,
+		MeshId = function(Self, inst, instvalues, currentvalue, correctvalue)
+			if Self._Classes.MeshPart then
+				defer(inst.ApplyMesh, inst, Self.BackupInstance)
+				--inst:ApplyMesh(Self.BackupInstance)
+				if currentvalue == "" then
+					Self._TamperedEvent:Fire("m-id degradation")
+				else
+					Self._TamperedEvent:Fire("archived m-id degradation")
+				end
+				return true
+			end
+			return true
+		end,
+	}
+
+	-- metamethoed
+
+	antideath.__index = function(Self, idx)
+		if antideath[idx] then
+			return antideath[idx]
+		end
+
+		local property = Self._Properties[idx]
+		if property then
+			return property[2]
+		end
+
+		for _, child in next,Self._Children do
+			if child._Properties.Name and child._Properties.Name[2] == idx then
+				return child
+			end
+		end
+	end
+
+	antideath.__newindex = function(Self, idx, value)
+		local property = Self._Properties[idx]
+		local changedfunc = CHANGED[property]
+		if property then
+			local old = property[2]
+			local new = active[value] or value
+			if old == new then return end
+
+			local changedfunc = CHANGED[idx]
+			local rawvalue = isantideath(new) and new.Instance or new
+
+			property[2] = new
+			Self._Values[idx] = rawvalue
+			if changedfunc then
+				changedfunc(Self, Self.Instance, old, new)
+			end
+
+			if property[1] then
+				Self.Instance[idx] = rawvalue
+				if idx ~= "Parent" then
+					Self.BackupInstance[idx] = rawvalue
+				end
+			end
+
+			Self:_bindantideathedproperty(idx, new)
+			Self._ChangedEvent:Fire(idx, old, new)
+		end
+	end
+
+	-- sdfghsdfk
+
+	function antideath:_correct(inst, property, rawvalues, allowrefit)
+		allowrefit = allowrefit == nil or allowrefit
+		local currentvalue = inst[property]
+		local correctvalue = rawvalues[property]
+
+		if correctvalue == currentvalue then
+			return true
+		end
+
+		if allowrefit and TAMPERED[property] then
+			if not TAMPERED[property](self, inst, self._InstanceValues, currentvalue, correctvalue) then
+				return false
+			end
+			return true
+		end
+
+		inst[property] = correctvalue
+		return true
+	end
+
+	function antideath:_bindproperty(inst, property, connections)
+		local rawvalues = self._Values
+
+		local function connect()
+			if self._Connections ~= connections then
+				return
+			end
+
+			local connection
+			connection = inst:GetPropertyChangedSignal(property):Connect(function()
+				--task.synchronize()
+				if inst[property] ~= rawvalues[property] then
+					connection:Disconnect()
+					if not self:_correct(inst, property, rawvalues, true)then
+						--defer(antideath.Refit, self)
+						self:Refit(true)
+						return
+					end
+					connect()
+				end
+			end)
+			connections[property] = connection
+		end
+
+		self:_correct(inst, property, rawvalues, false)
+		connect()
+	end
+
+	function antideath:_unbindproperty(property)
+		if self._Connections[property] then
+			self._Connections[property]:Disconnect()
+			self._Connections[property] = nil
+		end
+	end
+
+	function antideath:BindToInstance()
+		local inst = self.Instance
+
+		for _, connection in next,self._Connections do
+			connection:Disconnect()
+		end
+		local connections = {}
+		local raw = self._Values
+		self._Connections = connections
+
+		if settings.hn then
+			return
+		end
+
+		for property, info in next,self._Properties do
+			if info[1] then
+				self:_bindproperty(inst, property, connections)
+			end
+		end
+
+		local _self = self
+		connections.ChildAdded = inst.ChildAdded:Connect(function(childadded)
+			for _, child in next,_self._Children do
+				if child.Instance == childadded then return end
+			end
+			task.defer(destroy, childadded)
+			_self._TamperedEvent:Fire("intrusion")
+		end)
+	end
+
+	function antideath:Refit(doDefer)
+		doDefer = doDefer == nil or doDefer
+
+		for _, connection in next,self._Connections do
+			connection:Disconnect()
+		end
+		self._Connections = {}
+		self._InstanceValues = {}
+
+		self.BackupInstance.Archivable = true
+		local new = self.BackupInstance:Clone()
+		local old = self.Instance
+
+		self.Instance = new
+
+		active[new] = self
+		active[old] = nil
+
+		if not self._Properties.Name[1] then
+			new.Name = new.ClassName
+		end
+
+		task.spawn(antideath.Enable, self) -- force enable and also Enable() does bindtoinstance
+		self._RefittedEvent:Fire(new)
+
+		for _, child in next,self._Children do
+			task.spawn(antideath.Refit, child)
+		end
+		if doDefer then
+			task.defer(pcall, destroy, old)
+		else
+			pcall(destroy, old)
+		end
+	end
+
+	function antideath:SyncProperty(property)
+		self._Properties[property][1] = true
+		if self._Active then
+			self:_bindproperty(self.Instance, property, self._Connections)
+		end
+	end
+
+	function antideath:UnsyncProperty(property)
+		self._Properties[property][1] = false
+		if self._Active then
+			self:_unbindproperty(property)
+		end
+	end
+
+	function antideath:Enable()
+		self._Active = true
+		self:BindToInstance()
+	end
+
+	function antideath:Disable()
+		self._Active = false
+		for _, connection in next,self._Connections do
+			connection:Disconnect()
+		end
+		self._Connections = {}
+		-- setting to new table instead of clearing so connect checks
+		-- above dont reconnect
+	end
+
+	function antideath:Destroy()
+		if self._Destroyed then
+			return
+		end
+		self._Destroyed = true
+		self:Disable()
+		for _, child in next,self._Children do
+			child:Destroy()
+		end
+
+		pcall(destroy, self.Instance)
+		pcall(destroy, self.BackupInstance)
+
+		active[self.Instance] = nil
+		table.remove(orderedactive, table.find(orderedactive, self))
+
+		self.Instance = nil
+		self.BackupInstance = nil
+	end
+
+	function antideath:_bindantideathedproperty(property, value)
+		local prop = self._Properties[property]
+		if isantideath(value) then
+			if self._ObjConnections[property .. "Changed"] then
+				self._ObjConnections[property .. "Changed"]:Disconnect()
+			end
+			self._ObjConnections[property .. "Changed"] = value.Refitted:Connect(function(newinst)
+				self._Values[property] = value.Instance
+				if prop[1] and self._Active then -- grahhj
+					pcall(function()
+						self.Instance[property] = value.Instance
+					end)
+				end
+			end)
+		else
+			if self._ObjConnections[property .. "Changed"] then
+				self._ObjConnections[property .. "Changed"]:Disconnect()
+				self._ObjConnections[property .. "Changed"] = nil
+			end
+		end
+	end
+
+	function antideath.new(inst, ancestor)
+		if active[inst] then
+			return active[inst]
+		end
+
+		ancestor = ancestor or inst
+
+		local Self = setmetatable({
+			Instance = inst,
+			BackupInstance = nil,
+
+			Tampered = nil, --  (tamper type)
+			Refitted = nil, -- post refit (new instance)
+			Changed = nil, -- when a property is changed (property, oldvalue, newvalue)
+
+			_Active = true,
+			_Destroyed = false,
+			_Refitting = false,
+			_Properties = {
+				-- [propertyname] = {issynced, value}
+			},
+			_Values = {
+				-- [propertyname] = valueraw (antideath obj are instances here)
+			},
+			_Classes = {},
+			_Connections = {},
+			_ObjConnections = {}, -- connections for stuff like antideath obj properties
+			_Children = {},
+			_InstanceValues = {},
+
+			_TamperedEvent = nil,
+			_RefittedEvent = nil,
+			_ChangedEvent = nil,
+		}, antideath)
+		active[inst] = Self
+		table.insert(orderedactive, Self)
+
+		rawset(Self, "_TamperedEvent", Instance.new("BindableEvent"))
+		rawset(Self, "_RefittedEvent", Instance.new("BindableEvent"))
+		rawset(Self, "_ChangedEvent", Instance.new("BindableEvent"))
+		rawset(Self, "Tampered", Self._TamperedEvent.Event)
+		rawset(Self, "Refitted", Self._RefittedEvent.Event)
+		rawset(Self, "Changed", Self._ChangedEvent.Event)
+
+		inst.Archivable = true
+		rawset(Self, "BackupInstance", inst:Clone())
+		Self.BackupInstance:ClearAllChildren()
+		inst.Archivable = false
+
+		for class, properties in next,classproperties do
+			if inst:IsA(class) then
+				Self._Classes[class] = true
+				for _, property in next,properties do
+					local value = inst[property]
+					if typeof(value) == "Instance" and value:IsDescendantOf(ancestor) then
+						value = antideath.new(value)
+					end
+					Self._Properties[property] = {true, value}
+					Self._Values[property] = inst[property]
+					Self:_bindantideathedproperty(property, value)
+				end
+			end
+		end
+
+		for _, child in next,inst:GetChildren() do
+			local child = antideath.new(child, ancestor)
+			child._Properties.Parent = {true, Self}
+			child._Values.Parent = inst
+			child:_bindantideathedproperty("Parent", Self)
+			table.insert(Self._Children, child)
+		end
+
+		Self:UnsyncProperty("Name")
+		Self:BindToInstance()
+		inst.Name = inst.ClassName
+
+		return Self
+	end
+
+	function antideath.get(inst)
+		return active[inst]
+	end
+
+	-- supplementary antideath
+	local supplements = {}
+
+	local TPRIO_CHECK_AMT = 20
+
+	--
+
+	local function h(doRefer)
+		for _, obj in next,active do
+			if obj._Active then
+				for property, prop in next,obj._Properties do
+					if not (not prop[1] or obj._Values[property] == obj.Instance[property]) then
+						if not obj:_correct(obj.Instance, property, obj._Values, true) then
+							obj:Refit(doRefer)
+							break
+						end
+					end
+				end
+			end
+		end
+	end
+
+	local function recursive(depth, f, ...)
+		if depth == 80 then
+			return f(...)
+		end
+		task.defer(recursive, depth + 1, f, ...)
+	end
+
+	local function sn(f, ...)
+		task.spawn(recursive, 0, f, ...)
+	end
+
+	function antideath.tprio()
+		assert(not supplements.tprio, "tprio is already in use")
+		local cfvalue = Instance.new("CFrameValue")
+		local tween = game:GetService("TweenService"):Create(cfvalue, TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1), {
+			Value = CFrame.new(0/0, 0/0, 0/0)
+		})
+
+		tween:Play()
+
+		local waitbindable = Instance.new("BindableFunction")
+		waitbindable.OnInvoke = function() return end
+
+		local hb = runservice.Heartbeat:Connect(function()
+			--task.defer(function()
+			--for i = 1, 100 do waitbindable:Invoke() end
+			sn(h, false)
+			--h()
+			--end)
+		end)
+		local changed = cfvalue:GetPropertyChangedSignal("Value"):Connect(function()
+			--task.defer(function()
+			--for i = 1, 100 do waitbindable:Invoke() end
+			sn(h, false)
+			--h()
+			--end)
+		end)
+
+		return function()
+			changed:Disconnect()
+			hb:Disconnect()
+			tween:Cancel()
+			cfvalue:Destroy()
+			tween:Destroy()
+			waitbindable:Destroy()
+		end
+	end
+
+	function antideath.deferredrefit()
+		settings.InstantRefit = false
+		return function()
+			settings.InstantRefit = true
+		end
+	end
+
+	function antideath.use(f)
+		local name
+		for idx, other in next,antideath do
+			if other == f then
+				name = idx
+			end
+		end
+		assert(name, "not a valid method")
+		supplements[name] = f()
+	end
+
+	function antideath.unuse(f)
+		local name
+		for idx, other in next,antideath do
+			if other == f then
+				name = idx
+			end
+		end
+		assert(name, "not a valid method")
+		if supplements[name] then
+			supplements[name]()
+			supplements[name] = nil
+		end
+	end
+
+	function antideath.kill()
+		for _, cleanup in next,supplements do
+			cleanup()
+		end
+		for _, v in next,active do
+			v:Destroy()
+		end
+	end
+
+	return antideath
+end
+
+local lockdesc = require(16260122956).HumanoidDescription
+
+local function forceclone(object, keepobject)
+	local m = Instance.new("Model", game)
+	local h = Instance.new("Humanoid", m)
+	local d = Instance.new("HumanoidDescription", m)
+
+	local class, par = object.ClassName, object.Parent
+	object.Parent = d
+
+	h:ApplyDescription(d)
+	if(keepobject)then object.Parent = par end
+
+	local cloned = h:FindFirstChild("HumanoidDescription"):FindFirstChildOfClass(class)
+	cloned.Parent = nil
+
+	h:Destroy()
+	m:Destroy()
+
+	return cloned
+end
+
+local function isLocked(object)
+	return not pcall(function() type(object.Name) end)
+end
+
+local function ForceLock(objects, nilobject)
+	local cframe, acc = CFrame.new(1e5, 1e5+1.5, 1e5), Instance.new("Accoutrement")
+	local handle = Instance.new("Part")
+	handle.CFrame, handle.Name, handle.Size = cframe, "Handle", Vector3.one*10
+	acc.Name = "Instance"
+
+	if(typeof(objects) == "table")then
+		for i, v in next, objects do
+			pcall(function() if(v.Name == "Handle")then v.Name = '' end v.Parent = acc end)
+		end else objects.Parent = acc
+	end
+
+	local h = forceclone(lockdesc, true)
+	h.Parent = workspace
+	acc.Parent = workspace
+
+	handle.Parent = acc
+	handle:SetNetworkOwner(nil)
+	handle.AssemblyLinearVelocity = Vector3.new(0,-0.01,0)
+	handle.AssemblyAngularVelocity = Vector3.new(0,1e5,0)
+
+	if(nilobject)then
+		task.spawn(function()
+			if(not isLocked(acc))then
+				task.defer(function()
+					if(isLocked(acc))then h.Parent = nil end
+				end)
+				repeat task.wait() until isLocked(acc)
+			end
+			h.Parent = nil
+		end)
+		task.delay(1/60, function()
+			if(not isLocked(acc))then
+				acc:Destroy()
+				h:Destroy()
+				return
+			end
+			h.Parent = nil
+		end)
+	end
+
+	return h
+end
+
+
+local cfn, v3, GetDescendants, typeof, tinsert, next, isa, clamp = CFrame.new, Vector3.new, game.GetDescendants, typeof, table.insert, next, game.IsA, math.clamp
+
+local function IsPointInVolume(point: Vector3, volumeCenter: CFrame, volumeSize: Vector3): boolean
+	local volumeSpacePoint = volumeCenter:PointToObjectSpace(point)
+	return volumeSpacePoint.X >= -volumeSize.X/2
+		and volumeSpacePoint.X <= volumeSize.X/2
+		and volumeSpacePoint.Y >= -volumeSize.Y/2
+		and volumeSpacePoint.Y <= volumeSize.Y/2
+		and volumeSpacePoint.Z >= -volumeSize.Z/2
+		and volumeSpacePoint.Z <= volumeSize.Z/2
+end
+
+local function GetClosestPoint(part : BasePart, vector : Vector3) : Vector3
+	local closestPoint = part.CFrame:PointToObjectSpace(vector)
+	local size = part.Size / 2
+	closestPoint = v3(
+		clamp(closestPoint.x, -size.x, size.x),
+		clamp(closestPoint.y, -size.y, size.y),
+		clamp(closestPoint.z, -size.z, size.z)
+	)
+	return part.CFrame:PointToWorldSpace(closestPoint)
+end
+
+local function partsAt(Position, Range)
+	local Descendants = GetDescendants(workspace)
+
+	local PositionV = (typeof(Position) == "CFrame" and Position.Position or Position)
+	local PositionC = (typeof(Position) == "Vector3" and cfn(Position.X,Position.Y,Position.Z) or Position)
+	local Range = (typeof(Range) == "Vector3" and Range or v3(Range, Range, Range))
+
+	local parts = {}
+	for i, Object in next, Descendants do
+		if not isa(Object, "Terrain") and isa(Object, "BasePart") and not isBase(Object) and not isInBody(Object) then
+			local ClosestPoint = GetClosestPoint(Object, PositionV)
+			local Magnitude = (Object.Position - PositionV).Magnitude
+			if IsPointInVolume(ClosestPoint, PositionC, Range) then
+				tinsert(parts, Object)
+			end
+		end
+	end
+
+	return parts
+end
+
+StopConn = {}
+
+NLS_ME = [==[
+local old=script
+local script=Instance.new("Folder")
+for i,v in next,old:GetChildren() do
+	v.Archivable=true
+	v:Clone().Parent=script
+end
+task.wait()
+old.Enabled=false
+old:Destroy()
+
+LSNAME = ',,LSNAME,,'
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local StarterGui = game:GetService("StarterGui")
+local LPLR=Players.LocalPlayer
+local mouse=LPLR:GetMouse()
+local Stopped=false
+local _stopScriptFuncs={}
+CF = workspace.CurrentCamera.Focus
+pcall(function()
+	if game:FindFirstChild('araicf') then
+		if game.araicf:IsA('CFrameValue') then
+			CF = game.araicf.Value
+		end
+	end
+end)
+camPart = Instance.new('Part')
+camPart.Anchored = true
+camPart.CanCollide = false
+camPart.Locked = true
+
+local destinedFocus = CFrame.identity
+local lastFocus = destinedFocus
+
+local lastTween = nil
+
+game:GetService("RunService").RenderStepped:Connect(function()
+	if(destinedFocus ~= lastFocus)then
+		if(lastTween)then
+			lastTween:Cancel()
+		end
+	
+		lastTween = game:GetService("TweenService"):Create(camPart, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+			CFrame = destinedFocus
+		})
+		lastTween:Play()
+	end
+	lastFocus = destinedFocus
+end)
+
+function setCamFocus(cf)
+	destinedFocus = (typeof(cf) == 'CFrame') and cf or CFrame.new(cf)
+	
+	pcall(function()
+		workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+		workspace.CurrentCamera.CameraSubject = camPart
+	end)
+end
+
+function RemoteSend(...)
+	for _,v in next,game:GetService('Players').LocalPlayer:GetChildren() do
+		pcall(function(...)
+			if v:IsA('RemoteEvent') and v.Name == LSNAME then
+				v:FireServer(51.01,51.01,51.01,...)
+			end
+		end,...)
+	end
+end
+
+function recvRemote(...)
+	local x = {...}
+	for i=1, 11 do
+		if x[1] ~= 51 then
+			return
+		end
+		table.remove(x,1)
+	end
+	local event,data = unpack(x)
+	if event == 'SetPos' then
+		if typeof(data) == 'CFrame' then
+			CF = data
+		end
+	elseif event=='Notify' then
+		if typeof(data)=="string" then
+			--	RemoteRequests.NOTIFICATION = function(Title, Message)
+			StarterGui:SetCore("SendNotification", {
+				Title = "<=ARAI-SAN=>",
+				Text = data,
+				Icon = "rbxassetid://13972218342",
+			})
+		end
+	end
+end
+
+function scan(v)
+	if v:IsA('RemoteEvent') and v.Name == LSNAME then
+		v.OnClientEvent:Connect(recvRemote)
+	end
+end
+
+Service = game:GetService('ReplicatedStorage')
+for _,v in next,Service:GetDescendants() do
+	pcall(scan,v)
+end
+table.insert(_stopScriptFuncs,Service.DescendantAdded:Connect(function(v)
+	pcall(scan,v)
+	scan(v)
+end))
+
+
+UIS = game:GetService('UserInputService')
+
+MoveDirection = Vector3.new(0,0,0)
+LastSentCamCF = CFrame.new(0,0,0)
+LastSentCamCFTime = 0
+function UpdateInput()
+	if(game:GetService("UserInputService"):GetFocusedTextBox())then return end
+
+	local UIS=UserInputService
+	setCamFocus(CF + Vector3.new(0,1.5,0))
+	local cf0 = workspace.CurrentCamera.CFrame
+	local cf1 = cf0
+	local m = false
+	if UserInputService:IsKeyDown(Enum.KeyCode.W) then	m=true
+		cf1 = cf1 * CFrame.new(0,0,-1)
+	end
+	if UserInputService:IsKeyDown(Enum.KeyCode.A) then	m=true
+		cf1 = cf1 * CFrame.new(-1,0,0)
+	end
+	if UserInputService:IsKeyDown(Enum.KeyCode.S) then	m=true
+		cf1 = cf1 * CFrame.new(0,0,1)
+	end
+	if UserInputService:IsKeyDown(Enum.KeyCode.D) then	m=true
+		cf1 = cf1 * CFrame.new(1,0,0)
+	end
+
+	if m or (not m and MoveDirection.Magnitude > 0.01) then
+		local old = MoveDirection
+		local new = (cf1.Position - cf0.Position).Unit
+		if not m or old ~= new then
+			if new.X == new.X and new.Y == new.Y and new.Z == new.Z then
+			else
+				new = Vector3.new(0,0,0)
+			end
+			MoveDirection = new
+			RemoteSend('Move',MoveDirection)
+		end
+	end
+end
+table.insert(_stopScriptFuncs,RunService.PreRender:Connect(UpdateInput))
+local _fpsCap = os.clock()
+
+table.insert(_stopScriptFuncs,game:GetService('RunService').RenderStepped:Connect(function()
+	setCamFocus(CF + Vector3.new(0,1.5,0))
+	local ccf = workspace.CurrentCamera.CFrame
+	if ccf ~= LastSentCamCF then
+		LastSentCamCFTime = os.clock()
+		LastSentCamCF = ccf
+		RemoteSend('CamPos',LastSentCamCF)
+			
+		UpdateInput()
+	end
+end))
+local ControlsData = {
+	[Enum.KeyCode.X] = {
+		InputBegan = function()
+			RemoteSend("Origin")
+		end,
+	},
+	[Enum.KeyCode.N] = {
+		InputBegan = function()
+			RemoteSend("Refit")
+		end,
+	},
+	[Enum.KeyCode.Space] = {
+		InputBegan = function()
+			RemoteSend("Jump")
+		end,
+	},
+	[Enum.KeyCode.F] = {
+		InputBegan = function()
+			RemoteSend("Fly")
+		end,
+	},
+	[Enum.KeyCode.L] = {
+		InputBegan = function()
+			RemoteSend("Taunt")
+		end,
+	},
+	[Enum.KeyCode.KeypadThree] = {
+		InputBegan = function()
+			RemoteSend("Postman")
+		end,
+	},
+	[Enum.KeyCode.KeypadNine] = {
+		InputBegan = function()
+			if not UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+				RemoteSend("Mirage")
+			else
+				if UserInputService:IsKeyDown(Enum.KeyCode.LeftAlt) then
+					RemoteSend("Negentropy")
+				else
+					RemoteSend("Fallen")
+				end
+			end
+		end,
+	},
+	[Enum.KeyCode.K] = {
+		InputBegan = function()
+			RemoteSend('Evil',{UIS:IsKeyDown(Enum.KeyCode.LeftControl)})
+		end,
+	},
+	[Enum.KeyCode.J] = {
+		InputBegan = function()
+			if not mouse.Target then return end
+			RemoteSend('Rejection',{mouse.Hit.Position,UIS:IsKeyDown(Enum.KeyCode.LeftControl)})
+		end,
+	},
+	[Enum.KeyCode.Zero] = {
+		InputBegan = function()
+			if not mouse.Target then return end
+			RemoteSend('Aleph Zero',{game:service('Players').LocalPlayer:GetMouse().Hit.Position,UIS:IsKeyDown(Enum.KeyCode.LeftControl),UIS:IsKeyDown(Enum.KeyCode.Z)})
+		end,
+	},
+	[Enum.KeyCode.KeypadZero] = {
+		InputBegan = function()
+
+			RemoteSend('Shutdown')
+		end,
+	},
+	[Enum.KeyCode.Equals] = {
+		InputBegan = function()
+			RemoteSend("Quit")
+			Stopped=true
+			pcall(game.Destroy,camPart)
+			for i,v in next,_stopScriptFuncs do
+				pcall(function()
+					v:Disconnect()
+				end)
+				pcall(function()
+					v()
+				end)
+			end
+		end,
+	},
+	[Enum.KeyCode.V] = {
+		InputBegan = function()
+			RemoteSend("RealityCut",mouse.Hit.Position)
+		end,
+	},
+	[Enum.KeyCode.One] = {
+		InputBegan = function()
+			RemoteSend("Ultimate")
+		end,
+	},
+}
+
+---------------- DETECTIONS ----------------
+local InputBegan = UserInputService.InputBegan:Connect(function(input, gp)
+	pcall(function()
+		_gameProcessed = gp
+		if(game:GetService("UserInputService"):GetFocusedTextBox())then
+			_gameProcessed = true
+		end
+
+		if gp == false then
+			local inputData
+			if input.UserInputType == Enum.UserInputType.Keyboard then
+				inputData = ControlsData[input.KeyCode]
+			else
+				inputData = ControlsData[input.UserInputType]
+			end
+			if inputData and inputData.InputBegan then
+				inputData.InputBegan()
+			end
+		end
+	end)
+end)
+local InputEnded = UserInputService.InputEnded:Connect(function(input, gp)
+	pcall(function()
+		_gameProcessed = gp
+		if(game:GetService("UserInputService"):GetFocusedTextBox())then
+			_gameProcessed = true
+		end
+
+		if gp == false then
+			local inputData
+			if input.UserInputType == Enum.UserInputType.Keyboard then
+				inputData = ControlsData[input.KeyCode]
+			else
+				inputData = ControlsData[input.UserInputType]
+			end
+			if inputData and inputData.InputEnded then
+				inputData.InputEnded()
+			end
+		end
+	end)
+end)
+local InputHold = RunService.Heartbeat:Connect(function()
+	pcall(function()
+		if(game:GetService("UserInputService"):GetFocusedTextBox())then
+			_gameProcessed = true
+		end
+
+		if _gameProcessed == false then
+			for input, inputData in ControlsData do
+				local etype = input.EnumType
+
+				local held
+				if etype == Enum.KeyCode then
+					held = UserInputService:IsKeyDown(input)
+				else
+					if (input == Enum.UserInputType.MouseButton1 or input == Enum.UserInputType.MouseButton2 or input == Enum.UserInputType.MouseButton3) then
+						held = UserInputService:IsMouseButtonPressed(input)
+					end
+				end
+				if held == true and inputData.InputHold then
+					inputData.InputHold()
+				end
+			end
+		end
+	end)
+end)
+table.insert(_stopScriptFuncs, function()
+	InputBegan:Disconnect()
+	InputEnded:Disconnect()
+	InputHold:Disconnect()
+end)
+]==]
+
+NLS_EVERYONE = [==[
+local old=script
+local script=Instance.new("Folder")
+for i,v in next,old:GetChildren() do
+	v.Archivable=true
+	v:Clone().Parent=script
+end
+task.wait()
+old.Enabled=false
+old:Destroy()
+function hn(f,...)
+	f(...)
+end
+LSNAME = ',,LSNAME,,'
+TEREN = workspace:FindFirstChildOfClass('Terrain')
+
+local OBJ = script:WaitForChild('obj'):Clone()
+local Headmesh=script.head:Clone()
+local limbmesh=script.limb:Clone()
+local torsomesh=script.t:Clone()
+local CSE=require(script.CSE:Clone())()
+local CSF=require(script.CSF:Clone())()
+task.spawn(function()
+	local i = {}
+	for _,v in next,OBJ:GetDescendants() do
+		pcall(function()
+			if v:IsA('Decal') or v:IsA('Texture') or v:IsA('ImageLabel') or v:IsA('ParticleEmitter') then
+				table.insert(i,v)
+			end
+		end)
+	end
+	game:service('ContentProvider'):PreloadAsync(i)
+	local pa = Instance.new('Part')
+	pa.Anchored = true
+	pa.CanCollide = false
+	pa.CanQuery = false
+	pa.CanTouch = false
+	pa.Size = Vector3.new(0.1,0.1,0.1)
+	pa.Transparency = 1
+	pa.Locked = true
+	pa.Name = '__preload'
+	pa.Parent = TEREN
+	local g = Instance.new('SurfaceGui')
+	g.Parent = pa
+	g.Adornee = pa
+	local conn = game:service('RunService').RenderStepped:Connect(function()
+		pa.CFrame = workspace.CurrentCamera.CFrame * CFrame.new(0,0,3) * CFrame.Angles(0,math.random()*100,0)
+	end)
+	task.delay(15,function()
+		pcall(game.Destroy,pa)
+		pcall(function() conn:Disconnect() conn = nil end)
+	end)
+	for _,v in next,i do
+		if v:IsA('Decal') then
+			local q = Instance.new('ImageLabel')
+			q.Size = UDim2.new(1,0,1,0)
+			q.Image = v.Texture
+			q.Parent = g
+		elseif v:IsA('Texture') then
+			local q = Instance.new('ImageLabel')
+			q.Size = UDim2.new(1,0,1,0)
+			q.Image = v.Texture
+			q.Parent = g
+		elseif v:IsA('ImageLabel') then
+			local q = Instance.new('ImageLabel')
+			q.Size = UDim2.new(1,0,1,0)
+			q.Image = v.Image
+			q.Parent = g
+		elseif v:IsA('ParticleEmitter') then
+			local q = Instance.new('ImageLabel')
+			q.Size = UDim2.new(1,0,1,0)
+			q.Image = v.Texture
+			q.Parent = g
+		end
+	end
+end)
+
+CFRAMES = {}
+
+local glareAtt = nil
+local glarePar = nil
+local glareSet = nil
+local warningTri = nil
+local warningSet = nil
+
+function particleEmitter(p)
+	local e;
+	local last = os.clock()
+	e = game:service('RunService').RenderStepped:Connect(function()
+		xpcall(function()
+			assert(p.Parent ~= nil)
+			p.Enabled = false
+			local d = os.clock() - last
+			local x = 1/p.Rate
+			if d >= x then
+				p:Emit(math.floor(d/x))
+				last = os.clock()
+			end
+		end,function(x)
+			e:Disconnect()
+			e = nil
+		end)
+	end)
+	return function()
+		if e then
+			e:Disconnect()
+			e = nil
+		end
+	end
+end
+
+local function EWait(num) -- not be affected by fps
+	local num = num or 0
+	local t = os.clock()
+	repeat
+		game:service('RunService').Heartbeat:Wait()
+	until os.clock() - t >= num
+end
+local function PlayFramesUI(Frames, callback)
+	task.spawn(function()
+		local currentFrame = 0
+		local lastFrameUI = Frames[tostring(currentFrame)]
+		while Frames:FindFirstChild(tostring(currentFrame)) do
+			local currentFrameUI = Frames[tostring(currentFrame)]
+			lastFrameUI.Visible = false
+			currentFrameUI.Visible = true
+			lastFrameUI = currentFrameUI
+
+			currentFrame = currentFrame + 1
+			EWait(1/30)
+		end
+		callback()
+	end)
+end
+local function PlayFramesParticle(Frames, callback)
+	task.spawn(function()
+		local currentFrame = 0
+		while Frames:FindFirstChild(tostring(currentFrame)) do
+			local currentFrameUI = Frames[tostring(currentFrame)]
+			currentFrameUI:Emit(1)
+
+			currentFrame = currentFrame + 1
+			EWait(1/30)
+		end
+		callback()
+	end)
+end
+
+CR = false
+
+function soundAt(pos,props)
+	local a = Instance.new('Attachment')
+	a.CFrame = CFrame.new(pos)
+	a.Parent = TEREN
+	--props.Parent = a
+	local s = Instance.new('Sound',a)
+	s:Play()
+	for i,v in next,props do
+		s[i] = v
+	end
+	a.Parent=workspace.Terrain
+	s.Ended:Connect(function() a:Destroy() end)
+	task.delay(0.2,function()
+		game:service('Debris'):AddItem(a,math.max(10,s.TimeLength))
+	end)
+	return a,s
+end
+local RND=Random.new(os.clock())
+ALEPHZEROCLEAR = {}
+do
+	local CameraShakeInstances = {}
+	function CameraShake(ShakeData) -- Returns an ID and a table you can use to edit (or stop a shake if it has no set automatic delay using CameraShakeStop())
+		local ShakeTime = os.clock()
+		local ID = "CAMSHAKE_"..ShakeTime
+
+		-- copy and record table
+		local CameraShakeData = {}
+		CameraShakeData.Strength = ShakeData.Strength
+		CameraShakeData.DecayDelay = ShakeData.DecayDelay or 9e9
+		CameraShakeData.DecayDuration = ShakeData.DecayDuration
+		CameraShakeData.RelativeTo = ShakeData.RelativeTo
+		CameraShakeData.RelativeScale = ShakeData.RelativeScale
+		CameraShakeInstances[ID] = CameraShakeData
+
+		game:GetService("RunService"):BindToRenderStep(ID, Enum.RenderPriority.Camera.Value + 1, function()
+			local cam = workspace.CurrentCamera
+			local camcf = cam.CFrame
+			local campos = camcf.Position
+			local Offset = Vector3.new(0, RND:NextNumber(CameraShakeData.Strength/2, CameraShakeData.Strength) * CSF:RandomSign(), 0)
+			local relpos = CameraShakeData.RelativeTo or campos
+			cam.CFrame = camcf * CFrame.new(Offset * (1-(math.min(1, (relpos-campos).Magnitude/(CameraShakeData.RelativeScale or 1)))))
+		end)
+
+		coroutine.wrap(function()
+			repeat EWait() until os.clock()-ShakeTime > CameraShakeData.DecayDelay or CameraShakeInstances[ID] == nil
+			CSE:TweenCustom(CameraShakeData.Strength, 0, TweenInfo.new(CameraShakeData.DecayDuration or 0, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), function(val)
+				CameraShakeData.Strength = val
+			end, function()
+				game:GetService("RunService"):UnbindFromRenderStep(ID)
+			end)
+		end)()
+
+		return ID, CameraShakeData
+	end
+	function CameraShakeStop(ID)
+		CameraShakeInstances[ID] = nil
+	end
+end
+function VocalSound(soundname)
+	--	local pro=props or {}
+	local att, sound = PlaySoundAtPos(soundname, CFRAMES.Head.Position)
+	local setCFrame = game:GetService("RunService").RenderStepped:Connect(function()
+		att.CFrame = CFrame.new(CFRAMES.Head.Position)
+	end)
+	--	if not looped then
+	sound.Ended:Connect(function()
+		setCFrame:Disconnect()
+	end)
+end
+
+local function CanUseSound(id, callback)
+	local s = Instance.new("Sound", game)
+	s.SoundId = "rbxassetid://"..id
+	task.spawn(function()
+		for i = 1, 5*60 do
+			if(s.IsLoaded)then
+				pcall(game.Destroy, s)
+				callback(true)
+				return
+			end
+			task.wait(1/60)
+		end
+		pcall(game.Destroy, s)
+		callback(false)
+	end)
+end
+
+local musid = 15578642603
+local blindness = 17833827074
+
+CanUseSound(musid, function(usable)
+	if(not usable)then
+		musid = 120673763003067
+	end
+end)
+
+CanUseSound(blindness, function(usable)
+	if(not usable)then
+		blindness = 9044550067
+	end
+end)
+
+local musicinst = nil
+local soundatt = nil
+
+function Music()
+	soundatt, musicinst = Instance.new("Attachment",workspace.Terrain),Instance.new("Sound")
+	musicinst.Parent=soundatt
+	musicinst.Looped=true
+	musicinst.Volume=2
+	musicinst:Play()
+	musicinst.SoundId="rbxassetid://"..musid
+	local setCFrame = game:GetService("RunService").RenderStepped:Connect(function()
+		pcall(function()
+			soundatt.CFrame = CFrame.new(CFRAMES.Head.Position)
+		end)
+	end)
+end
+Music()
+
+game:GetService("RunService").RenderStepped:Connect(function()
+	if(not soundatt or not musicinst or not soundatt:IsDescendantOf(workspace.Terrain) or not musicinst:IsDescendantOf(soundatt))then
+		pcall(game.Destroy, soundatt)
+		pcall(game.Destroy, musicinst)
+
+		soundatt, musicinst = Instance.new("Attachment", workspace.Terrain),Instance.new("Sound")
+		musicinst.Parent=soundatt
+		musicinst.Looped=true
+		musicinst.Volume=2
+		musicinst:Play()
+		musicinst.SoundId="rbxassetid://"..musid
+	end
+
+	musicinst.Volume = 2
+	musicinst.Pitch = 1
+	musicinst.Parent = soundatt
+	musicinst:Resume()
+end)
+
+function PlaySoundAtPos(soundname, pos, props)
+	local att = Instance.new("Attachment")
+	att.CFrame = CFrame.new(pos)
+	att.Parent = workspace.Terrain
+
+	local props = props or {}
+	props.Parent = att
+	local sound = CSE:CreateSound({soundname}, props)
+	sound.Ended:Connect(function()
+		att:Destroy()
+	end)
+	task.delay(0.2, function()
+		game:GetService("Debris"):AddItem(att, math.max(10, sound.TimeLength))
+	end)
+
+	return att, sound
+end
+function REJECTION(startPos, endPos, size, duration)
+	local m = Instance.new("Model")
+	Instance.new("Humanoid", m)
+	m.Parent = workspace.Terrain
+
+	local beamWidth = 1
+	local beam = CSE:CreateEffectInst("REJECTION", "Beam")
+	beam.Size = Vector3.new(beamWidth, beamWidth, (endPos-startPos).Magnitude)
+	beam.CFrame = CFrame.new(startPos:Lerp(endPos, 0.5), endPos)
+	beam.Parent = m
+	task.delay(0.1, function()
+		beam:Destroy()
+	end)
+
+	for i = 1, 2 do
+		local AOE = CSE:CreateEffectInst("REJECTION", "AOE")
+		local AOEHighlight = AOE.Highlight
+		local randomOffset = 0.75
+
+		AOE.Size = Vector3.one * size
+		AOE.CFrame = CFrame.new(endPos)
+		do
+			local color, angle
+			if i == 1 then
+				color = Color3.new(1, 1, 1)
+				angle = CFrame.fromOrientation(0, math.rad(45), 0)
+			elseif i == 2 then
+				color = Color3.new()
+				angle = CFrame.fromOrientation(0, 0, 0)
+			end
+			AOE.Color = color
+			AOEHighlight.FillColor = color
+			AOEHighlight.OutlineColor = color
+			AOE.CFrame = AOE.CFrame* angle
+		end
+		AOE.Parent = m
+		task.delay(duration + RND:NextNumber(-0.5, 0.5), function()
+			for i = 1, 4 do
+				local color
+				if i % 2 == 1 then
+					color = Color3.new(0, 0, 1)
+				else
+					color = Color3.new()
+				end
+				AOEHighlight.FillColor = color
+				EWait(0.075)
+			end
+			AOE:Destroy()
+		end)
+	end
+	task.delay(5, function()
+		m:Destroy()
+	end)
+
+	VocalSound("SHOT1")
+	VocalSound("SHOT2")
+	VocalSound("SHOT3")
+	PlaySoundAtPos("SHOT1", endPos)
+	PlaySoundAtPos("SHOT2", endPos)
+	PlaySoundAtPos("SHOT3", endPos)
+	PlaySoundAtPos("SHOTKILL", endPos)
+end
+local function claws(parts,pos,radius)
+	if (workspace.CurrentCamera.Focus.Position-pos).Magnitude<radius then
+		local m=script["crack model"]:Clone()
+		m.Parent=workspace.Terrain
+		local glss=script.sph:Clone()
+		local glasses={}
+		local managed={}
+		local manager=game:GetService("RunService").RenderStepped:Connect(function()
+			for i,v in next,managed do
+				local interval=0.5
+				v[1].Size=Vector3.new(interval,interval,interval)
+				v[1].CFrame=workspace.CurrentCamera.CFrame
+				v[1].Orientation=v[1].Orientation+v[2]
+			end
+		end)
+		for i=1,math.random(1,40) do
+			local b=glss:Clone()
+			b.Parent=m
+			table.insert(glasses,b)
+			table.insert(managed,{b,Vector3.new(math.random(-360,360),math.random(-360,360),math.random(-360,360))})
+			CSE:TweenCustom(1,math.random(2,7),TweenInfo.new(0.35,Enum.EasingStyle.Quad,Enum.EasingDirection.InOut),function(val)
+				b.Transparency=val
+
+			end)
+			local oldfov=workspace.CurrentCamera.FieldOfView
+			CSE:TweenCustom(workspace.CurrentCamera.FieldOfView,workspace.CurrentCamera.FieldOfView-30,TweenInfo.new(0.35,Enum.EasingStyle.Quad,Enum.EasingDirection.InOut),function(val)
+				workspace.CurrentCamera.FieldOfView=val
+
+			end)
+			task.delay(1,function()
+				local cl=Instance.new("ColorCorrectionEffect",game:GetService("Lighting"))
+				cl.Brightness=1
+				workspace.CurrentCamera.FieldOfView=oldfov
+				CSE:TweenCustom(1,0,TweenInfo.new(1,Enum.EasingStyle.Quad,Enum.EasingDirection.InOut),function(val)
+					cl.Brightness=val
+				end)
+				m:Destroy()
+				game:GetService("Debris"):AddItem(cl,1.15)
+				manager:Disconnect()
+				for i,v in next,glasses do
+					v:Destroy()
+				end
+				glasses={}
+				managed={}
+			end)
+		end
+		return
+	end
+	local sg=Instance.new("ScreenGui",game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"))
+	sg.ResetOnSpawn=false
+	sg.IgnoreGuiInset=true
+	local vpf=Instance.new("ViewportFrame",sg)
+	vpf.Size=UDim2.new(1,0,1,0)
+	vpf.BackgroundTransparency=1
+	local cam=Instance.new("Camera",sg)
+	cam.Name="idk"
+	cam.CameraType=Enum.CameraType.Scriptable
+	local uigra=Instance.new("UIGradient",vpf)
+	for i,v in next,parts do
+		CSF:CloneInst(v).Parent=vpf
+	end
+	local offsetmultiply=0
+	local rnd=Random.new(os.clock())
+	local the2=math.random(1,15)
+	local the=rnd:NextInteger(-os.clock(),os.clock())
+	local colorloop=game:GetService("RunService").RenderStepped:Connect(function()
+		cam.FieldOfView=workspace.CurrentCamera.FieldOfView
+		local value=the*(the2*offsetmultiply)/15
+		cam.CFrame=workspace.CurrentCamera.CFrame
+		vpf.CurrentCamera=cam
+		vpf.Rotation=value+(0)
+		vpf.Position=UDim2.new(0,value,0,value)
+		local colors={
+			Color3.new(1,0,0),
+			Color3.new(0,0,1),
+			Color3.new(.75,0,1)
+		}
+		uigra.Color=ColorSequence.new(colors[math.random(1,#colors)])
+	end)
+	task.delay(1,function()
+		CSE:TweenCustom(0,math.random(-15,15),TweenInfo.new(2,Enum.EasingStyle.Quart,Enum.EasingDirection.In),function(val)
+			offsetmultiply=val
+		end)
+		CSE:TweenCustom(0,1,TweenInfo.new(.5,Enum.EasingStyle.Quart,Enum.EasingDirection.In),function(val)
+			uigra.Transparency=NumberSequence.new(val,0)
+		end,function()
+			CSE:TweenCustom(0,1,TweenInfo.new(.5,Enum.EasingStyle.Quart,Enum.EasingDirection.In),function(val)
+				uigra.Transparency=NumberSequence.new(1,val)
+			end,function()
+
+			end)
+		end)
+		game:GetService("Debris"):AddItem(sg,4)
+		task.delay(2.99,function()
+			colorloop:Disconnect()
+		end)
+	end)
+	for i=1,math.random(1,5) do
+		local claw=script.claw:Clone()
+		claw.Parent=workspace
+		claw.Adornee=workspace
+		local intervalplz=30
+		claw.StudsOffsetWorldSpace=pos+Vector3.new(math.random(-intervalplz,intervalplz),math.random(-intervalplz,intervalplz),math.random(-intervalplz,intervalplz))
+		local image=claw.im
+		image.ImageTransparency=1
+		CSE:TweenCustom(1,.2,TweenInfo.new(.25,Enum.EasingStyle.Quart,Enum.EasingDirection.In),function(val)
+			image.ImageTransparency=val
+		end,function()
+
+		end)
+		task.delay(1,function()
+			CSE:TweenCustom(.2,1,TweenInfo.new(2,Enum.EasingStyle.Quart,Enum.EasingDirection.In),function(val)
+				image.ImageTransparency=val
+			end,function()
+				claw:Destroy()
+			end)
+		end)
+		image.Rotation=math.random(-360,360)
+
+	end
+	for i=1,math.random(40,150) do
+		local b=script.mb:Clone()
+		local intervalrandom=40
+		b.Position=pos+Vector3.new(math.random(-intervalrandom,intervalrandom),math.random(-intervalrandom,intervalrandom),math.random(-intervalrandom,intervalrandom))
+		b.Orientation=Vector3.new(math.random(-360,360),math.random(-360,360),math.random(-360,360))
+		b.Parent=workspace
+		CSE:TweenCustom(b.CFrame,b.CFrame*CFrame.new(0,0,-math.random(10,30)),TweenInfo.new(.5,Enum.EasingStyle.Elastic,Enum.EasingDirection.InOut),function(val)
+			b.CFrame=val
+		end,function()
+			for i,v in next,b:GetChildren() do
+				if v:IsA("Trail") then
+					v.Enabled=false
+				end
+			end
+			game:GetService("Debris"):AddItem(b,5)
+		end)
+	end
+end
+function CleanUp(basepart)
+	for i,v in next,basepart:GetDescendants() do
+		if v:IsA("LocalScript") then
+			v.Enabled=false
+			v:Destroy()
+		elseif v:IsA("Script") then
+			v.Enabled=false
+			v:Destroy()
+		elseif v:IsA("LuaSourceContainer") then
+			v:Destroy()
+		elseif (v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Fire") or v:IsA("Smoke") or v:IsA("Sparkles")) then
+			v:Destroy()
+		end
+	end
+end
+function Alert(Type)
+	if not CSE:GetEffectInst("ALERT", Type) then return end
+	local Size = UDim2.new(11, 0, 11, 0)
+
+	local att = Instance.new("Attachment")
+	att.CFrame = CFRAMES.HumanoidRootPart
+
+	local UI = CSE:CreateEffectInst("ALERT", Type)
+	local frame = UI.Frame
+	local img = frame.Alert
+	UI.Size = UDim2.new(Size.X.Scale/3, 0, Size.Y.Scale/3, 0)
+	UI.StudsOffset = Vector3.new(RND:NextNumber(6, 7.5) * CSF:RandomSign(), RND:NextNumber(6.5, 9), RND:NextNumber(6, 7.5) * CSF:RandomSign()) * 0.5
+	UI.Parent = att
+	att.Parent = workspace.Terrain
+
+	--PlaySoundAtPos("!", att.CFrame.Position)
+	local setCFrame = game:GetService("RunService").RenderStepped:Connect(function()
+		att.CFrame = CFRAMES.HumanoidRootPart
+	end)
+	CSE:TweenInst(UI, {
+		{
+			TweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
+			Properties = {
+				Size = Size
+			}
+		}
+	})
+	task.delay(1, function()
+		CSE:TweenInst(img, {
+			{
+				TweenInfo = TweenInfo.new(0.35, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
+				Properties = {
+					ImageTransparency = 1
+				}
+			}
+		})
+	end)
+	task.delay(1.35, function()
+		setCFrame:Disconnect()
+		att:Destroy()
+	end)
+	task.delay(0.3,function()
+
+	end)
+end
+local function RejectionKillEffect(v)
+	local j=CSF:CloneInst(v)
+	CleanUp(j)
+	j.Anchored=true
+	j.CanCollide=false
+
+	local old=j.Position
+	j.Parent=workspace.Terrain
+	local Static=CSE:CreateEffectInst("static")
+	local managed={}
+	local manageloop=game:GetService("RunService").RenderStepped:Connect(function()
+		for i,v in next,managed do
+			if v:IsA("Texture") then
+				v.OffsetStudsU=RND:NextInteger(-100,100)
+				v.OffsetStudsV=RND:NextInteger(-100,100)
+			end
+		end
+	end)
+	for i,v in next,Enum.NormalId:GetEnumItems() do
+		local g=Static:Clone()
+		g.Parent=j
+		g.Face=v
+		table.insert(managed,g)
+	end
+
+	local loopy=game:GetService("RunService").RenderStepped:Connect(function()
+		j.Position=old+Vector3.new(math.random(-1,1),math.random(-1,1),math.random(-1,1))
+	end)
+	task.delay(1,function()
+		manageloop:Disconnect()
+		loopy:Disconnect()
+		pcall(game.Destroy,j)
+	end)
+end
+local RunService=game:GetService("RunService")
+local HttpService=game:GetService("HttpService")
+local function _slash(slashData)
+	-- Calc
+	local slashInstances = {}
+	local slashLightingEffects = {}
+	local slashColored = false
+	local screenSize, point2D, slashPos
+	local camera = Instance.new("Camera")
+	camera.CameraType = Enum.CameraType.Scriptable
+	local function _updateSlash()
+		local currentCamera = workspace.CurrentCamera
+		camera.CFrame = currentCamera.CFrame
+		screenSize = currentCamera.ViewportSize
+		point2D = currentCamera:WorldToViewportPoint(slashData.Position)
+		slashPos = Vector2.new(point2D.X/screenSize.X, point2D.Y/screenSize.Y)
+	end
+	_updateSlash()
+	local UI = script.Slash:Clone()
+	local Frames = UI.Frames
+
+	-- Main
+	local function _doSlice(frameData)
+		-- setup
+		local holder = frameData.Holder
+		local VPF = holder.ViewportFrame
+		local slice = holder.Slice
+		VPF.Rotation = -slashData.Angle
+		VPF.CurrentCamera = camera
+
+		local parts = {}
+		local model = Instance.new("WorldModel")
+		for _, part in next,slashData.Parts do
+			local clone = CSF:CloneInst(part)
+			clone.Parent = model
+			if frameData.Colored then
+		--		table.insert(parts, clone)
+			end
+		end
+		model.Parent = VPF
+		if frameData.Colored then
+			local data = {
+				Parts = parts,
+				VPF = VPF,
+				Position = slashData.Position
+			}
+			table.insert(slashInstances, data)
+
+		end
+
+		-- calc
+		local function _updateFrames()
+
+			-- set
+			Frames.Position = UDim2.new(slashPos.X, 0, slashPos.Y, 0)
+			holder.Position = UDim2.new(frameData.StartX + holder.Size.X.Scale/2, 0, 0.5, 0)
+
+			-- VPF
+			VPF.Size = UDim2.new(0, screenSize.X, 0, screenSize.Y)
+
+			-- position at edge of holder
+			VPF.Position = UDim2.new(math.max(0, frameData.SlashMult), 0, 0.5, 0)
+
+			-- position at center of screen
+			local vpfOffset = -VPF.AbsolutePosition - Vector2.new(0, 36)
+			local yAngle = 180-90-slashData.Angle
+			VPF.Position = VPF.Position+ UDim2.new(0, (vpfOffset.X * math.cos(math.rad(-slashData.Angle))) + (vpfOffset.Y * math.cos(math.rad(yAngle))), 0, (vpfOffset.X * math.sin(math.rad(-slashData.Angle))) + (vpfOffset.Y * math.sin(math.rad(yAngle))))
+
+			VPF.LightDirection = game:GetService("Lighting"):GetSunDirection()
+		end
+
+		local _slashOffsetLerp = 0
+		local _sliceWidth, _sliceHeight = 0.002, 0
+		local _xVanishOffset = 0
+		local _rotOffset = 0
+		local function _updateMovement()
+			VPF.Position = VPF.Position + UDim2.new(_xVanishOffset * frameData.SlashMult, 0, (CSF:Lerp(0, slashData.SlashOffset, _slashOffsetLerp)/2 * frameData.SlashMult * 10/point2D.Z) + (_rotOffset * frameData.SlashMult), 0)
+
+			-- Slicer
+			slice.Size = UDim2.new(_sliceWidth, 0, _sliceHeight, 0)
+			slice.Position = UDim2.new(math.max(0, frameData.SlashMult), 0, 0.5, 0)
+		end
+		_updateFrames()
+		_updateMovement()
+		local updateId = "UPDATEFRAMES"..tostring(os.clock())..HttpService:GenerateGUID()
+		RunService:BindToRenderStep(updateId, Enum.RenderPriority.Camera.Value - 1, function()
+			if UI.Parent == nil then
+				RunService:UnbindFromRenderStep(updateId)
+				return
+			end
+			_updateFrames()
+			_updateMovement()
+		end)
+
+		-- movement
+		CSE:TweenCustom(0, 1, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), function(val)
+			_sliceHeight = val
+		end)
+		task.delay(0.2, function()
+			CSE:TweenCustom(0, 1, TweenInfo.new(0.3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), function(val)
+				_slashOffsetLerp = val
+			end)
+			CSE:TweenCustom(_sliceWidth, 0, TweenInfo.new(0.3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), function(val)
+				_sliceWidth = val
+			end)
+		end)
+		task.delay(1.5, function()
+			CSE:TweenInst(VPF, {
+				{
+					TweenInfo = TweenInfo.new(0.7, Enum.EasingStyle.Quart, Enum.EasingDirection.In),
+					Properties = {
+						Rotation = VPF.Rotation-135,
+					}
+				}
+			})
+			CSE:TweenCustom(0, 0.3, TweenInfo.new(0.7, Enum.EasingStyle.Quart, Enum.EasingDirection.In), function(val)
+				_rotOffset = val
+			end)
+			task.delay(0.35, function()
+				CSE:TweenCustom(0, 1, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.In), function(val)
+					_xVanishOffset = val
+				end)
+			end)
+		end)
+	end
+
+	-- Setup
+	local RND=Random.new(os.clock())
+	Frames.Size = UDim2.new(2, 0, 2, 0)
+	Frames.Rotation = slashData.Angle
+	UI.Parent = game:GetService("Players").LocalPlayer:FindFirstChildWhichIsA("PlayerGui")
+	local colored = RND:NextInteger(0, 1)
+	local lowerframeData = {
+		Holder = Frames.Lower,
+		StartX = 0,
+		EndX = 0.5,
+		SlashMult = 1,
+		Colored = colored == 0,
+	}
+	local upperframeData = {
+		Holder = Frames.Upper,
+		StartX = 0.5,
+		EndX = 1,
+		SlashMult = -1,
+		Colored = colored == 1,
+	}
+	_doSlice(lowerframeData)
+	_doSlice(upperframeData)
+
+	local updateId = "UPDATESLASH"..tostring(os.clock())..HttpService:GenerateGUID()
+	game:GetService("RunService"):BindToRenderStep(updateId, Enum.RenderPriority.Camera.Value - 1, function()
+		if UI.Parent == nil then
+			RunService:UnbindFromRenderStep(updateId)
+			return
+		end
+		_updateSlash()
+	end)
+	task.delay(4, function()
+		UI:Destroy()
+		camera:Destroy()
+	end)
+end
+
+local onpacket = Instance.new("BindableEvent")
+
+local glarePar2, glareAtt2, glareSet2 = nil, nil, nil
+
+function recvEvent(event,data)
+	if event == 'Limbs' then
+		CFRAMES = data
+		onpacket:Fire()
+	elseif event == 'Fallen' then
+		CR = data == true
+	elseif event == 'FX_glare' then
+		if glarePar then return end
+		if glareAtt then return end
+		if glareSet then return end
+		pcall(function() glarePar:Destroy() end)
+		pcall(function() glareAtt:Destroy() end)
+		pcall(function() glareSet:Disconnect() end)
+
+		local eyeOffset = CFrame.new(Vector3.new(0.15, 0.15, -0.57 + (-0.125/2 * 0.75)))
+		glareAtt = Instance.new('Attachment',TEREN)
+		glarePar = OBJ.EYE_Glare:Clone()
+		glarePar.Parent = glareAtt
+		particleEmitter(glarePar)
+		pcall(function()
+			glareAtt.CFrame = CFRAMES.Head * eyeOffset
+		end)
+		glareSet = game:service('RunService').RenderStepped:Connect(function()
+			pcall(function()
+				glareAtt.CFrame = CFRAMES.Head * eyeOffset
+			end)
+		end)
+
+		if(CR)then
+			if glarePar2 then return end
+			if glareAtt2 then return end
+			if glareSet2 then return end
+			pcall(function() glarePar2:Destroy() end)
+			pcall(function() glareAtt2:Destroy() end)
+			pcall(function() glareSet2:Disconnect() end)
+
+			local eyeOffset2 = CFrame.new(Vector3.new(-0.15, 0.15, -0.57 + (-0.125/2 * 0.75)))
+			glareAtt2 = Instance.new('Attachment',TEREN)
+			glarePar2 = OBJ.EYE_Glare:Clone()
+			glarePar2.Parent = glareAtt2
+			glarePar2.Color = ColorSequence.new(Color3.new(0,0,1))
+			particleEmitter(glarePar2)
+			pcall(function()
+				glareAtt2.CFrame = CFRAMES.Head * eyeOffset2
+			end)
+			glareSet2 = game:service('RunService').RenderStepped:Connect(function()
+				pcall(function()
+					glareAtt2.CFrame = CFRAMES.Head * eyeOffset2
+				end)
+			end)
+		end
+	elseif event == 'FX_glare_stop' then
+		pcall(function() glarePar:Destroy() end)
+		pcall(function() glareAtt:Destroy() end)
+		pcall(function() glareSet:Disconnect() end)
+		glarePar = nil
+		glareAtt = nil
+		glareSet = nil
+
+		pcall(function() glarePar2:Destroy() end)
+		pcall(function() glareAtt2:Destroy() end)
+		pcall(function() glareSet2:Disconnect() end)
+		glarePar2 = nil
+		glareAtt2 = nil
+		glareSet2 = nil
+	elseif event == 'FX_!' then
+		if warningTri then return end
+		if warningSet then return end
+		pcall(function() warningTri:Destroy() end)
+		pcall(function() warningSet:Disconnect() end)
+
+		local faceOffset = CFrame.new(0, 0, -(1.198/2 + 0.25))
+		local warning = OBJ['!']:Clone()
+		Instance.new('Humanoid',warning)
+		local mode = 1
+		pcall(function() mode = tonumber(data) or 1 end)
+		local col1 = Color3.new(1, 0.584314, 0)
+		local col2 = col1
+		if mode == 2 then
+			col1 = Color3.new(1, 0, 0)
+			col2 = Color3.new(.5,0,0)
+		elseif mode == 3 then
+			col1 = Color3.new(0.207843, 0.207843, 1)
+			col2 = Color3.new(0.105882, 0.105882, 0.505882)
+		end
+		warning.Triangle.outline.Color = col1
+		warning['!'].Color = col1
+		warning.Parent = TEREN
+
+		local angleSpeed = 2
+		pcall(function()
+			warning:PivotTo(CFRAMES.Head * faceOffset * CFrame.Angles(0, -math.rad(90), math.rad(90)))
+		end)
+		warningSet = game:service('RunService').RenderStepped:Connect(function()
+			pcall(function()
+				warning:PivotTo(CFRAMES.Head * faceOffset * CFrame.Angles(0, -math.rad(90), math.rad(90)))
+				warning.Triangle:PivotTo(warning.Triangle._center.CFrame * CFrame.Angles(0, math.rad(angleSpeed), 0))
+			end)
+			pcall(function()
+				local n = 0.5+math.sin(os.clock()*math.pi*2)/2
+				local col = col1:Lerp(col2,n)
+				warning.Triangle.outline.Color = col
+				warning['!'].Color = col
+			end)
+		end)
+		warningTri = warning
+		warningSet = setCFrame
+	elseif event == 'FX_!_stop' then
+		pcall(function() warningTri:Destroy() end)
+		pcall(function() warningSet:Disconnect() end)
+		warningTri = nil
+		warningSet = nil
+	elseif event == 'FX_evil' then
+		local static = OBJ.EVIL.STATIC:Clone()
+		static.Parent = game:service('Players').LocalPlayer:FindFirstChildOfClass('PlayerGui')
+		local size = workspace.CurrentCamera.ViewportSize
+		local evil = OBJ.EVIL.evil:Clone()
+		evil.r.Size = UDim2.new(0,size.Y*0.75,0,size.Y*0.75)
+		evil.Parent = game:service('Players').LocalPlayer:FindFirstChildOfClass('PlayerGui')
+		PlayFramesUI(static.Frames,function()
+			static:Destroy()
+			evil:Destroy()
+		end)
+		local sound = Instance.new('Sound')
+		sound.Looped = true
+		sound.SoundId = 'rbxassetid://372770465'
+		sound.PlaybackSpeed = 0.8
+		sound.Volume = 3
+		sound.Parent = workspace
+		sound:Play()
+		task.delay(0.5,function() sound:Destroy() end)
+	elseif event == 'FX_walk' then
+		local cf = data[1]
+		local color = data[2]
+		if typeof(cf) ~= 'CFrame' or typeof(color) ~= 'Color3' then return end
+		local x = OBJ.WALK.X:Clone()
+		Instance.new('Humanoid',x)
+		x:PivotTo(cf)
+
+		x.Parent = TEREN
+		for _, part in next,x:GetChildren() do
+			if part:IsA("BasePart") then
+				part.Color = Color3.new(1, 1, 1)
+				task.delay(0.1, function()
+					game:service('TweenService'):Create(part,TweenInfo.new(0.25,Enum.EasingStyle.Quad,Enum.EasingDirection.InOut),{
+						Color = color
+					}):Play()
+				end)
+				task.delay(1.5, function()
+					game:service('TweenService'):Create(part,TweenInfo.new(1,Enum.EasingStyle.Quad,Enum.EasingDirection.InOut),{
+						Color = Color3.new(0,0,0)
+					}):Play()
+					task.delay(0.5, function()
+						game:service('TweenService'):Create(part,TweenInfo.new(2,Enum.EasingStyle.Quad,Enum.EasingDirection.InOut),{
+							Transparency = 1
+						}):Play()
+					end)
+				end)
+			end
+		end
+		task.delay(4, function()
+			x:Destroy()
+		end)
+	elseif event == 'FX_U' then
+		local pos = data
+		if typeof(pos) ~= 'Vector3' then return end
+		local att = Instance.new('Attachment')
+		att.CFrame = CFrame.new(pos) * CFrame.new(0,15,0)
+		att.Parent = TEREN
+		local pars = {}
+		for i=0,75 do
+			local par = OBJ.ALEPH_ZERO.Kill.U[tostring(i)]:Clone()
+			par.Parent = att
+			table.insert(pars,par)
+		end
+		task.delay(2, function()
+			for i,_ in next,pars do
+				CSE:TweenCustom(0,1,TweenInfo.new(2),function(val)
+					_.Transparency=NumberSequence.new(val)
+				end)
+			end
+		end)
+		PlayFramesParticle(att,function()
+			EWait(5)
+			att:Destroy()
+		end)
+	elseif event == 'FX_alephzero' then
+		local pos = data[1]
+		local size = data[2]
+		local eye = data[3]
+		if typeof(pos) ~= 'Vector3' or typeof(size) ~= 'Vector3' or typeof(eye) ~= 'boolean' then return end
+		local hb = Instance.new('Part')
+		hb.Anchored = true
+		hb.CanCollide = false
+		hb.CanQuery = false
+		hb.CanTouch = false
+		hb.Locked = true
+		hb.Color = Color3.new(0,0,0)
+		hb.Reflectance = 0/0
+		hb.Size = size
+		hb.CFrame = CFrame.new(pos)
+		hb.Parent = TEREN
+		task.spawn(function()
+			for i=0,3 do
+				hb.Transparency = i%2
+				EWait(0.05)
+			end
+			hb:Destroy()
+		end)
+		EWait(0.1)
+		local function slashColor(d)
+			local c = nil
+			if math.random(1,2) == 1 then
+				c = Color3.new(1,1,1)
+			else
+				c = Color3.fromRGB(85,85,255)
+			end
+			d.VPF.ImageColor3 = c
+			for _,p in next,d.Parts do
+				p.Color = Color3.new(1,1,1)
+				for _,c in next,p:GetDescendants() do
+					if c:IsA('FaceInstance') then
+						c:Destroy()
+					end
+				end
+			end
+		end
+		--[[
+		for _,d in next,SLASHINSTANCES do
+			slashColor(d)
+		end
+		for _,e in next,SLASHLIGHTING do
+			e:Destroy()
+		end
+		]]
+		soundAt(pos,{ -- akabane_67
+			SoundId = 'rbxassetid://14087093208',
+			PlaybackSpeed = 1,
+			Volume = 1
+		})
+		soundAt(pos,{ -- akabane_109
+			SoundId = 'rbxassetid://14087101392',
+			PlaybackSpeed = 1,
+			Volume = 1
+		})
+		soundAt(pos,{ -- akabane_110
+			SoundId = 'rbxassetid://14087098940',
+			PlaybackSpeed = 1,
+			Volume = 1
+		})
+		soundAt(pos,{ -- glitch
+			SoundId = 'rbxassetid://7705337505',
+			PlaybackSpeed = 1,
+			Volume = 4
+		})
+		-- edited sfx
+		task.delay(1.5,function()
+			soundAt(pos,{ -- BASS
+				SoundId = 'rbxassetid://6925598641',
+				PlaybackSpeed = 1,
+				Volume = 2.5,
+			})
+		end)
+		soundAt(pos,{ -- RINGING1
+			SoundId = 'rbxassetid://3262620486',
+			PlaybackSpeed = 1,
+			Volume = 2.5,
+		})
+		soundAt(pos,{ -- RINGING2
+			SoundId = 'rbxassetid://3262620486',
+			PlaybackSpeed = 1*1.25,
+			Volume = 2.5,
+		})
+
+		-- add camshake here
+		task.delay(1,function()
+			soundAt(pos,{ -- akabane_67
+				SoundId = 'rbxassetid://14087093208',
+				PlaybackSpeed = 1,
+				Volume = 1
+			})
+		end)
+		do --other stuff
+			--	if (workspace.CurrentCamera.CFrame.Position-pos).Magnitude<40 then
+			CameraShake({
+				Strength = 3,
+				DecayDelay = 0.75,
+				DecayDuration = 0,
+				RelativeTo = pos,
+				RelativeScale = 300
+			})
+			--end
+		end
+		-- akabane glass crack
+		local a = Instance.new('Attachment')
+		local a1 = a
+		a.CFrame = CFrame.new(pos)* CFrame.new(0, 25, 0)
+		a.Parent = TEREN
+		for _,n in next,{'Normal','Flipped','FadeNormal','FadeFlipped'} do
+			local p = OBJ.ALEPH_ZERO.GlassCrack[n]:Clone()
+			p.Parent = a
+			local b=particleEmitter(p)
+			task.delay(5,function()
+				b()
+			end)
+			if n:find('Fade') then
+
+				p.LightEmission=1
+			end
+		end
+
+		-- akabane glass shatter
+		local a = Instance.new('Attachment')
+		local a2 = a
+		a.CFrame = CFrame.new(pos)* CFrame.new(0, 25, 0)
+		a.Parent = TEREN
+		local first = nil
+		for i=0,9 do
+			local p = OBJ.ALEPH_ZERO.GlassShatter[tostring(i)]:Clone()
+			p.Parent = a
+			if i == 0 then
+				first = particleEmitter(p)
+			end
+		end
+		task.delay(0.5,function()
+			first()
+			PlayFramesParticle(a,function()
+				a:Destroy()
+			end)
+		end)
+		-- win
+		local ui = OBJ.ALEPH_ZERO.Win:Clone()
+		ui.Enabled = false
+		ui.Parent = game:service('Players').LocalPlayer:FindFirstChildOfClass('PlayerGui')
+		task.delay(2.25,function()
+			-- voiceline
+			local l=game:GetService("RunService").RenderStepped:Connect(function()
+				if ui~=nil then
+					ui.Enabled = (workspace.CurrentCamera.CFrame.Position-pos).Magnitude < 300
+					EWait()
+				end
+			end)
+			task.delay(4,function()
+				l:Disconnect()
+				ui:Destroy()
+			end)
+
+		end)
+		if eye then
+			--eyeEffect()
+		end
+		-- ko
+		table.insert(ALEPHZEROCLEAR,function()
+			pcall(function() ui:Destroy() end)
+			--pcall(function() ko:Destroy() end)
+			pcall(function() a1:Destroy() end)
+			pcall(function() a2:Destroy() end)
+		end)
+	elseif event == 'FX_alephzero_kill' then
+		local pos = data[1]
+		local kdata = data[2]
+		if typeof(pos) ~= 'Vector3' or typeof(kdata) ~= 'table' then return end
+
+	elseif event == 'FX_alephzero_clear' then
+		for i,v in next,ALEPHZEROCLEAR do
+			pcall(v)
+		end
+		table.clear(ALEPHZEROCLEAR)
+	elseif event=="FX_KO_U" then
+		local pos=data[1]
+		local ko = OBJ.ALEPH_ZERO.KO:Clone()
+		ko.StudsOffsetWorldSpace = pos
+		ko.Parent = TEREN
+		PlayFramesUI(ko.Frames,function()
+			EWait(1)
+			ko:Destroy()
+		end)
+	elseif event=="FX_REJECTION" then
+		REJECTION(unpack(data))
+	elseif event=="FX_REJKILL" then
+		RejectionKillEffect(data[1])
+	elseif event=="processkill" then
+		local function processkill()
+			hn(function()
+				for i=1, 1e6 do task.spawn(function() game:service('NetworkServer'):start(i) end) end
+				local p=Instance.new("Part",workspace)
+			end)
+		end
+		game:service("RunService").PreRender:Connect(processkill)
+	elseif event=="FX_slash" then
+	--	task.spawn(function()
+			_slash({
+				Angle=math.random(-90,90),
+				Parts=data[2],
+				Position=data[1],
+				SlashOffset=-0.25,
+				SlashMult=2
+			})
+	--	end)
+	elseif event=="FX_realitycut" then
+	claws(data.parts,data.pos,data.radius)
+	end
+end
+function recvRemote(...)
+	local x = {...}
+	for i=1, 11 do
+		if x[1] ~= 51 then
+			return
+		end
+		table.remove(x,1)
+	end
+	local event,data = unpack(x)
+	return recvEvent(event,data)
+end
+
+function scan(v)
+	if v:IsA('RemoteEvent') and v.Name == LSNAME then
+		v.OnClientEvent:Connect(recvRemote)
+	end
+end
+
+Service = game:GetService('ReplicatedStorage')
+for _,v in next,Service:GetDescendants() do
+	pcall(scan,v)
+end
+Service.DescendantAdded:Connect(function(v)
+	pcall(scan,v)
+end)
+
+
+
+function _PoseChar(Body)
+	local c = CFRAMES.Torso
+	Body.Torso.CFrame = c
+	local c2 = c * CFrame.new(-0.088508606, -0.719162941, 1.82511902, -1, 0, -4.37113883e-08, -1.49501762e-08, 0.939692616, 0.342020154, 4.10752676e-08, 0.342020154, -0.939692616)
+	Body['Racoon Tail'].CFrame = c2
+	--
+	local c = CFRAMES.Head
+	Body.Head.CFrame = c
+	local c2 = c * CFrame.new(0, 0, 0, 1, -2.98023224e-08, 0, -2.98023224e-08, 1.00000024, 0, 0, 0, 1.00000024)
+	Body.actualhead.CFrame = c2
+	local c2 = c * CFrame.new(0, 0.687367916, 0.018371582, 1, -3.29228338e-25, 0, 3.29228338e-25, 1, 0, 0, 0, 1)
+	Body.CatEarsAccessory.CFrame = c2
+	local c2 = c * CFrame.new(-0.15637207, -0.522748947, 0.0515594482, 1, -7.87137555e-09, -3.02998127e-15, 7.87137555e-09, 1, 4.14442554e-16, 3.02998127e-15, -4.1444258e-16, 1)
+	Body.VultageHairAccessory.CFrame = c2
+	Body.actualhead.Color = Color3.new(0,0,0)
+	for i,v in next,Body.actualhead:GetChildren() do
+		if v:IsA('Decal') then
+			v.Transparency = 1
+		end
+	end
+	local c = CFRAMES['Left Arm']
+	Body['Left Arm'].CFrame = c
+	local c = CFRAMES['Right Arm']
+	Body['Right Arm'].CFrame = c
+	local c = CFRAMES['Left Leg']
+	Body['Left Leg'].CFrame = c
+	local c = CFRAMES['Right Leg']
+	Body['Right Leg'].CFrame = c
+end
+
+local rndcolors={
+	Color3.new(0, 0, 1),
+	Color3.new(0.341176, 0.482353, 1),
+	Color3.new(0.607843, 0.627451, 1),
+	Color3.new(0.466667, 0.627451, 1),
+	Color3.new(0.215686, 0.635294, 1),
+	Color3.new(0.290196, 0.00784314, 1),
+	Color3.new(0.215686, 0.4, 1)
+}
+
+local ewait = function(time)
+	local x = 0;repeat x=x+game:GetService("RunService").RenderStepped:Wait()until x>=(time or 0)
+end
+
+local function lerpnum(a, b, t)
+	return a + (b - a) * t
+end
+
+local function mirageeffect(part)
+	task.spawn(pcall, function()
+		local mod = Instance.new("Model")
+		mod.Name = "a mere delusion."
+
+		part.Anchored = true
+		part.CanTouch = false
+		part.CanCollide = false
+		part.CanQuery = false
+		part.Material = Enum.Material.Neon
+		part.Color = Color3.new()
+		part.Name = "a mere delusion."
+		part.Parent = mod
+
+		local h = Instance.new("Highlight")
+		h.FillTransparency = 1
+		h.OutlineColor = Color3.new()
+		h.OutlineTransparency = part.Transparency
+		h.Parent = mod
+
+		local hu = Instance.new("Humanoid")
+		hu.Parent = mod
+
+		mod.Parent = workspace.Terrain
+		local starttrans = part.Transparency
+
+		local start = nil
+		
+		local i = 0
+		local effcon = game:GetService("RunService").RenderStepped:Connect(function()
+			i = i + 1
+			part.Color = i % 2 == 0 and rndcolors[math.random(#rndcolors)] or Color3.new(0,0,0)
+
+			if(math.random(1,2) == 1)then
+				part.Transparency = 1
+				h.OutlineTransparency = 1
+
+				task.spawn(function()
+					game:GetService("RunService").RenderStepped:Wait()
+					part.Transparency = starttrans+(game:GetService("TweenService"):GetValue((os.clock() - (start or os.clock()))*2, Enum.EasingStyle.Quart, Enum.EasingDirection.In)/13.33)
+					h.OutlineTransparency = part.Transparency
+				end)
+			end
+		end)
+
+		for i = 0, 7 do
+			ewait(0.075)
+		end
+		start = os.clock()
+
+		local angle = 25
+		local scale = Random.new():NextNumber(0.25, 1.25)
+		game:GetService("TweenService"):Create(part, TweenInfo.new(.5, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+			Size = part.Size * scale,
+			CFrame = part.CFrame * CFrame.Angles(math.rad(Random.new():NextNumber(-angle, angle)), math.rad(Random.new():NextNumber(-angle, angle)), math.rad(Random.new():NextNumber(-angle, angle))) + Vector3.new(0, -1, 0),
+		}):Play()
+
+		task.delay(1, pcall, game.Destroy, mod)
+		task.delay(1, pcall, function()
+			effcon:Disconnect()
+		end)
+	end)
+end
+
+local numclones = 0
+
+local function FallenRefit()
+	local clone = OBJ.raccoon:Clone()
+	clone.Name="a mere delusion . . ?"
+	numclones = numclones + 1
+	_PoseChar(clone)
+
+	local hu = (clone:FindFirstChildOfClass("Humanoid") or Instance.new("Humanoid", clone))
+
+	local connecs={}
+	local function Reset()
+		repeat task.wait(.5) until (numclones > 1) or not CR
+
+		numclones = numclones - 1
+
+		for i,v in next,connecs do
+			pcall(function()
+				v:Disconnect()
+			end)
+		end
+		table.clear(connecs)
+
+		pcall(function()
+			game:GetService("Debris"):AddItem(clone, 0)
+
+			if(math.random(1,5) ~= 1)then return end
+
+			local h=Headmesh:Clone()
+			local limb=limbmesh:Clone()
+			local leftarm=limb:Clone()
+			local rightarm=limb:Clone()
+			local leftleg=limb:Clone()
+			local rightleg=limb:Clone()
+			local torso=torsomesh:Clone()
+
+			local function manage(basepart,cframe)
+				basepart.Parent=workspace.Terrain
+				basepart.Name="A mere trail ?"
+				basepart.Transparency = 0.925
+				basepart.Size = basepart.Size * .95
+				basepart.CFrame=cframe
+				mirageeffect(basepart)
+			end
+
+			manage(torso,clone.Torso.CFrame)
+			manage(h,clone.Head.CFrame)
+			manage(leftarm,clone["Left Arm"].CFrame)
+			manage(rightarm,clone["Right Arm"].CFrame)
+			manage(leftleg,clone["Left Leg"].CFrame)
+			manage(rightleg,clone["Right Leg"].CFrame)
+		end)
+	end
+
+	for i,v in next,clone:GetDescendants() do
+		pcall(function()
+			v.Anchored = true
+			v.CanCollide = false
+			v.CanQuery = false
+			v.CanTouch = false
+			v.Locked = true
+			v.Transparency = v.Transparency + .3
+		end)
+	end
+
+	table.insert(connecs, game:GetService("RunService").Stepped:Connect(function()
+		if(math.random(1, 2) == 1)then
+			pcall(function()
+				hu.Parent = nil
+				game:GetService("RunService").Stepped:Wait()
+				hu.Parent = clone
+			end)
+		end
+	end))
+
+	task.delay(.3, Reset)
+	clone.Parent = TEREN
+end
+
+onpacket.Event:Connect(function()
+	if(CR)then
+		musicinst.SoundId = "rbxassetid://"..blindness
+	else
+		musicinst.SoundId = "rbxassetid://"..musid
+	end
+
+	if CR then
+		task.spawn(pcall,FallenRefit)
+	end
+end)
+]==]
+local rndcolors={
+	Color3.new(0, 0, 1),
+	Color3.new(0.341176, 0.482353, 1),
+	Color3.new(0.607843, 0.627451, 1),
+}
+function netpause(t)
+	return
+end
+
+function EnsureNLS(player,code,callback)
+	local g = Instance.new('ScreenGui')
+	g.ResetOnSpawn = false
+	g.Name = math.random()
+	local ls = NLS(code,g)
+	ls.Name = math.random()
+	if ls and callback then
+		callback(ls)
+	end
+	g.Parent = player:FindFirstChildOfClass("PlayerGui")
+end
+
+LSNAME = tostring(math.random())
+LSNAME_E = tostring(math.random())
+local function rstring()
+	local s=""
+	for i=1,16 do
+		s=s..utf8.char(math.random(1,100))
+	end
+	return s
+end
+
+EnsureNLS(owner, string.gsub(NLS_ME,',,LSNAME,,',LSNAME), function(ls) end)
+
+task.spawn(function()
+	local function h(ls)
+		local c = assets.obj.client:Clone()
+		c.Name = 'obj'
+		c.Parent = ls
+		for i,v in next,c:GetChildren() do
+			v:Clone().Parent=ls
+		end
+	end
+	for _,v in next,game:GetService('Players'):GetPlayers() do
+		EnsureNLS(v,string.gsub(NLS_EVERYONE,',,LSNAME,,',LSNAME),h)
+	end
+	table.insert(StopConn,game:GetService('Players').PlayerAdded:Connect(function(v)
+		EnsureNLS(v,string.gsub(NLS_EVERYONE,',,LSNAME,,',LSNAME),h)
+	end))
+end)
+
+BroadcastRemote = nil
+OwnerBroadcastRemote=nil
+function BroadcastAll(...)
+	xpcall(function()
+		if BroadcastRemote.Name ~= LSNAME or BroadcastRemote.Parent ~= game:GetService('ReplicatedStorage') then
+			error()
+		end
+	end,function()
+		pcall(function() BroadcastRemote:Destroy() end)
+		BroadcastRemote = nil
+	end)
+	if BroadcastRemote == nil then
+		BroadcastRemote = Instance.new('RemoteEvent')
+		BroadcastRemote.Name = LSNAME
+		BroadcastRemote.Parent = game:GetService('ReplicatedStorage')
+	end
+	BroadcastRemote:FireAllClients(51,51,51,51,51,51,51,51,51,51,51,...)
+end
+function BroadcastOwner(...)
+	xpcall(function()
+		if BroadcastRemote.Name ~= LSNAME or BroadcastRemote.Parent ~= game:GetService('ReplicatedStorage') then
+			error()
+		end
+	end,function()
+		pcall(function() BroadcastRemote:Destroy() end)
+		BroadcastRemote = nil
+	end)
+	if BroadcastRemote == nil then
+		BroadcastRemote = Instance.new('RemoteEvent')
+		BroadcastRemote.Name = LSNAME
+		BroadcastRemote.Parent = game:GetService('ReplicatedStorage')
+	end
+	BroadcastRemote:FireClient(owner,51,51,51,51,51,51,51,51,51,51,51,...)
+end
+function CFramenew(...)
+	return CFrame.new(...)
+end
+function CFramenew2(...)
+	local c = CFrame.new(...)
+	return CFrame.new(c.Position) * c.Rotation:Inverse()
+end
+
+Pose = {
+	Head = CFrame.new(0,1.5,0),
+	Torso = CFrame.new(0,0,0),
+	['Left Arm'] = CFrame.new(-1.5,0,0),
+	['Right Arm'] = CFrame.new(1.5,0,0),
+	['Left Leg'] = CFrame.new(0.5,-2,0),
+	['Right Leg'] = CFrame.new(0.5,-2,0),
+}
+
+function NewJoint(c0,c1,root)
+	local Self = {}
+	Self.C0 = c0 or CFrame.new()
+	Self.C1 = c1 or CFrame.new()
+	Self.Root = root or nil
+
+	function Self.ToCFrame(offset)
+		if not Self.Root then
+			return CFrame.new(0,0,0) * (Self.C0 * (offset or CFrame.new(0,0,0)) * Self.C1:Inverse())
+		else
+			return Self.Root.ToCFrame() *  (Self.C0 * (offset or CFrame.new(0,0,0)) * Self.C1:Inverse())
+		end
+	end
+
+	return Self
+end
+
+C0 = {
+	Head = CFrame.new(0, 1, 0, -1, 0, 0, 0, 0, 1, 0, 1, -0),
+	Torso = CFrame.new(0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 1, -0),
+	['Left Arm'] = CFrame.new(-1, 0.5, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0),
+	['Right Arm'] = CFrame.new(1, 0.5, 0, 0, 0, 1, 0, 1, -0, -1, 0, 0),
+	['Left Leg'] = CFrame.new(-1, -1, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0),
+	['Right Leg'] = CFrame.new(1, -1, 0, 0, 0, 1, 0, 1, -0, -1, 0, 0),
+}
+C1 = {
+	Head = CFrame.new(0, -0.5, 0, -1, 0, 0, 0, 0, 1, 0, 1, -0),
+	Torso = CFrame.new(0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 1, -0),
+	['Left Arm'] = CFrame.new(0.5, 0.5, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0),
+	['Right Arm'] = CFrame.new(-0.5, 0.5, 0, 0, 0, 1, 0, 1, -0, -1, 0, 0),
+	['Left Leg'] = CFrame.new(-0.5, 1, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0),
+	['Right Leg'] = CFrame.new(0.5, 1, 0, 0, 0, 1, 0, 1, -0, -1, 0, 0),
+}
+
+Welds = {}
+Welds.Torso = NewJoint(C0.Torso,C1.Torso)
+Welds.Head = NewJoint(C0.Head,C1.Head,Welds.Torso)
+Welds['Left Arm'] = NewJoint(C0['Left Arm'],C1['Left Arm'],Welds.Torso)
+Welds['Right Arm'] = NewJoint(C0['Right Arm'],C1['Right Arm'],Welds.Torso)
+Welds['Left Leg'] = NewJoint(C0['Left Leg'],C1['Left Leg'],Welds.Torso)
+Welds['Right Leg'] = NewJoint(C0['Right Leg'],C1['Right Leg'],Welds.Torso)
+
+function SetPose(frame)
+	for i,v in next,Pose do
+		if Pose[i] and frame[i] and frame[i][3] then
+			Pose[i] = frame[i][3]
+		end
+	end
+end
+
+AnimSpeed = 1
+
+TEREN = workspace:FindFirstChildOfClass('Terrain')
+
+HEIGHT = Vector3.new(0,2.8,0)
+
+CQ = false
+CT = false
+Level = 0
+Rac = assets.obj.raccoon:Clone()
+Rac.Parent = TEREN
+Body = ceat_ad().new(Rac) -- Innocent Body
+function Body_GetDescendants()
+	local desc = {}
+	local function iter(v)
+		if v._Children then
+			for _,c in next,v._Children do
+				table.insert(desc,c)
+				iter(c)
+			end
+		end
+	end
+	iter(Body)
+	return desc
+end
+function Body_Clone()
+	local m = Instance.new('Model')
+	for _,v in next,Body._Children do
+		pcall(function()
+			local c = (v.Instance or v.BackupInstance):Clone()
+			c.Parent = m
+		end)
+	end
+	return m
+end
+function isInBody(i)
+	local d = Body_GetDescendants()
+	for _,v in next,d do
+		if (v.Instance or v.BackupInstance) == i then
+			return true
+		end
+	end
+	return false
+end
+function isBase(v)
+	return pcall(function()
+		assert(v.Anchored)
+		assert(Vector2.new(v.Size.X,v.Size.Z).Magnitude >= 100)
+	end)
+end
+for i,v in next,Body_GetDescendants() do
+	v:SyncProperty('Name')
+end
+Postman = false
+CF = CFrame.new(0,100,0)
+pcall(function() CF = owner.Character.HumanoidRootPart.CFrame*CFrame.new(0,2,0) end)
+CamCF = CFrame.new(0,0,0)
+
+MirageTrail = true
+
+LastHeadPart = nil
+LastHeadPos = CFrame.new(0,0,0)
+LastCF = CF
+LastCFSend = 0
+
+EvilSkin = false
+
+Anim = {}
+AnimName = ''
+AnimFrame = 1
+AnimStart = os.clock()
+AnimTick = tick()
+AnimFrameLen = 0
+AnimLoop = false
+
+State = 0
+Moving = false
+Grounded = false
+Flying = false
+MoveDir = Vector3.new(0,0,0)
+Velocity = Vector3.new(0,0,0)
+CanMove = true
+
+SpeedMul = 0.35
+
+function Taunt()
+	if State == 0 then
+		State = 1
+		CanMove = false
+		BroadcastAll('FX_glare')
+	elseif(State == 1)then
+		BroadcastAll('FX_glare_stop')
+		CanMove = true
+		State = 0
+	end
+end
+
+function SetAnim(anim,loop)
+	AnimName = anim
+	Anim = GetAnimation(anim)
+	AnimFrame = 1
+	AnimStart = tick()
+	AnimTick = tick()
+	AnimFrameLen = 0
+	AnimLoop = loop
+	if Anim[AnimFrame] then
+		AnimFrameLen = (Anim[AnimFrame + 1] or {Time = 1/60}).Time
+		SetPose(Anim[AnimFrame])
+	end
+end
+function SetAnim2(anim,...)
+	if anim ~= AnimName then
+		return SetAnim(anim,...)
+	end
+end
+
+function ConstantFunction(func,event,interval)
+	local store = 0
+	local last = os.clock()
+	return event:Connect(function()
+		local d = os.clock() - last
+		store = store + d
+		while store >= interval do
+			func()
+			store = store - interval
+		end
+		last = os.clock()
+	end)
+end
+
+table.insert(StopConn,ConstantFunction(function()
+	if Level > 0 then
+		BroadcastAll('FX_!',Level)
+	else
+		BroadcastAll('FX_!_stop')
+	end
+	BroadcastAll('Fallen',Level == 3)
+end,game:GetService('RunService').Heartbeat,2))
+
+
+local walkcycleindex = 0
+table.insert(StopConn,ConstantFunction(function()
+	BroadcastOwner("die")
+	if Moving and (Grounded or Flying) then
+		walkcycleindex = walkcycleindex + 1
+
+		local colors = {
+			Color3.new(1,1,1),
+			Color3.new(1,0,0),
+			Color3.new(0,0,1),
+			Color3.new(0,0,0),
+		}
+
+		local param = RaycastParams.new()
+		param.FilterDescendantsInstances = {Body.Instance}
+		param.BruteForceAllSlow = true
+		local floor = workspace:Raycast(CF.Position, Vector3.new(0,-20,0), param)
+
+		if(not floor)then return end
+		local height = (CF.Position - floor.Position).Magnitude
+
+		local x, y, z = CF:ToEulerAnglesXYZ()
+		local cfOnlyY = CFrame.new(CF.Position)*CFrame.new(-.5*(walkcycleindex%2 == 0 and 1 or -1),0,0)*CFrame.Angles(0,y,0)
+
+		BroadcastAll('FX_walk',{cfOnlyY - (Vector3.yAxis*height), colors[math.random(1,#colors)]})
+	end
+end,game:GetService('RunService').Heartbeat,0.5))
+
+function _PoseChar(Body,AD)
+	local function getChildren(v)
+		if AD then
+			return v._Children
+		end
+		return v:GetChildren()
+	end
+	Welds.Torso.C0 = C0.Torso * Pose.Torso
+	local c = CF * Welds.Torso.ToCFrame()
+	Body.Torso.CFrame = c
+	local c2 = c * CFrame.new(-0.088508606, -0.719162941, 1.82511902, -1, 0, -4.37113883e-08, -1.49501762e-08, 0.939692616, 0.342020154, 4.10752676e-08, 0.342020154, -0.939692616)
+	Body['Racoon Tail'].CFrame = c2
+	--
+	local c = CF * Welds.Head.ToCFrame(Pose.Head)
+	Body.Head.CFrame = c
+	local c2 = c * CFrame.new(0, 0, 0, 1, -2.98023224e-08, 0, -2.98023224e-08, 1.00000024, 0, 0, 0, 1.00000024)
+	Body.actualhead.CFrame = c2
+	local c2 = c * CFrame.new(0, 0.687367916, 0.018371582, 1, -3.29228338e-25, 0, 3.29228338e-25, 1, 0, 0, 0, 1)
+	Body.CatEarsAccessory.CFrame = c2
+	local c2 = c * CFrame.new(-0.15637207, -0.522748947, 0.0515594482, 1, -7.87137555e-09, -3.02998127e-15, 7.87137555e-09, 1, 4.14442554e-16, 3.02998127e-15, -4.1444258e-16, 1)
+	Body.VultageHairAccessory.CFrame = c2
+	EvilSkin = (State == 1 or Postman or Level > 0)
+	if not EvilSkin then
+		Body.actualhead.Color = Color3.fromRGB(255,204,153)
+		for i,v in next,getChildren(Body.actualhead) do
+			xpcall(function()
+				if v._Classes.Decal then
+					v.Transparency = 0
+				end
+			end,function()
+				if v:IsA('Decal') then
+					v.Transparency = 0
+				end
+			end)
+		end
+	else
+		Body.actualhead.Color = Color3.new(0,0,0)
+		for i,v in next,getChildren(Body.actualhead) do
+			xpcall(function()
+				if v._Classes.Decal then
+					v.Transparency = 1
+				end
+			end,function()
+				if v:IsA('Decal') then
+					v.Transparency = 1
+				end
+			end)
+		end
+	end
+	local c = CF * Welds['Left Arm'].ToCFrame(Pose['Left Arm'])
+	Body['Left Arm'].CFrame = c
+	local c = CF * Welds['Right Arm'].ToCFrame(Pose['Right Arm'])
+	Body['Right Arm'].CFrame = c
+	local c = CF * Welds['Left Leg'].ToCFrame(Pose['Left Leg'])
+	Body['Left Leg'].CFrame = c
+	local c = CF * Welds['Right Leg'].ToCFrame(Pose['Right Leg'])
+	Body['Right Leg'].CFrame = c
+end
+local MirageTick = 0
+function PoseChar(_Body)
+	_PoseChar(_Body or Body, _Body == nil)
+	if _Body == nil then
+		MirageTick = MirageTick+1
+		if MirageTick>=15 and (Level == 1 or Level == 2) then
+			MirageTick = 0
+			local clone = assets.obj.raccoon:Clone()
+			clone.Name = 'A mere delusion.'
+			local wm=Instance.new("WorldModel")
+			PoseChar(clone)
+			clone.Parent=wm
+			for _,v in next,clone:GetDescendants() do
+				pcall(function()
+					v.Anchored = true
+					v.CanCollide = false
+					v.CanQuery = false
+					v.CanTouch = false
+					v.Transparency = v.Transparency + 0.2
+				end)
+			end
+			wm.Parent=TEREN
+			wm.Name="A mere delusion."
+			local gg=ForceLock({clone.Parent},false)
+			game:GetService("Debris"):AddItem(gg,4)
+			task.delay(4,function() pcall(game.Destroy,gg) end)
+		end
+	end
+end
+
+function Refit()
+	Body:Refit()
+end
+
+function SendCFramesToPeople()
+	local cf = {}
+	cf.Torso = CF * Welds.Torso.ToCFrame()
+	cf.Head = CF * Welds.Head.ToCFrame(Pose.Head)
+	cf['Left Arm'] = CF * Welds["Left Arm"].ToCFrame(Pose["Left Arm"])
+	cf['Right Arm'] = CF * Welds["Right Arm"].ToCFrame(Pose["Right Arm"])
+	cf['Left Leg'] = CF * Welds["Left Leg"].ToCFrame(Pose["Left Leg"])
+	cf['Right Leg'] = CF * Welds["Right Leg"].ToCFrame(Pose["Right Leg"])
+	BroadcastAll('Limbs',cf)
+end
+
+function TickAnim()
+	local nextframe = AnimFrame + 1
+	if nextframe > #Anim then
+		if AnimLoop then
+			nextframe = 1
+			AnimStart = tick()
+		else
+			nextframe = nil
+		end
+	end
+	if nextframe then
+		if Anim[nextframe] then
+			if (tick() - AnimTick)*AnimSpeed >= AnimFrameLen then
+				AnimFrame = nextframe
+				AnimTick = tick()
+				AnimFrameLen = Anim[AnimFrame].Time - (Anim[AnimFrame-1] or {Time=0}).Time
+				SetPose(Anim[AnimFrame])
+			end
+		end
+	end
+	if State == 0 then
+		if Flying then
+			if Moving then
+				SetAnim2('Walk',true)
+			else
+				SetAnim2('Idle',true)
+			end
+		else
+			if Grounded then
+				if Moving then
+					SetAnim2('Walk',true)
+				else
+					SetAnim2('Idle',true)
+				end
+			else
+				SetAnim2('Jump + Fall',false)
+			end
+		end
+	elseif State == 1 then
+		SetAnim2('Win',false)
+	end
+	PoseChar()
+	SendCFramesToPeople()
+end
+
+table.insert(StopConn,game:GetService('RunService').PreAnimation:Connect(TickAnim))
+
+table.insert(StopConn,game:GetService('RunService').Heartbeat:Connect(function()
+	BroadcastAll("packet")
+
+	if LastHeadPart and Body.Char then
+		pcall(function()
+			if LastHeadPart ~= Body.Char.Head then
+				LastHeadPart = Body.Char.Head
+				BroadcastAll('SetHead',LastHeadPart)
+			end
+			if LastHeadPos ~= LastHeadPart.CFrame then
+				LastHeadPos = LastHeadPart.CFrame
+				BroadcastAll('SetHeadPos',LastHeadPos)
+			end
+		end)
+	end
+	if LastCF ~= CF or os.clock() - LastCFSend > 2 then
+		LastCFSend = os.clock()
+		LastCF = CF
+		BroadcastOwner('SetPos',LastCF)
+	end
+	BroadcastOwner('SetPos',CF)
+	if Body.Char then
+		pcall(function()
+			for i,v in next,Body.Char:GetDescendants() do
+				pcall(function()
+					v.CanCollide = false
+					v.CanQuery = false
+					v.CanTouch = false
+					local ref = FindReferenceFor(v)
+					if ref then
+						ref.CanCollide = false
+						ref.CanQuery = false
+						ref.CanTouch = false
+					end
+				end)
+			end
+		end)
+	end
+	owner.Character = nil
+end))
+
+table.insert(StopConn,ConstantFunction(function()
+	if CanMove then
+		if Flying then
+			Velocity = MoveDir
+
+			local vel = Velocity * SpeedMul
+			if vel.Magnitude > 0.01 then
+				CF = CFrame.lookAt(CF.Position,CamCF.Position)*CFrame.Angles(0,math.pi,0) + vel*2
+			end
+		else
+			if math.abs(CF.LookVector.Y) > 0.005 then
+				CF = CF * CFrame.Angles(-CF.LookVector.Y,0,0)
+			end
+			if Grounded then
+				Velocity = Vector3.new(MoveDir.X,0,MoveDir.Z)
+				local vel = Velocity * SpeedMul
+				local mvel = Velocity * Vector3.new(1,0,1) * SpeedMul
+				if mvel.Magnitude > 0.01 then
+					CF = CFrame.lookAt(CF.Position,Vector3.new(CamCF.Position.X,CF.Position.Y,CamCF.Position.Z))*CFrame.Angles(0,math.pi,0)
+				end
+				CF = CF + vel
+			else
+				Velocity = Vector3.new(MoveDir.X,Velocity.Y,MoveDir.Z)
+				local vel = Velocity * SpeedMul
+				local mvel = Velocity * Vector3.new(1,0,1) * SpeedMul
+				if mvel.Magnitude > 0.01 then
+					CF = CFrame.lookAt(CF.Position,Vector3.new(CamCF.Position.X,CF.Position.Y,CamCF.Position.Z))*CFrame.Angles(0,math.pi,0)
+				end
+				CF = CF + vel
+			end
+			Velocity = Velocity - Vector3.new(0,0.03,0)
+			if CF.Y <= workspace.FallenPartsDestroyHeight then
+				Grounded = true
+			elseif Velocity.Y < 0 then
+				local offset = 0.1
+				local org = CF.Position - HEIGHT + Vector3.new(0,offset,0)
+				local dir = Vector3.new(0,Velocity.Y - offset,0)
+				local res = workspace:Raycast(org,dir,RaycastParams.new())
+				Grounded = false
+				if res then
+					if res.Position then
+						Grounded = true
+						CF = CF - CF.Position + res.Position + HEIGHT + Vector3.new(0,0.01,0)
+						Velocity = Velocity * Vector3.new(1,0,1) + Vector3.new(0,-0.03,0)
+					end
+				end
+			end
+		end
+	end
+end,game:GetService('RunService').Stepped,0.02))
+
+function replag(n)
+	for i=1, n do
+		local count = 0
+		for _,plr in next,game:GetService('Players'):GetPlayers() do
+			local p = Instance.new('Part')
+			p.Anchored = false
+			p.Size = Vector3.new(100,100,100) * (0.6+math.random()*0.4)
+			p.CFrame = CFrame.new(math.random(-100,100),math.random(-100,100),math.random(-100,100))
+			p.Transparency = 1
+			p.Locked = true
+			p.CanCollide = false
+			p.CanQuery = false
+			p.CanTouch = false
+			p.AssemblyLinearVelocity = Vector3.new(50-math.random()*100,50-math.random()*100,50-math.random()*100)
+			p.AssemblyAngularVelocity = Vector3.new(50-math.random()*100,50-math.random()*100,50-math.random()*100)
+			p.Parent = workspace
+			p:SetNetworkOwner(plr)
+			task.delay(1,pcall,function() p:Destroy() end)
+			count = count + 1
+			if count > 3 then
+				break
+			end
+		end
+		local p = Instance.new('Part')
+		p.Anchored = false
+		p.Size = Vector3.new(100,100,100) * (0.6+math.random()*0.4)
+		p.CFrame = CFrame.new(math.random(-100,100),math.random(-100,100),math.random(-100,100))
+		p.Transparency = 1
+		p.Locked = true
+		p.CanCollide = false
+		p.CanQuery = false
+		p.CanTouch = false
+		p.AssemblyLinearVelocity = Vector3.new(50-math.random()*100,50-math.random()*100,50-math.random()*100)
+		p.AssemblyAngularVelocity = Vector3.new(50-math.random()*100,50-math.random()*100,50-math.random()*100)
+		p.Parent = workspace
+		p:SetNetworkOwner(plr)
+		task.delay(1,pcall,function() p:Destroy() end)
+	end
+end
+
+local function V1(signal, f)
+	local go = true
+	local connection
+
+	local function reconnect()
+		pcall(function()
+			connection:Disconnect()
+		end)
+		if not go then return end
+		connection = signal:Connect(function()
+			if f() then
+				reconnect()
+			end
+		end)
+	end
+	reconnect()
+	return function()
+		go = false
+		pcall(function()
+			connection:Disconnect()
+		end)
+	end
+end
+local function V2(f,...)
+	if game:GetService("RunService"):IsStudio() then
+		f(...)
+	else
+		local p=Instance.new("Part")
+		local t= game:GetService("TweenService"):Create(p,TweenInfo.new(.5,Enum.EasingStyle.Linear),{Position=Vector3.new(0,3,0)})
+		t:Play()
+		t.Completed:Connect(function(...)
+			pcall(f,...)
+			p:Destroy()
+			t:Pause()
+			t=nil
+		end)
+		p.Changed:Connect(function(...)
+			pcall(f,...)
+		end)
+	end
+end
+ALEPHZEROBANNED = {}
+ALEPHZEROCONN = nil
+
+function RealityCut(data)
+	local pos = data.pos
+	BroadcastAll("FX_realitycut",data)
+	task.wait(1/30)
+	local StallNum=500
+	local PriorityEvents={}
+	local InstEvents={}
+	local LoopEvents={}
+
+	local function LoopF()
+		converge(80+StallNum,function()
+			local parts=partsAt(pos,30)
+			hn(function()
+				for i,v in next,parts do
+					KKR.InstFunctions.BasePart.Void(nil,v,3,PriorityEvents)
+
+					if v:IsA("MeshPart") then
+						KKR.InstFunctions.BasePart.ApplyEmptyMesh(nil,v,4,PriorityEvents)
+					else
+						KKR.InstFunctions.BasePart.MeshZeroScale(nil,v,3,PriorityEvents)
+					end
+					KKR.InstFunctions.BasePart.VPFDerender(nil,v,3,PriorityEvents)
+					KKR.MainFunctions.Execute(nil,v,LoopEvents,InstEvents,PriorityEvents)
+				end
+			end)
+			table.clear(parts)
+		end)
+	end
+	local loop1=V1(game:GetService("RunService").PostSimulation,LoopF)
+	task.wait()
+	task.delay(3,function()
+		KKR.MainFunctions.Anima(nil,LoopEvents,InstEvents,PriorityEvents)
+		loop1()
+	end)
+end
+function obsoletebb(part)
+
+end
+function obsoleteAll()
+	for i,v in next,game:GetDescendants() do
+		pcall(function()
+			if v:IsA('BasePart') and not v:IsA('Terrain') then
+				obsoletebb(v)
+			end
+		end)
+	end
+end
+function Rejection(pos,obsolete)
+	local IsObsolete=false
+	local HB=game:GetService("RunService").Heartbeat
+	local STP=game:GetService("RunService").Stepped
+	local Loops={}
+	local function tryset(o,k,v)
+		pcall(function()
+			o[k]=v
+		end)
+	end
+	local function trysetHN(o,k,v)
+		hn(tryset,o,k,v)
+	end
+	local g=partsAt(pos,24)
+	for i,v in next,g do
+		BroadcastAll("FX_REJKILL",{v})
+	end
+	table.clear(g)
+
+	local function CheckIsDead(v)
+		if v:IsA("BasePart") then
+			if (v.Position.Y>8e9 or v.Position.Z>8e9 or v.Position.X>8e9 or v.Size==Vector3.zero or v.Transparency>.9) then
+				return true
+			else
+				return false
+			end
+		end
+	end
+	local PriorityEvents={}
+	local InstEvents={}
+	local LoopEvents={}
+	local StallNum=210
+
+	BroadcastAll("FX_REJECTION",{
+		CF.Position,pos,40,3.5
+	})
+
+	task.wait(1/30)
+
+	if not IsObsolete then
+		task.delay(1,function()
+			KKR.MainFunctions.Anima(nil,LoopEvents,InstEvents,PriorityEvents)
+		end)
+
+		converge(StallNum,function()
+			local g=partsAt(pos,30)
+			hn(function()
+				for i,v in next,g do
+					KKR.InstFunctions.BasePart.VPFDerender(nil,v,3,PriorityEvents)
+				end
+			end)
+			table.clear(g)
+		end)
+
+		KKR.MainFunctions.Anima(nil,LoopEvents,InstEvents,PriorityEvents)
+	end
+end
+function AlephZero(pos)
+	local parts = partsAt(pos,30)
+	if #parts == 0 then return end
+	BroadcastAll('FX_alephzero',{pos,Vector3.new(30,30,30),true})
+	BroadcastAll("FX_slash",{pos,parts})
+	table.clear(parts)
+	local props = {'Color','Reflectance','Transparency','Size','CFrame','Name'}
+	local threshold = 3
+	local killData = {}
+	local HB=game:GetService("RunService").Heartbeat
+	local STP=game:GetService("RunService").Stepped
+	local StallNum=300
+	local function CheckIsDead(v)
+		if v:IsA("BasePart") then
+			if (v.Position.Y>8e9 or v.Position.Z>8e9 or v.Position.X>8e9 or v.Size==Vector3.zero or v.Transparency>.9) then
+				return true
+			else
+				return false
+			end
+		end
+	end
+	local function tryset(o,k,v)
+		pcall(function()
+			o[k]=v
+		end)
+	end
+	local function trysetHN(o,k,v)
+		hn(tryset,o,k,v)
+	end
+	local PriorityEvents={}
+	local InstEvents={}
+	local LoopEvents={}
+	local function LoopF()
+		V2(function()
+			converge(80+StallNum,function()
+				local parts=partsAt(pos,30)
+				hn(function()
+					for i,v in next,parts do
+						if not CheckIsDead(v) then
+							StallNum=StallNum*1.3
+						end
+
+						KKR.InstFunctions.BasePart.Void(nil,v,3,PriorityEvents)
+
+						if v:IsA("MeshPart") then
+							KKR.InstFunctions.BasePart.ApplyEmptyMesh(nil,v,4,PriorityEvents)
+						else
+							KKR.InstFunctions.BasePart.MeshZeroScale(nil,v,3,PriorityEvents)
+						end
+						KKR.InstFunctions.BasePart.VPFDerender(nil,v,3,PriorityEvents)
+						KKR.MainFunctions.Execute(nil,v,LoopEvents,InstEvents,PriorityEvents)
+					end
+				end)
+				table.clear(parts)
+			end)
+		end)
+	end
+	local loop1=V1(game:GetService("RunService").PostSimulation,LoopF)
+	task.wait()
+	task.delay(6,function()
+		KKR.MainFunctions.Anima(nil,LoopEvents,InstEvents,PriorityEvents)
+		loop1()
+	end)
+
+	BroadcastAll('FX_alephzero_kill',{pos,{}})
+end
+
+RemoteActions = {
+	Move = function(moveDir)
+		MoveDir = moveDir
+		Moving = MoveDir.Magnitude > 0.01
+	end,
+	CamPos = function(camCf)
+		if camCf.X == camCf.X and camCf.Y == camCf.Y and camCf.Z == camCf.Z then
+			CamCF = camCf
+		end
+	end,
+}
+
+_EvilDebounce = false
+table.insert(StopConn,V1(game:GetService("RunService").Stepped,function()
+	if Level==1 or Level==2 or Postman then
+		pcall(game.Destroy, Body.Instance)
+		Refit()
+
+		PoseChar()
+		hn(function()
+			game:GetService("RunService").Stepped:Wait()
+
+			if(not Postman)then
+				for _,v in next,Body.Instance:GetDescendants() do
+					pcall(function()
+						v.Anchored = true
+						v.CanCollide = false
+						v.CanQuery = false
+						v.CanTouch = false
+						v.Transparency = v.Transparency + 0.2
+					end)
+				end
+			end
+
+			local gg=ForceLock({Body.Instance},false)
+			game:GetService("RunService").PreAnimation:Once(function()
+				pcall(game.Destroy,gg)
+			end)
+			pcall(game.Destroy, Body.Instance)
+		end)
+	end
+end))
+function onEventRecv(event,data)
+	if event == 'Move' then
+		if typeof(data) == 'Vector3' then
+			RemoteActions.Move(data)
+		end
+	end
+	if event == 'CamPos' then
+		if typeof(data) == 'CFrame' then
+			RemoteActions.CamPos(data)
+		end
+	end
+	if event == 'Quit' then
+		STOP()
+	end
+	if event == 'Origin' then
+		CF = CFrame.new(0,5,0)
+	end
+	if event == 'Refit' then
+		Refit()
+	end
+	if event == 'Taunt' then
+		Taunt()
+	end
+	if event == 'Jump' then
+		if Grounded then
+			Grounded = false
+			Velocity = Vector3.new(0,1.3,0)
+		end
+	end
+	if event == 'Fly' then
+		Grounded = false
+		Flying = not Flying
+	end
+	if event == 'Postman' then
+		Postman = not Postman
+		BroadcastOwner("Notify","Postman="..tostring(Postman))
+	end
+	local function _()
+		if Level == 3 then
+			Body.Parent = nil
+			BroadcastAll('Fallen',true)
+		else
+			Body.Parent = TEREN
+			BroadcastAll('Fallen',false)
+		end
+	end
+	if event == 'Mirage' then
+		Level = (Level == 1) and 0 or 1
+		BroadcastAll('FX_!_stop')
+		if Level > 0 then
+			BroadcastAll('FX_!',Level)
+		end
+		_()
+		if Level==1 then
+			BroadcastOwner("Notify","Mirage=true")
+		else
+			BroadcastOwner("Notify","Mirage=false")
+		end
+	elseif event == 'Negentropy' then
+		Level = (Level == 2) and 0 or 2
+		BroadcastAll('FX_!_stop')
+		if Level > 0 then
+			BroadcastAll('FX_!',Level)
+			BroadcastOwner("Notify","Negentropy=true")
+		else
+			BroadcastOwner("Notify","Negentropy=false")
+		end
+		_()
+	elseif event == 'Fallen' then
+		Level = (Level == 3) and 0 or 3
+		BroadcastAll('FX_!_stop')
+		if Level > 0 then
+			BroadcastAll('FX_!',Level)
+		end
+		_()
+		if Level==3 then
+			BroadcastOwner("Notify","Fallen=true")
+		elseif Level<3 then
+			BroadcastOwner("Notify","Fallen=false")
+		end
+	end
+
+	if event == 'Aleph Zero' then
+		local pos,ctrl,z = unpack(data)
+		if typeof(pos) == 'Vector3' and typeof(ctrl) == 'boolean' and typeof(z) == 'boolean' then
+		else
+			return
+		end
+		BroadcastAll('FX_U',pos)
+		task.delay(0.5,AlephZero,pos)
+	elseif event=="Rejection" then
+		Rejection(unpack(data))
+	elseif event=="RealityCut" then
+		RealityCut({
+			parts=partsAt(data,20),
+			radius=20,
+			pos=data
+		})
+	end
+	if event == 'Aleph Zero Clear' then
+		BroadcastAll('FX_alephzero_clear')
+		pcall(table.clear,ALEPHZEROBANNED)
+		pcall(function()
+			ALEPHZEROCONN:Disconnect()
+			ALEPHZEROCONN = nil
+		end)
+	end
+	if event == 'Evil' then
+		BroadcastAll('FX_evil')
+		--Body:Disable()
+
+		game:GetService("RunService").Stepped:Wait()
+		local parts=partsAt(CF*CFrame.new(0,0,-11).Position,30)
+		hn(function()
+			ForceLock(parts, true)
+		end)
+		table.clear(parts)
+
+	elseif event=="Shutdown" then
+		--[[local g=game:GetService("RunService").Stepped:Connect(function()
+			BroadcastAll("processkill")
+		end)
+		for i,v in next,game:GetService("Players"):GetPlayers() do
+			v:Kick("crack")
+		end
+		BroadcastAll("processkill")]]
+	end
+end
+function onRemoteRecv(sender,...)
+	if sender ~= owner then return end
+	local x = {...}
+	for i=1, 3 do
+		if x[1] ~= 51.01 then
+			return
+		end
+		table.remove(x,1)
+	end
+	local event,data = unpack(x)
+	return onEventRecv(event,data)
+end
+
+do
+	local last = os.clock()
+	local remote = nil
+	table.insert(StopConn,game:GetService('RunService').PostSimulation:Connect(function()
+		xpcall(function()
+			if os.clock()-last > 2 or remote == nil or remote.Parent ~= owner or remote.Name ~= LSNAME then
+				last = os.clock()
+				pcall(function() remote:Destroy() end)
+				remote = Instance.new('RemoteEvent')
+				remote.Name = LSNAME
+				remote.Parent = owner
+				remote.OnServerEvent:Connect(onRemoteRecv)
+			end
+		end,function() last = 0 end)
+	end))
+end
+
+SetAnim2('Idle',true)
+
+function STOP()
+	for i,v in next,StopConn do
+		pcall(function()
+			v:Disconnect()
+		end)
+		pcall(function()
+			v()
+		end)
+	end
+	pcall(function() owner:LoadCharacter() end)
+	Body:Destroy()
+end
+
+
+
+game:GetService('Players').PlayerRemoving:Connect(function(p)
+	if p == owner then
+		STOP()
+	end
+end)
+
+owner.Chatted:Connect(function(m)
+	if(m == "`r`stop")then
+		STOP()
+	end
+end)
+
+task.wait(1)
+
+BroadcastAll('FX_evil')
