@@ -27,3 +27,32 @@ Bloom.Name = "Bloom"
 Bloom.Intensity = 0.5
 Bloom.Size = 31
 Bloom.Threshold = 0.87
+
+
+
+Instance.new("ColorCorrectionEffect",game.Lighting)
+    Instance.new("BloomEffect",game.Lighting)
+    Instance.new("SunRaysEffect",game.Lighting)
+game.Lighting.ColorCorrection.Saturation = -0.2
+game.Lighting.ColorCorrection.Contrast = 0.1
+game.Lighting.Bloom.Intensity = 0.1
+game.Lighting.Bloom.Threshold = 0.8
+game.Lighting.SunRays.Intensity = 0.1
+game.Lighting.TimeOfDay = 9
+game.Lighting.Ambient = Color3.fromRGB(124, 141, 199)
+game.Lighting.ColorShift_Top = Color3.fromRGB(214, 189, 0)
+game.Lighting.ShadowSoftness = 0
+game.Lighting.GlobalShadows = true
+game.Lighting.OutdoorAmbient = Color3.fromRGB(126, 116, 85)
+game.Lighting.FogEnd = 1250
+game.Lighting.FogColor = Color3.fromRGB(176, 176, 176)
+game.Lighting.Brightness = 6
+game.Workspace.Terrain.WaterReflectance = 0.6
+game.Workspace.Terrain.WaterTransparency = 1
+game.Workspace.Terrain.WaterWaveSize = 0
+game.Workspace.Terrain.WaterWaveSpeed = 10
+Instance.new("ScreenGui",game.StarterGui)
+game.StarterGui.ScreenGui.Name = ("Shaders")
+Instance.new("ImageLabel",game.StarterGui.Shaders)
+game.StarterGui.Shaders.ImageLabel.Image = "rbxassetid://4802683665"
+game.StarterGui.Shaders.ImageLabel.Position = UDim2({-0.006, 0},{0.877, 0})
