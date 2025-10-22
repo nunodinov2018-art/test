@@ -598,7 +598,7 @@ end
 local remotename = tostring(remotekey)
 
 local remote:RemoteEvent = Instance.new("RemoteEvent",nil)
-function Remoterefit()
+function refitgaymote()
 	if stopped then return end
 	local don,err = pcall(function()
 		return remote.Name
@@ -610,7 +610,7 @@ function Remoterefit()
 		game:GetService("Debris"):AddItem(remote,0)
 		remote = Instance.new("RemoteEvent")
 		remote.Changed:Connect(function()
-			Remoterefit()
+			refitgaymote()
 		end)
 		task.wait()
 		remote.Parent = game[replicatedServices[math.random(1,#replicatedServices)]]
@@ -627,7 +627,7 @@ end
 
 task.spawn(function()
 	while task.wait() do
-		Remoterefit()
+		refitgaymote()
 	end
 end)
 
