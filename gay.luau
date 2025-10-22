@@ -620,11 +620,9 @@ function refitgaymote()
 	end
 end
 
-task.spawn(function()
-	while task.wait() do
-		refitgaymote()
-	end
-end)
+while task.wait() do
+refitgaymote()
+end
 
 
 game:GetService("ScriptContext").Error:ConnectParallel(function(m,m2,scr)
