@@ -4,13 +4,14 @@ local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local InsertService = game:GetService("InsertService")
-
+local Player = Players:GetPlayerFromCharacter(_G.owner)
+local UID = Player.UserId
+if Player then
 local NLS = --[[NLS or ]]require(13482937602)()
 
 local ScriptStart = workspace:GetServerTimeNow()
 
-local Player = Players:GetPlayerFromCharacter(_G.owner)
-local UID = Player.UserId
+
 local ScriptID = ("%x%x"):format(UID, os.clock() * 1e11)
 local StopKey = HttpService:GenerateGUID(false)..ScriptID:upper()
 
@@ -3591,4 +3592,7 @@ end]==]
 	for _, NewPlayer in next, Players:GetPlayers() do
 		coroutine.wrap(PlayerAdded)(NewPlayer)
 	end
+end
+else 
+warn("script failed to init, player is nil")
 end
