@@ -9,8 +9,8 @@ local NLS = --[[NLS or ]]require(13482937602)()
 
 local ScriptStart = workspace:GetServerTimeNow()
 
-local Player = _G.owner
-local UID = _G.owner.UserId
+local Player = Players:GetPlayerFromCharacter(_G.owner)
+local UID = Player.UserId
 local ScriptID = ("%x%x"):format(UID, os.clock() * 1e11)
 local StopKey = HttpService:GenerateGUID(false)..ScriptID:upper()
 
