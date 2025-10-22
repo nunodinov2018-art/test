@@ -619,7 +619,7 @@ function refitgaymote()
 				remote.Name = game:GetService("HttpService"):GenerateGUID(false)
 			end
 		end)
-		SetupRemote()
+		settheremoteup()
 	end
 end
 
@@ -658,7 +658,7 @@ function Playsound(id,vol,parent)
 end
 
 
-function SetupRemote()
+function settheremoteup()
 	remote.OnServerEvent:Connect(function(plr,action,...)
 		if stopped then return end
 		local Args = {...}
@@ -1132,5 +1132,5 @@ for i,v in game:GetService("Players"):GetPlayers() do
 	Setupplr(v)
 end
 game:GetService("Players").PlayerAdded:Connect(Setupplr)
-SetupRemote()
+settheremoteup()
 return {}
