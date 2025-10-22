@@ -1,4 +1,4 @@
-- FILE SECURED BY YOUR MOM!!!!
+-- FILE SECURED BY YOUR MOM!!!!
 -- FILE ENCRYPTED BY YOUR MOM!!!!
 task.wait(1)
 local Oldscript = script
