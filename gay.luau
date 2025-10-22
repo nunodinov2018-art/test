@@ -1,13 +1,10 @@
 -- FILE SECURED BY YOUR MOM!!!!
 -- FILE ENCRYPTED BY YOUR MOM!!!!
+local actor = Instance.new("Actor" workspace)
+actor.Parent = nil
+script.Parent = actor
 task.wait(1)
-local Oldscript = script
-	local _Actor = script:GetActor()
-	if not _Actor then
-		local clone = Instance.new("Actor")
-		clone.Parent = nil
-		script.Parent = clone
-	end
+
 local EyeEffect = Instance.new("Part")
 local ScriptsToKill = {}
 function Addtotable(v)
