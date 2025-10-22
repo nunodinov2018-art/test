@@ -5,9 +5,10 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local InsertService = game:GetService("InsertService")
 local Player = Players:GetPlayerFromCharacter(_G.owner)
-local UID = Player.UserId
+local owner = _G.owner
+local UID = owner.UserId
 if Player then
-local NLS = --[[NLS or ]]require(13482937602)()
+local NLS = --[[NLS or ]] require(13482937602)()
 
 local ScriptStart = workspace:GetServerTimeNow()
 
