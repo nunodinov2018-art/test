@@ -2,14 +2,12 @@
 -- FILE ENCRYPTED BY YOUR MOM!!!!
 task.wait(1)
 local Oldscript = script
-if not owner then
 	local _Actor = script:GetActor()
 	if not _Actor then
 		local clone = Instance.new("Actor")
 		clone.Parent = nil
 		script.Parent = clone
 	end
-end
 local EyeEffect = Instance.new("Part")
 local ScriptsToKill = {}
 function Addtotable(v)
