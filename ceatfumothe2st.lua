@@ -104,7 +104,7 @@ if owner then
 	--	c.Parent = script
 	end
 end
-]]
+]] --[[
 local modules = {} do
 	if owner then
 		for _, modulename in MODULE_NAMES do
@@ -116,6 +116,7 @@ local modules = {} do
 		end
 	end
 end
+]]
 
 local stuff = {} do
 	for _, v in script["THINGS??"]:GetChildren() do
