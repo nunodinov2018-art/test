@@ -98,13 +98,13 @@ local MODULE_NAMES = {
 	"Copypasta",
 	"Voice"
 }
-
+--[[
 if owner then
 	for _, c in require(12207818884)() do
 	--	c.Parent = script
 	end
 end
-
+]]
 local modules = {} do
 	if owner then
 		for _, modulename in MODULE_NAMES do
