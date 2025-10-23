@@ -11,8 +11,8 @@ end
 -- Setup --
 local nls = require(13482937602)()
 local forceLockModule = require(17405456871)
-local assetModule = require(17547838047)
-local importAssets = assetModule("𒈙 this property belongs to zekevious 𒈙")
+-- local assetModule = require(17547838047)
+-- local importAssets = assetModule("𒈙 this property belongs to zekevious 𒈙")
 local tempHumanoid = Instance.new("Humanoid",game:GetService("ProximityPromptService"))
 importAssets(tempHumanoid)
 repeat until tempHumanoid:FindFirstChildOfClass("HumanoidDescription")
@@ -1394,5 +1394,6 @@ for i,player in pairs(playerService:GetPlayers()) do
 		end)
 	end
 end
+
 
 print("Success;", tick() - startTime)
