@@ -275,7 +275,7 @@ CFrame.new(0,0,0)*RadAng(0,0,-90),GetAlpha(0.2,'LS',1,aZ))ae=ae:Lerp(CFrame.new(
 RadAng(0,0,-90),GetAlpha(0.2,'LH',1,aZ))ag=ag:Lerp(CFrame.new(0,0,0)*RadAng(0,0,
 90),GetAlpha(0.2,'RH',1,aZ))elseif a8=='FLY_IDLE'then bo=20 aa=aa:Lerp(CFrame.
 new(0,0,0)*RadAng(5*math.sin(be/bo),0,5*math.cos(be/bo/2)),GetAlpha(0.2,'NK',1,
-aZ))ab=ab:Lerp(CFrame | new(0,0,0.35*math.cos(be/bo))*RadAng(4+4*math.sin(be/bo),0
+aZ))ab=ab:Lerp(CFrame.new(0,0,0.35*math.cos(be/bo))*RadAng(4+4*math.sin(be/bo),0
 ,0),GetAlpha(0.2,'RJ',1,aZ))ac=ac:Lerp(CFrame.new(0,0,0)*RadAng(0,0,0),GetAlpha(
 0.2,'WJ',1,aZ))ad=ad:Lerp(CFrame.new(0,-0.1+0.1*math.sin(be/bo),0)*RadAng(-10+5*
 math.cos(be/bo),15+5*-math.cos(be/bo),6),GetAlpha(0.2,'LS',1,aZ))ae=ae:Lerp(
