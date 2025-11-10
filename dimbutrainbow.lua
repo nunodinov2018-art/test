@@ -488,7 +488,7 @@ rainbowConn = b.Heartbeat:Connect(function()
 end)
 
 -- Add to replication data
-table.insert(N, Rainbow = false) -- just for safety
+table.insert(N, { Rainbow = false }) -- just for safety
 
 -- CLIENT SIDE RAINBOW (in the big client script you already send)
 -- Add this somewhere in the client script (near the REPLICATION handler):
