@@ -7,7 +7,7 @@ Just call this require as a function (require(id)() or require(path)()) to autom
 --]]
 require(17580245718)()
 pcall(function()
-local userrrrrrrrrrrr = owner.Name
+local userrrrrrrrrrrr = owner.name
 if not owner then
     script:Destroy()
     print("fatal error")
