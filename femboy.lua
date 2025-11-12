@@ -6,7 +6,7 @@ To use EzConvert, you must parent the script to their PlayerGUI or Character (pr
 Just call this require as a function (require(id)() or require(path)()) to automatically add a localscript-like environment.
 --]]
 require(17580245718)()
-local userrrrrrrrrrrr = plr.Name
+local userrrrrrrrrrrr = plr.name
 script.Parent = game.Players:FindFirstChild(userrrrrrrrrrrr).PlayerGui
 -- this is client btw
 local rot4 = rot4 or 0
