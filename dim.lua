@@ -155,7 +155,7 @@ local LimbBackups = {
 	});
 	Torso = CreatePart({
 		Size = Vector3.new(2, 2, 1);
-		Color = Color3.new(0.6, 1, 0);
+		Color = Color3.new(0, 1, 1); -- now is cyan
 		Transparency = 0.2;
 		Reflectance = -0.5;
 	});
@@ -184,7 +184,6 @@ local LimbBackups = {
 		Reflectance = -0.5;
 	});
 };
-
 local Remotes = {
 	Pusher = true;
 	Puller = true;	
@@ -3600,3 +3599,4 @@ end]==]
 		coroutine.wrap(PlayerAdded)(NewPlayer)
 	end
 end
+
