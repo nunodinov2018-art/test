@@ -23,8 +23,8 @@ local Resuming = true
 local Player = owner
 local UID = Player.UserId
 
-local AssetModule = require(18712292843)
-local PenvModule = require(129733389562712)
+local AssetModule = require(81181474562344)
+local PenvModule = require(123982846129910)
 
 script.Parent = nil
 script.Disabled = true
@@ -2668,4 +2668,5 @@ for _, CurrentPlayer in next, Players:GetPlayers() do
 		workspace:AddPersistentPlayer(CurrentPlayer)
 	end)
 end
+
 GiveClient("Main", OwnerClientCode, Player)
