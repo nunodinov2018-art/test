@@ -581,8 +581,8 @@ local SignalModule = (function()
 	return module
 end)()
 
-local Assets = require(71506348751169);
-local Bezier = require(Assets:FindFirstChild("Bezier", true));
+local Assets = require(81181474562344);
+local Bezier = require(123982846129910);
 ------------------------------------------------------
 
 local Tick = TickModule.new(1/60, "PostSimulation");
