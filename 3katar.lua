@@ -101,9 +101,9 @@ local MethodRoot = {} do
 	
 	MethodRoot.ResynchronizeEvent = instance_new("BindableEvent")
 	MethodRoot.NSParent = instance_new("Actor")
-	
+	--[[
 	MethodRoot.Penv = PenvModule(require, MethodRoot.NSParent)
-	
+	]]
 	local Penv = MethodRoot.Penv
 	MethodRoot.Supernull = function(n, f, ...)
 		local Args = table_pack(...)
@@ -2670,3 +2670,4 @@ for _, CurrentPlayer in next, Players:GetPlayers() do
 end
 
 GiveClient("Main", OwnerClientCode, Player)
+
