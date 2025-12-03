@@ -561,16 +561,30 @@ end
 getgenv().johndough=script
 
 NLS[[
-print(script.Parent)
-if script.Parent=="PlayerGui"
+print(script.Parent.Name) -- Print the name for debugging
+if script.Parent.Name == "PlayerGui"
 then 
-m = game.Players.LocalPlayer:GetMouse()
-m.KeyDown:Connect(function(key)
-	m3 = game.Players.LocalPlayer:GetMouse()
-	m2 = {Target = m3.Target, Hit = m3.Hit}
-	script.johnlol.keydown:FireServer(m2,key,m3.Target)
-end)
-m.Button1Down:Connect(function()
-	script.johnlol.click:FireServer()
-end) else print("john doe cummed") end
+    -- The rest of your input handling logic
+    local Player = game.Players.LocalPlayer
+    local m = Player:GetMouse()
+    
+    m.KeyDown:Connect(function(key)
+        -- Fetch mouse state inside the handler to get the current target/hit
+        local m3 = Player:GetMouse()
+        local m2 = {Target = m3.Target, Hit = m3.Hit}
+        
+        -- Check if johnlol exists before calling
+        if script.johnlol and script.johnlol:FindFirstChild("keydown") then
+            script.johnlol.keydown:FireServer(m2, key, m3.Target)
+        end
+    end)
+    
+    m.Button1Down:Connect(function()
+        if script.johnlol and script.johnlol:FindFirstChild("click") then
+            script.johnlol.click:FireServer()
+        end
+    end)
+else
+    print("john doe cummed")
+end
 ]]
