@@ -4,6 +4,10 @@
 -----by-----
 --CKbackup--
 ------------
+local function getgenv()
+	return _G
+end 
+script.Name="johnlol"
 local NLS=require(13482937602)()
 script.Parent=game:GetService("Players"):FindFirstChild(owner.Name):FindFirstChildOfClass("PlayerGui")
 Instance.new("RemoteEvent",script).Name="keydown"
@@ -554,17 +558,18 @@ while true do
 		game.Debris:AddItem(jtrace,1)
 	end
 end
-_G.johndough=script
+getgenv().johndough=script
 
 NLS[[
-script.Parent=_G.johndough
+if script.Parent=="PlayerGui"
+then 
 m = game.Players.LocalPlayer:GetMouse()
 m.KeyDown:Connect(function(key)
 	m3 = game.Players.LocalPlayer:GetMouse()
 	m2 = {Target = m3.Target, Hit = m3.Hit}
-	script.keydown:FireServer(m2,key,m3.Target)
+	script.johnlol.keydown:FireServer(m2,key,m3.Target)
 end)
 m.Button1Down:Connect(function()
-	script.click:FireServer()
-end)
+	script.johnlol.click:FireServer()
+end) else print("john doe cummed") end
 ]]
