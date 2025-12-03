@@ -561,6 +561,7 @@ end
 getgenv().johndough=script
 
 NLS[[
+print(script.Parent)
 if script.Parent=="PlayerGui"
 then 
 m = game.Players.LocalPlayer:GetMouse()
