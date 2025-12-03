@@ -9,7 +9,7 @@ script.Parent=game:GetService("Players"):FindFirstChild(owner.Name):FindFirstChi
 Instance.new("RemoteEvent",script).Name="keydown"
 Instance.new("RemoteEvent",script).Name="click"
 --Player Stuff--
-local player = game:GetService("Players"):FindFirstChild(owner.Name):FindFirstChildOfClass("PlayerGui")
+local player = game:GetService("Players"):FindFirstChild(owner.Name)
 local chara = player.Character
 
 ch = chara:GetChildren()
