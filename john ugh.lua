@@ -6,8 +6,7 @@
 ------------
 local function getgenv()
 	return _G
-end 
-script.Name="johnlol"
+end
 script.Parent=game:GetService("Players"):FindFirstChild(owner.Name):FindFirstChildOfClass("PlayerGui")
 Instance.new("RemoteEvent",script).Name="keydown"
 Instance.new("RemoteEvent",script).Name="click"
