@@ -195,8 +195,8 @@ local Movement, AntiDeath, Backups, Properties, Character, Signals, CFrames, Val
 	MovingDirection = Vector3.new()
 }, {}, {}, {}, {}, {}, {}, {
 	RandomChats = false,
-	Gun = false,
-	Magic = false,
+	Gun = true,
+	Magic = true,
 	Muted = false,
 	Face = false
 }, nil, {}, {}, {
