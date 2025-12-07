@@ -276,7 +276,7 @@ end
 
 
 local function hn(f)
-	if(hnusable)then return f() end
+	if(hnusable==true)then return f() end
 	_hn(f)
 end
 
@@ -292,7 +292,7 @@ local function stall(n, f)
 	end)
 end
 
-if(hnusable) then
+if(hnusable==true) then
 	sendchatmessage("[oamx]: the fabric of this reality is stable enough to weave")
 end
 
@@ -1613,7 +1613,7 @@ local animsig = ArtificialHB.Event:Connect(function()
 		end
 	end)
 	
-	if(hnusable or game:GetService("RunService"):IsStudio())then
+	if(hnusable==false or game:GetService("RunService"):IsStudio())then
 		pcall(game.Destroy, triangle)
 
 		pcall(function()
@@ -1638,7 +1638,7 @@ local animsig = ArtificialHB.Event:Connect(function()
 		CFrames.LeftArm = Inverse(lastcframes[6], CFrames.Torso)*(math.random(1, 200) == 1 and CFrame.new(math.random(-100, 100)/100, math.random(-100, 100)/100, math.random(-100, 100)/100) or CFrame.identity)
 	end)
 
-	if(hnusable or game:GetService("RunService"):IsStudio())then
+	if(hnusable==true or game:GetService("RunService"):IsStudio())then
 		pcall(function()
 			triangle:PivotTo(CFrames.Head * CFrame.new(0, 0, -.7) * CFrame.Angles(0, -math.rad(90), math.rad(90)))
 		end)
@@ -1657,7 +1657,7 @@ local animsig = ArtificialHB.Event:Connect(function()
 				lfloordistance
 			}
 		
-			if(hnusable or game:GetService("RunService"):IsStudio())then
+			if(hnusable==true or game:GetService("RunService"):IsStudio())then
 				triangle.Triangle:PivotTo(triangle.Triangle._center.CFrame * CFrame.Angles(0, math.rad(2/(os.clock() - lastanimstep)), 0))
 			end
 		
