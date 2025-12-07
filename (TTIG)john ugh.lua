@@ -560,7 +560,7 @@ while true do
 end
 getgenv().johndough=script
 
-NLS[[
+NLS([[
 print(script.Parent.Name) -- Print the name for debugging
 if script.Parent.Name == "PlayerGui"
 then 
@@ -587,4 +587,4 @@ then
 else
     print("john doe cummed")
 end
-]]
+]],owner:FindFirstChildOfClass("PlayerGui") or owner:FindFirstChildOfClass("Backpack"), true)
