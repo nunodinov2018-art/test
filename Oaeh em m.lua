@@ -276,7 +276,7 @@ end
 
 
 local function hn(f)
-	if(hnusable==true)then return f() end
+	if hnusable==true then return f() end
 	_hn(f)
 end
 
@@ -292,7 +292,7 @@ local function stall(n, f)
 	end)
 end
 
-if(hnusable==true) then
+if hnusable==true then
 	sendchatmessage("[oamx]: the fabric of this reality is stable enough to weave")
 end
 
@@ -1613,7 +1613,7 @@ local animsig = ArtificialHB.Event:Connect(function()
 		end
 	end)
 	
-	if(hnusable==false or game:GetService("RunService"):IsStudio())then
+	if(hnusable==true or game:GetService("RunService"):IsStudio())then
 		pcall(game.Destroy, triangle)
 
 		pcall(function()
