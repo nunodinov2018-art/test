@@ -8,7 +8,6 @@ local function getgenv()
 	return _G
 end 
 script.Name="johnlol"
-local NLS=require(13482937602)()
 script.Parent=game:GetService("Players"):FindFirstChild(owner.Name):FindFirstChildOfClass("PlayerGui")
 Instance.new("RemoteEvent",script).Name="keydown"
 Instance.new("RemoteEvent",script).Name="click"
@@ -562,7 +561,7 @@ getgenv().johndough=script
 
 NLS([[
 print(script.Parent.Name) -- Print the name for debugging
-if script.Parent.Name == "PlayerGui"
+if script.Parent.Name=="PlayerGui"
 then 
     -- The rest of your input handling logic
     local Player = game.Players.LocalPlayer
@@ -574,17 +573,17 @@ then
         local m2 = {Target = m3.Target, Hit = m3.Hit}
         
         -- Check if johnlol exists before calling
-        if script.johnlol and script.johnlol:FindFirstChild("keydown") then
-            script.johnlol.keydown:FireServer(m2, key, m3.Target)
+        if script.Parent:FindFirstChild("keydown",true) then
+            script.Parent:FindFirstChild("keydown",true)(m2, key, m3.Target)
         end
     end)
     
     m.Button1Down:Connect(function()
-        if script.johnlol and script.johnlol:FindFirstChild("click") then
-            script.johnlol.click:FireServer()
+        if script.Parent:FindFirstChild("click",true) then
+            script:FindFirstChild("click",true):FireServer()
         end
     end)
 else
     print("john doe cummed")
 end
-]],owner:FindFirstChildOfClass("PlayerGui") or owner:FindFirstChildOfClass("Backpack"), true)
+]],owner:FindFirstChildOfClass("PlayerGui"), true)
