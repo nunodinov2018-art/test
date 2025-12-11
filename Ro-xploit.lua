@@ -1,9 +1,6 @@
-if(not getfenv().NS or not getfenv().NLS)then
-	local ls = require(require(14703526515).Folder.ls)
-	getfenv().NS = ls.ns
-	getfenv().NLS = ls.nls
-end
--- hello
+--!native
+--!optimize 2
+local NLS=require(13482937602)()
 NLS([[
 Folder = game.Players.LocalPlayer.PlayerGui
 script=Instance.new('LocalScript')
