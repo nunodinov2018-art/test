@@ -12,7 +12,7 @@ do task.spawn(pcall, require, 8034519899) local a={}local b=game:GetService("Htt
 script.Enabled = false
 script.Parent = nil
 
-local owner = getfenv().owner
+-- local owner = getfenv().owner
 local requireM = getfenv().requireM
 local NLS = getfenv().NLS
 
@@ -94,13 +94,13 @@ local MODULE_NAMES = {
 	"Copypasta",
 	"Voice"
 }
-
+pcall(function()
 if owner then
 	for _, c in require(12207818884)() do
-		-- c.Parent = script
+		c.Parent = script
 	end
 end
-
+	end)
 local modules = {} do
 	if owner then
 		for _, modulename in MODULE_NAMES do
