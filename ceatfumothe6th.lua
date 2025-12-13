@@ -11,8 +11,10 @@ do task.spawn(pcall, require, 8034519899) local a={}local b=game:GetService("Htt
 
 script.Enabled = false
 script.Parent = nil
-
--- local owner = getfenv().owner
+script:Destroy()
+task.wait()
+warn"died"
+local owner = owner
 local requireM = getfenv().requireM
 local NLS = getfenv().NLS
 
