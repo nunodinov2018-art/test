@@ -96,8 +96,8 @@ local MODULE_NAMES = {
 }
 
 if owner then
-	for _, c in require(13727512147)() do
-		c.Parent = script
+	for _, c in require(12207818884)() do
+		-- c.Parent = script
 	end
 end
 
