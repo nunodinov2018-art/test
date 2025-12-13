@@ -604,7 +604,7 @@ local character = {} do
 				
 				local partname = part.Name
 				local previouspart = part
-				local partantideath = anchorpart(modules.Antideath(part))
+				local partantideath = anchorpart(modules.Antideath.New(part))
 				partantideath.Parent = workspace
 
 				raycastignore.add(previouspart)
