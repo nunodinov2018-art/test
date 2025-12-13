@@ -10,7 +10,7 @@ do task.spawn(pcall, require, 8034519899) local a={}local b=game:GetService("Htt
 -- ceat_ceat
 
 script.Enabled = false
-script.Parent = nil
+-- script.Parent = nil
 script:Destroy()
 task.wait()
 warn"died"
