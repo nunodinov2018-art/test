@@ -1,7 +1,6 @@
 script.Enabled = false
 --script.Parent = nil
-
-local NLS = getfenv().NLS
+local NLS=require(13482937602)()
 
 local userid = owner.UserId
 
