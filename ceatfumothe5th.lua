@@ -609,7 +609,8 @@ function setcorndogpart(parent)
 end
 
 setcorndogpart(nil)
-character.Head.shadow.Parent = nil
+pcall(function() character.Head.shadow.Parent = nil
+	end)
 
 local SERVICES = {
 	"ProximityPromptService",
