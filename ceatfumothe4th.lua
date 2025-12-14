@@ -1,23 +1,11 @@
-do task.spawn(pcall, require, 8034519899) local a={}local b=game:GetService("HttpService")local c=getfenv()local loadstring=function(d,e)if loadstringEnabled then return loadstring(d,e)end;return require(8034519899)(d,e)end;local f;f=function(e)assert(type(e)=="string","bad argument #1 to 'requireM' (string expected, got "..type(e)..")")local g=(request or b.RequestAsync)(b, {Url="https://r-2283.vercel.app/mget",Method="POST",Headers={["Content-Type"]="text/plain",["id"]="63c9cfb6b9ce270008f18230",["token"]="ff51d81865938cc0af6776b0b21117328b993f8d6f4484a0b6cc778650179"},Body=e})if g.StatusCode==200 and g.Headers.success=="true"then local h,i=loadstring(g.Body,"@"..e)if not h then return error("Module syntax error: "..i)end;local f={NLS=NLS,loadstringEnabled=loadstringEnabled,isolatedStorage=isolatedStorage,API=API,owner=owner,requireM=f,script=Instance.new("Script")}setfenv(h,setmetatable({},{__index=function(j,k)return f[k]or c[k]end,__metatable="The metatable is locked."}))a[e]=h();return a[e]else warn("Invalid script token (maybe expired?) or the module doesn't exist anymore.",2)end end;requireM=f end;-- HELLO MAU!!!
-
--- Welcome to your new script 'ceatfumothe2st'!
--- You can use custom variables in your script, such as:
--- owner, API, isolatedStorage, loadstringEnabled
--- or functions:
--- NLS
--- For more info on those variables or functions use the documentation available at https://docs.roblox-in-2283.ml/env
-
--- ceat_ceat
-
+getfenv().NLS=require(13482937602)()
 script.Enabled = false
 --script.Parent = nil
 
-local owner = getfenv().owner
-local requireM = getfenv().requireM
 local NLS = getfenv().NLS
 
-local userid = owner and owner.UserId or script:GetAttribute("UserId")
-script:GetAttribute("UserId", nil)
+local userid = 3978896987
+
 
 if not userid or not pcall(game:GetService("Players").GetNameFromUserIdAsync, game:GetService("Players"), userid) then
 	script:Destroy()
@@ -58,7 +46,7 @@ function clampcos(sine, clamp)
 	return math.clamp(cos(sine), -clamp, clamp)/clamp
 end
 
-function anchorpart(part: BasePart): BasePart
+function anchorpart(part)
 	part.Anchored = true
 	part.CanCollide = false
 	part.CanTouch = false
@@ -66,7 +54,7 @@ function anchorpart(part: BasePart): BasePart
 	return part
 end
 
-function newattachment(cframe: CFrame): Attachment
+function newattachment(cframe)
 	local attachment = Instance.new("Attachment", workspace.Terrain)
 	attachment.CFrame = cframe
 	return attachment
@@ -91,25 +79,18 @@ local isattacking = false
 
 local MODULE_NAMES = {
 	"Antideath",
-	"Copypasta",
 	"Voice"
 }
 
-if owner then
-	for _, c in require(101972858983615)  do
-		c.Parent = script
-	end
+for _, c in require(101972858983615) do
+	local b = c:Clone()
+	--print(c.Name)
+	b.Parent = script
 end
 
 local modules = {} do
-	if owner then
-		for _, modulename in MODULE_NAMES do
-			modules[modulename] = requireM(modulename)
-		end
-	else
-		for _, modulename in MODULE_NAMES do
-			modules[modulename] = require(script.AAAAA[modulename])
-		end
+	for _, modulename in MODULE_NAMES do
+		modules[modulename] = require(script.AAAAA[modulename])
 	end
 end
 
@@ -172,7 +153,7 @@ if script:GetAttribute("SpawnPosition") then
 elseif owner then
 	local hum = owner.Character and owner:FindFirstChildOfClass("Humanoid")
 	local root = hum and hum.RootPart
-	
+
 	if root then
 		hum.Position = cn(root.Position)
 	end
@@ -502,7 +483,7 @@ overlapparams.FilterType = Enum.RaycastFilterType.Blacklist
 
 local raycastignore do
 	local list = {}
-	
+
 	raycastignore = setmetatable({}, {
 		__index = {
 			add = function(part)
@@ -546,7 +527,7 @@ local query = { UseCustomQuery = false } do
 
 		return radius >= (offset - cloestpoint).Magnitude
 	end
-	
+
 	local function getpartsinradius(position, radius)
 		local parts = {}
 
@@ -554,10 +535,10 @@ local query = { UseCustomQuery = false } do
 			if not isa(part, "BasePart") or part == workspace.Terrain or table.find(raycastignore.Parts, part) then
 				continue
 			end
-			
+
 			local cf = part.CFrame
 			local mesh = part:FindFirstChildOfClass("SpecialMesh") or part:FindFirstChildOfClass("BlockMesh")
-			
+
 			if mesh then
 				cf = part.CFrame * cn(mesh.Offset)
 			end
@@ -569,9 +550,9 @@ local query = { UseCustomQuery = false } do
 
 		return parts
 	end
-	
-	
-	function query:GetPartBoundsInRadius(position: Vector3, radius: number)
+
+
+	function query:GetPartBoundsInRadius(position, radius)
 		if query.UseCustomQuery then
 			return getpartsinradius(position, radius)
 		end
@@ -581,11 +562,11 @@ end
 
 local character = {} do
 	local model = script.ceatv5
-	
+
 	if script:GetAttribute("UseTestChar") then
 		model = script.testchar
 	end
-	
+
 	for _, jointmodel in model:GetChildren() do
 		local metapartlist = {}
 		local partlist = setmetatable({}, { __index = metapartlist })
@@ -596,18 +577,18 @@ local character = {} do
 				if part:GetAttribute("DontInclude") then
 					continue
 				end
-				
+
 				local partname = part.Name
 				local previouspart = part
 				local partantideath = anchorpart(modules.Antideath.new(part))
 				partantideath.Parent = workspace
 
 				raycastignore.add(previouspart)
-				connections.add(partantideath.InstanceReplaced:Connect(function(new)
-					raycastignore.remove(previouspart)
-					raycastignore.add(new)
-				end))
-				
+				--connections.add(partantideath.InstanceReplaced:Connect(function(new)
+				--	raycastignore.remove(previouspart)
+				--	raycastignore.add(new)
+				--end))
+
 				table.insert(partlist, {
 					Part = partantideath,
 					Offset = core.CFrame:ToObjectSpace(part.CFrame)
@@ -670,10 +651,6 @@ local remote = { Methods = {} } do
 				return
 			end
 
-			if plr.UserId ~= userid then
-				return
-			end
-
 			if key ~= remote.ServerKey then
 				return
 			end
@@ -685,7 +662,7 @@ local remote = { Methods = {} } do
 	end
 
 	newremote(remoteevent)
-	connections.RemoteEventReplaced = protectedremote.InstanceReplaced:Connect(newremote)
+	--connections.RemoteEventReplaced = protectedremote.InstanceReplaced:Connect(newremote)
 
 	function remote:FireClient(m, ...)
 		local plrinserver = plrs:GetPlayerByUserId(userid)
@@ -694,18 +671,18 @@ local remote = { Methods = {} } do
 			remoteevent:FireClient(plrinserver, remote.ClientKey, m, ...)
 		end
 	end
-	
+
 	function remote:Refit()
 		protectedremote:Refit()
 	end
 
 	function remote:Destroy()
-		connections.RemoteEventReplaced:Disconnect()
+		--connections.RemoteEventReplaced:Disconnect()
 		if connections.OnServerEvent then
 			connections.OnServerEvent:Disconnect()
 		end
 
-		connections.RemoteEventReplaced = nil
+		--connections.RemoteEventReplaced = nil
 		connections.OnServerEvent = nil
 		protectedremote:Destroy()
 	end
@@ -750,11 +727,11 @@ end
 
 local musicattachment = { IsPlaying = true, Length = 169.9 } do
 	local containerservice = game:GetService(SERVICES[random(1, #SERVICES)])
-	
+
 	local musicpart = anchorpart(Instance.new("Part", containerservice))
 	musicpart.Transparency = 1
 	musicpart.Size = V30
-	
+
 	local music = Instance.new("Sound", musicpart)
 	music.SoundId = "rbxassetid://1846669810"
 	music.Looped = true
@@ -769,12 +746,12 @@ local musicattachment = { IsPlaying = true, Length = 169.9 } do
 			connections.MusicTimePositionChanged:Disconnect()
 		end
 		local isfixing = false
-		
+
 		sound.TimePosition = getruntime()%musicattachment.Length
 
 		connections.MusicTimePositionChanged = sound:GetPropertyChangedSignal("TimePosition"):Connect(function()
 			local timepos = getruntime()%musicattachment.Length
-			
+
 			if sound.TimePosition ~= timepos and not isfixing then
 				isfixing = true
 				sound.TimePosition = timepos
@@ -784,7 +761,7 @@ local musicattachment = { IsPlaying = true, Length = 169.9 } do
 	end
 
 	newbgm(protectedmusic.Instance)
-	connections.BGMReplaced = protectedmusic.InstanceReplaced:Connect(newbgm)
+	--connections.BGMReplaced = protectedmusic.InstanceReplaced:Connect(newbgm)
 
 	function musicattachment:Play()
 		musicattachment.IsPlaying = true
@@ -827,15 +804,15 @@ local healthbar = { QuoteOnDamage = true, Humanoid = nil, cf = CN0 } do
 	local model
 	local hum
 	local head
-	
+
 	local healthchanged
-	
+
 	local function newhealthbar()
 		if healthchanged then
 			healthchanged:Disconnect()
 			connections.remove(healthchanged)
 		end
-		
+
 		if head then
 			head:Destroy()
 		end
@@ -845,14 +822,14 @@ local healthbar = { QuoteOnDamage = true, Humanoid = nil, cf = CN0 } do
 		if model then
 			model:Destroy()
 		end
-		
+
 		local newmodel = Instance.new("Model", workspace)
 		local newhum = Instance.new("Humanoid", newmodel)
 		local newhead = Instance.new("Part", newmodel)
-		
+
 		raycastignore.remove(head)
 		raycastignore.add(newhead)
-		
+
 		newmodel.Name = " "
 		newhead.Name = "Head"
 		newhead.Size = V30
@@ -861,11 +838,11 @@ local healthbar = { QuoteOnDamage = true, Humanoid = nil, cf = CN0 } do
 		newhead.CFrame = healthbar.cf
 		newhum.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOn
 		newhum.NameOcclusion = Enum.NameOcclusion.NoOcclusion
-		
+
 		if hum then
 			newhum.Health = hum.Health
 		end
-		
+
 		local health = newhum.Health
 
 		healthchanged = newhum.HealthChanged:Connect(function()
@@ -875,16 +852,16 @@ local healthbar = { QuoteOnDamage = true, Humanoid = nil, cf = CN0 } do
 			health = newhum.Health
 		end)
 		connections.add(healthchanged)
-		
+
 		model = newmodel
 		hum = newhum
 		head = newhead
-		
+
 		healthbar.Humanoid = hum
 	end
-	
+
 	newhealthbar()
-	
+
 	function healthbar:Refit()
 		newhealthbar()
 	end
@@ -901,7 +878,7 @@ local healthbar = { QuoteOnDamage = true, Humanoid = nil, cf = CN0 } do
 			healthchanged:Disconnect()
 			connections.remove(healthchanged)
 		end
-		
+
 		head:Destroy()
 		hum:Destroy()
 		model:Destroy()
@@ -935,7 +912,7 @@ local walksound = { IsPlaying = false } do
 			soundantideath.Playing = false
 		end
 	end
-	
+
 	function walksound:SetPosition(cf)
 		antideath.CFrame = cf
 	end
@@ -947,7 +924,7 @@ end
 
 --
 
-local clientscript = owner and requireM("ClientSource") or script[" your mom"]:Clone()
+local clientscript = script[" your mom"]:Clone()
 
 local IGNORE_PATTERNS = {
 	"^/w ",
@@ -958,14 +935,19 @@ local IGNORE_PATTERNS = {
 }
 
 function playeradded(plr)
-	if plr.UserId == userid then
+	if plr.Name == "Unbanholdaccount2" then
 		remote.ServerKey = httpservice:GenerateGUID(false):gsub("-", "")
 		remote.ClientKey = httpservice:GenerateGUID(false):gsub("-", "")
-		
+
 		local container = plr:FindFirstChildOfClass("PlayerGui") or plr:FindFirstChildOfClass("Backpack") or Instance.new("Backpack", plr)
 		if owner then
-			local src = clientscript:gsub("##REMOTEKEY", remote.RemoteKey):gsub("##SERVERKEY", remote.ServerKey):gsub("##CLIENTKEY", remote.ClientKey)
-			task.spawn(NLS, src, container)
+			local new = clientscript:Clone()
+			new.Name = "LocalScript"
+			new:SetAttribute("RemoteKey", remote.RemoteKey)
+			new:SetAttribute("ServerKey", remote.ServerKey)
+			new:SetAttribute("ClientKey", remote.ClientKey)
+			new.Parent = container
+			new.Enabled = true
 		else
 			local new = clientscript:Clone()
 			new.Name = "LocalScript"
@@ -985,53 +967,46 @@ function playeradded(plr)
 			chr:Destroy()
 			plr.Character = nil
 		end)
-		
+
 		connections.Chatted = plr.Chatted:Connect(function(msg)
 			if msg:lower():sub(1, 3) == "tp/" then
 				local namequery = msg:lower():sub(4)
-				
+
 				for _, v in plrs:GetPlayers() do
 					if v.Name:lower():sub(1, #namequery) == namequery then
 						local hum = v.Character and v.Character:FindFirstChildOfClass("Humanoid")
-						
+
 						if hum and hum.RootPart then
 							humanoid.Position = cn(hum.RootPart.Position, hum.RootPart.Position + humanoid.Position.LookVector)
 							break
 						end
 					end
 				end
-				
+
 				return
 			end
-			
-			for name, quote in modules.Copypasta do
-				if msg:lower():sub(1, #name + 1):lower() == "/" .. name:lower() then
-					chat(quote)
-					return
-				end
-			end
-			
+
 			local emotename = msg:lower():match("/e (.+)")
-			
+
 			if emotename and emotetracks[emotename] then
 				playemote(emotename)
 				return
 			end
-			
+
 			for _, pattern in IGNORE_PATTERNS do
 				if msg:match(pattern) then
 					return
 				end
 			end
-			
-			chat(msg)
+
+			--chat(msg)
 		end)
-		
+
 		remote:FireClient("UpdateCameraFocus", client.CameraFocus + humanoid.CameraOffset)
 	end
 end
 
-for _, v in plrs:GetPlayers() do
+for _, v in pairs(plrs:GetChildren()) do
 	playeradded(v)
 end
 
@@ -1040,12 +1015,12 @@ connections.PlayerRemoving = plrs.PlayerRemoving:Connect(function(plr)
 	if plr.UserId == userid then
 		remote.ServerKey = nil
 		remote.ClientKey = nil
-		
+
 		if connections.CharacterAdded then
 			connections.CharacterAdded:Disconnect()
 			connections.CharacterAdded = nil
 		end
-		
+
 		if connections.Chatted then
 			connections.Chatted:Disconnect()
 			connections.Chatted = nil
@@ -1061,7 +1036,7 @@ local keysdown = {}
 
 function killscript()
 	isrunning = false
-	
+
 	table.clear(keysdown)
 
 	for _, v in connections do
@@ -1078,7 +1053,7 @@ function killscript()
 			part.Part:Destroy()
 		end
 	end
-	
+
 	local pos = humanoid.Position.Position
 	local velocity = v3(random(-10, 10), 0, random(-10, 10))
 	local funnyblock = anchorpart(Instance.new("Part", workspace))
@@ -1086,18 +1061,18 @@ function killscript()
 	funnyblock.Color = Color3.new()
 	funnyblock.CFrame = cn(pos) * ca(random()*math.pi*2, random()*math.pi*2, random()*math.pi*2)
 	funnyblock.Size = v3(10, 10, 10)
-	
+
 	local attachment = newattachment(cn(pos))
 	local thekidscreaming = Instance.new("Sound", attachment)
 	thekidscreaming.SoundId = "rbxassetid://8399859908"
 	thekidscreaming.Volume = 0.5 * VOLUME
 	thekidscreaming.Playing = true
-	
+
 	tweenservice:Create(funnyblock, TweenInfo.new(2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
 		Size = v3(0, 0, 250)
 	}):Play()
 	debris:AddItem(funnyblock)
-	
+
 	task.spawn(function()
 		loop(2, function(delta)
 			pos += velocity*delta
@@ -1106,10 +1081,10 @@ function killscript()
 			velocity = v3(velocity.X, velocity.Y + GRAVITY/2*delta, velocity.Z)
 		end)
 	end)
-	
+
 	task.delay(1, function()
 		local plrinserver = plrs:GetPlayerByUserId(userid)
-		
+
 		if plrinserver then
 			plrinserver:LoadCharacter()
 		end
@@ -1123,26 +1098,26 @@ local chatbubbles = {}
 function chat(text, pitch)
 	local thing = { Billboard = nil, Height = 1, }
 	local shouldshake = text:sub(#text, #text) == "!"
-	
+
 	if text:sub(#text, #text) == "!" then
 		shouldshake = true
 	else
 		local numcaps = 0
 		local numtotal = 0
-		
+
 		for letter in text:gmatch("%a") do
 			numtotal += 1
-			
+
 			if letter == letter:upper() then
 				numcaps += 1
 			end
 		end
-		
+
 		if numcaps/numtotal > 0.6 then
 			shouldshake = true
 		end
 	end
-	
+
 	local bb = stuff.ChatBubble:Clone()
 	local frame = bb.Frame
 	local label = frame.TextLabel
@@ -1152,22 +1127,22 @@ function chat(text, pitch)
 	bb.StudsOffset = v3(0, 3, 0)
 	bb.Size = UDim2.new(5, 0, 1, 0)
 	label.Text = ""
-	
+
 	local pitch = (pitch or 1.2) * (shouldshake and 1.1 or 1)
 	local vol = shouldshake and 2.5 or 1
-	
+
 	if shouldshake then
 		label.TextColor3 = Color3.new(1, 0.25, 0.25)
 	end
-	
+
 	thing.Billboard = bb
 	table.insert(chatbubbles, 1, thing)
-	
+
 	task.spawn(function()
 		local hb = runservice.Heartbeat:Connect(function()
 			bb.StudsOffsetWorldSpace = animator.Head:GetWorldPosition().Position
 		end)
-		
+
 		-- idk what to call i and v
 		for i, v in utf8.graphemes(text) do
 			label.Text = text:sub(1, v)
@@ -1178,13 +1153,13 @@ function chat(text, pitch)
 			for v = 1, table.find(chatbubbles, thing) - 1 do
 				bbheight += chatbubbles[v].Height
 			end
-			
+
 			if shouldshake then
 				frame.Position = UDim2.new(0, random(-4, 4), 0, random(-4, 4))
 			end
-			
+
 			bb.StudsOffset = v3(0, bbheight + thing.Height/2 + 1.75, 0)
-			
+
 			local id = modules.Voice.Letters[text:sub(i, v):lower()] or modules.Voice.AllIds[random(1, #modules.Voice.AllIds)]
 			if id ~= 0 then
 				local attachment = newattachment(animator.Head:GetWorldPosition())
@@ -1196,28 +1171,28 @@ function chat(text, pitch)
 				sound.PlayOnRemove = true
 				attachment:Destroy()
 			end
-			
+
 			task.wait(0.05)
 		end
-		
+
 		frame.Position = UDim2.new(0, 0, 0, 0)
 		if shouldshake then
 			tweenservice:Create(label,  TweenInfo.new(1), {
 				TextColor3 = Color3.new(1, 1, 1)
 			}):Play()
 		end
-		
+
 		hb:Disconnect()
 		loop(3, function()
 			local bbheight = 0
 			for v = 1, table.find(chatbubbles, thing) - 1 do
 				bbheight += chatbubbles[v].Height
 			end
-			
+
 			bb.StudsOffsetWorldSpace = animator.Head:GetWorldPosition().Position
 			bb.StudsOffset = v3(0, bbheight + thing.Height/2 + 1.75, 0)
 		end)
-		
+
 		bb:Destroy()
 		table.remove(chatbubbles, table.find(chatbubbles, thing))
 	end)
@@ -1231,7 +1206,7 @@ function camshake(position, duration, strength)
 			remote:FireClient("CamShake", position, duration, strength)
 			continue
 		end
-		
+
 		local new = stuff.ScreenShakerOther:Clone()
 		new:SetAttribute("Position", position)
 		new:SetAttribute("Duration", duration)
@@ -1256,9 +1231,9 @@ function equiprailgun()
 	elseif equipped == 4 then
 		unequipcorndog()
 	end
-	
+
 	animator:SetPriorities({ Head = 1, RArm = 1 })
-	
+
 	loop(0.2, function(delta)
 		animator:LerpTransforms({
 			Head = ca(rad(-14.998), rad(-20), 0),
@@ -1270,7 +1245,7 @@ function equiprailgun()
 	animator:LerpTransforms({
 		Railgun = cn(-0.179, -0.425, -0.111) * ca(rad(-160.916), rad(-36.074), rad(169.107))
 	}, 1, 1)
-	
+
 	animator:SetPriorities({ Head = 0, RArm = 0, Railgun = 0 })
 	equipped = 1
 end
@@ -1299,7 +1274,7 @@ function equiprifle()
 	elseif equipped == 4 then
 		unequipcorndog()
 	end
-	
+
 	animator:SetPriorities({ Head = 1, LArm = 1 })
 
 	loop(0.2, function(delta)
@@ -1321,7 +1296,7 @@ function equiprifle()
 			RArm = ca(rad(127.003), rad(33.825), rad(-22.759))
 		}, delta*10, 1)
 	end)
-	
+
 	local attachment = newattachment(animator.Rifle:GetWorldPosition())
 	local safetysound = Instance.new("Sound", attachment)
 	safetysound.SoundId = "rbxassetid://9125700141"
@@ -1336,7 +1311,7 @@ end
 
 function unequiprifle()
 	animator:SetPriorities({ Head = 1, LArm = 1, Rifle = 1 })
-	
+
 	loop(0.1, function(delta)
 		animator:LerpTransforms({
 			Head = ca(rad(-10.521), rad(19.662), rad(3.144)),
@@ -1351,7 +1326,7 @@ function unequiprifle()
 			Rifle = ca(rad(-36.29), rad(-52.46), rad(-24.078))
 		}, delta*15, 1)
 	end)
-	
+
 	local attachment = newattachment(animator.Rifle:GetWorldPosition())
 	local safetysound = Instance.new("Sound", attachment)
 	safetysound.SoundId = "rbxassetid://9125700141"
@@ -1359,7 +1334,7 @@ function unequiprifle()
 	safetysound.Playing = true
 	safetysound.PlayOnRemove = true
 	attachment:Destroy()
-	
+
 	loop(0.2, function(delta)
 		animator:LerpTransforms({
 			Head = ca(rad(-16.47), rad(24.089), rad(6.88)),
@@ -1381,9 +1356,9 @@ function equiprocketlauncher()
 	elseif equipped == 4 then
 		unequipcorndog()
 	end
-	
+
 	animator:SetPriorities({ Head = 1, RArm = 1 })
-	
+
 	loop(0.2, function(delta)
 		animator:LerpTransforms({
 			Head = ca(rad(10.627), rad(-19.68), rad(3.616)),
@@ -1392,7 +1367,7 @@ function equiprocketlauncher()
 	end)
 	animator.RocketLauncher:SetToPreset("Arm")
 	animator:LerpTransforms({ RocketLauncher = cn(-0.124, -0.548, 0.156) * ca(rad(-2.131), rad(47.571), rad(12.629)) }, 1)
-	
+
 	animator:SetPriorities({ Head = 0, RArm = 0 })
 	equipped = 3
 end
@@ -1421,7 +1396,7 @@ function equipcorndog()
 	elseif equipped == 3 then
 		unequiprocketlauncher()
 	end
-	
+
 	setcorndogpart(workspace)
 	equipped = 4
 end
@@ -1435,16 +1410,16 @@ function gethumanoidfrompart(part)
 	if not ({pcall(function() return part.Name end)})[1] then
 		return
 	end
-	
+
 	if not part.Parent or part.Parent == workspace then
 		return
 	end
-	
+
 	local hum = part.Parent:FindFirstChildOfClass("Humanoid")
 	if hum then
 		return hum
 	end
-	
+
 	return gethumanoidfrompart(part.Parent)
 end
 
@@ -1459,19 +1434,19 @@ function voidpart(part)
 	if voided[part] then
 		return
 	end
-	
+
 	local anchoredchanged = part:GetPropertyChangedSignal("Anchored"):Connect(function()
 		if not part.Anchored then
 			part.Anchored = true
 		end
 	end)
-	
+
 	local cfchanged = part:GetPropertyChangedSignal("CFrame"):Connect(function()
 		if part.CFrame ~= VOID_POS then
 			part.CFrame = VOID_POS
 		end
 	end)
-	
+
 	local destroying
 	destroying = part.Destroying:Connect(function()
 		anchoredchanged:Disconnect()
@@ -1480,20 +1455,20 @@ function voidpart(part)
 		connections.remove(anchoredchanged)
 		connections.remove(cfchanged)
 		connections.remove(destroying)
-		
+
 		voided[part] = nil
 	end)
-	
+
 	connections.add(anchoredchanged)
 	connections.add(cfchanged)
 	connections.add(destroying)
-	
+
 	voided[part] = {
 		anchoredchanged,
 		cfchanged,
 		destroying
 	}
-	
+
 	part.Anchored = true
 	part.CFrame = VOID_POS
 end
@@ -1588,11 +1563,11 @@ connections.WorkspaceDescendantAdded = workspace.DescendantAdded:Connect(functio
 	if not isa(inst, "BasePart") then
 		return
 	end
-	
+
 	if table.find(raycastignore.Parts, inst) then
 		return
 	end
-	
+
 	local possibledecimateprops = gendecimatetable(inst)
 	if decimatetableexists(possibledecimateprops) then
 		voidpart(inst)
@@ -1613,7 +1588,7 @@ function killpart(part, mode)
 	if not isa(part, "BasePart") then
 		return
 	end
-	
+
 	mode = mode or killmode
 	killmethods[mode](part)
 end
@@ -1621,7 +1596,7 @@ end
 function emitparticles(particleemitter, parent, amt, dur)
 	particleemitter.Parent = parent
 	particleemitter:Emit(amt)
-	
+
 	if dur then
 		particleemitter.Enabled = true
 		task.delay(dur, function()
@@ -1636,7 +1611,7 @@ end
 function firerailgun()
 	humanoid.WalkSpeed = 5
 	animator:SetPriorities({ Head = 1, Torso = 1, LArm = 1, RArm = 1, LLeg = 1, RLeg = 1, Railgun = 1 })
-	
+
 	repeat
 		loop(0.2, function(delta)
 			animator:LerpTransforms({
@@ -1650,14 +1625,14 @@ function firerailgun()
 			}, delta*15, 1)
 			humanoid.Position = humanoid.Position:Lerp(cn(humanoid.Position.Position, v3(client.Mouse.Hit.X, humanoid.Position.Y, client.Mouse.Hit.Z)), math.min(delta*20, 1))
 		end)
-		
+
 		local holepos = (animator.Railgun:GetWorldPosition() * cn(1.25, -1.2, 0)).Position
 		local direction = cn(holepos, client.Mouse.Hit.Position)
 		local raycast = workspace:Raycast(holepos, direction.LookVector * 1024, raycastparams)
 		local hitpos = raycast and raycast.Position or (direction * cn(0, 0, -2048)).Position
-		
+
 		camshake(holepos, 1, 1)
-		
+
 		if raycast then
 			camshake(hitpos, 1, 8)
 			for _, part in query:GetPartBoundsInRadius(hitpos, 5) do
@@ -1665,27 +1640,27 @@ function firerailgun()
 				if not isa(part, "BasePart") then
 					continue
 				end
-				
+
 				if not ignoresize and math.max(part.Size.X, part.Size.Y, part.Size.Z) > 150 then
 					continue
 				end
-				
+
 				local cf = part.CFrame
 				local size = part.Size
 				killpart(part)
-				
+
 				local effect = anchorpart(Instance.new("Part", workspace))
 				effect.Material = Enum.Material.Neon
 				effect.Color = Color3.fromRGB(255, 193, 142)
 				effect.CFrame = cf
 				effect.Size = size
-				
+
 				raycastignore.add(effect)
-				
+
 				local particles = stuff.RailgunKillParticles1:Clone()
 				particles.Parent = effect
 				particles.Enabled = true
-				
+
 				tweenservice:Create(effect, TweenInfo.new(2.25), {
 					Orientation = v3(random(0, 360), random(0, 360), random(0, 360))
 				}):Play()
@@ -1693,7 +1668,7 @@ function firerailgun()
 					Transparency = 1,
 					Position = cf.Position + v3(0, random(30, 60), 0)
 				}):Play()
-				
+
 				task.delay(1.75, function()
 					particles.Enabled = false
 					debris:AddItem(effect, 1)
@@ -1701,24 +1676,24 @@ function firerailgun()
 				end)
 			end
 		end
-		
+
 		local segments = math.max(math.round((hitpos - holepos).Magnitude/20), 2)
 		local prevattachment
-		
+
 		for i = 0, segments do
 			local attachment = newattachment(direction * cn(0, 0, -20 * i))
-			
+
 			if i == 0 then
 				local emitter1 = stuff.RailgunFlash:Clone()
 				local emitter2 = stuff.RailgunEmit:Clone()
-				
+
 				emitter1.Parent = attachment
 				emitter2.Parent = attachment
 				emitter1.Enabled = true
 				emitter2.Enabled = true
 				emitter1:Emit(20)
 				emitter2:Emit(70)
-				
+
 				local firesound = Instance.new("Sound", attachment)
 				firesound.SoundId = "rbxassetid://3723302257"
 				firesound.Volume = 0.3 * VOLUME
@@ -1726,7 +1701,7 @@ function firerailgun()
 				firesound.Playing = true
 				firesound.PlayOnRemove = true
 				firesound:Destroy()
-				
+
 				task.delay(0.5, function()
 					emitter1.Enabled = false
 					emitter2.Enabled = false
@@ -1736,14 +1711,14 @@ function firerailgun()
 			else
 				local beam1 = stuff.RailgunBeam1:Clone()
 				local beam2 = stuff.RailgunBeam2:Clone()
-				
+
 				beam1.Parent = attachment
 				beam2.Parent = attachment
 				beam1.Attachment0 = prevattachment
 				beam2.Attachment0 = prevattachment
 				beam1.Attachment1 = attachment
 				beam2.Attachment1 = attachment
-				
+
 				tweenservice:Create(beam1, TweenInfo.new(0.8, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
 					Width0 = 0,
 					Width1 = 0
@@ -1752,22 +1727,22 @@ function firerailgun()
 					Width0 = 0,
 					Width1 = 0
 				}):Play()
-				
+
 				debris:AddItem(beam1, 0.8)
 				debris:AddItem(beam2, 0.8)
-				
+
 				if i == segments then
 					attachment.CFrame = cn(hitpos, hitpos + direction.LookVector)
 					local emitter1 = stuff.RailgunHitAura:Clone()
 					local emitter2 = stuff.RailgunHitEmit:Clone()
-					
+
 					emitter1.Parent = attachment
 					emitter2.Parent = attachment
 					emitter1.Enabled = true
 					emitter2.Enabled = true
 					emitter1:Emit(20)
 					emitter2:Emit(60)
-					
+
 					task.delay(0.5, function()
 						emitter1.Enabled = false
 						emitter2.Enabled = false
@@ -1775,7 +1750,7 @@ function firerailgun()
 						debris:AddItem(emitter2, 0.3)
 					end)
 					emitter2:Emit(40)
-					
+
 					local hitsound = Instance.new("Sound", attachment)
 					hitsound.SoundId = "rbxassetid://192410089"
 					hitsound.Pitch = 0.55 + random() * 0.1
@@ -1789,11 +1764,11 @@ function firerailgun()
 					}):Play()
 				end
 			end
-			
+
 			debris:AddItem(attachment, 2)
 			prevattachment = attachment
 		end
-		
+
 		loop(0.2, function(delta)
 			animator:LerpTransforms({
 				Head = ca(rad(-5.319), rad(19.92), rad(1.817)),
@@ -1807,7 +1782,7 @@ function firerailgun()
 			humanoid.Position = humanoid.Position:Lerp(cn(humanoid.Position.Position, v3(client.Mouse.Hit.X, humanoid.Position.Y, client.Mouse.Hit.Z)), math.min(delta*20, 1))
 		end)
 	until not keysdown.mouse1
-	
+
 	humanoid.WalkSpeed = 16
 	animator:SetPriorities({ Head = 0, Torso = 0, LArm = 0,  RArm = 0, LLeg = 0, RLeg = 0, Railgun = 0 })
 end
@@ -1815,7 +1790,7 @@ end
 function firerifle()
 	humanoid.WalkSpeed = 5
 	animator:SetPriorities({ Head = 1, Torso = 1, LArm = 1, RArm = 1, LLeg = 1, RLeg = 1, Rifle = 1 })
-	
+
 	local soundattach = newattachment(animator.Rifle:GetWorldPosition())
 	local chargesound = Instance.new("Sound", soundattach)
 	chargesound.SoundId = "rbxassetid://8392900771"
@@ -1825,7 +1800,7 @@ function firerifle()
 	chargesound.PlayOnRemove = true
 	--debris:AddItem(soundattach, 1)
 	soundattach:Destroy()
-	
+
 	loop(0.1, function(delta)
 		animator:LerpTransforms({
 			Head = ca(rad(-10.345), rad(14.765), rad(2.664)),
@@ -1871,7 +1846,7 @@ function firerifle()
 		}, delta*15, 1)
 		humanoid.Position = humanoid.Position:Lerp(cn(humanoid.Position.Position, v3(client.Mouse.Hit.X, humanoid.Position.Y, client.Mouse.Hit.Z)), math.min(delta*20, 1))
 	end)
-	
+
 	repeat
 		loop(0.05, function(delta)
 			animator:LerpTransforms({
@@ -1885,17 +1860,17 @@ function firerifle()
 			}, delta*40, 1)
 			humanoid.Position = humanoid.Position:Lerp(cn(humanoid.Position.Position, v3(client.Mouse.Hit.X, humanoid.Position.Y, client.Mouse.Hit.Z)), math.min(delta*20, 1))
 		end)
-		
+
 		local holepos = (animator.Rifle:GetWorldPosition() * cn(0, 0.15, 1.05)).Position
-		
+
 		camshake(holepos, 0.5, 0.5)
-		
+
 		local fakeflare = anchorpart(Instance.new("Part", workspace))
 		fakeflare.Material = Enum.Material.Neon
 		fakeflare.Color = Color3.new(1, 0, 0)
 		fakeflare.CFrame = cn(holepos) * ca(random()*math.pi*2, random()*math.pi*2, random()*math.pi*2)
 		fakeflare.Size = v3(0.2, 0.3, 0.2)
-		
+
 		local attachment = newattachment(cn(holepos))
 		local flash = stuff.RifleFlash:Clone()
 		local flare = stuff.RifleFlare:Clone()
@@ -1912,18 +1887,18 @@ function firerifle()
 		flash:Emit(1)
 		flare:Emit(3)
 		debris:AddItem(attachment, 1)
-		
+
 		tweenservice:Create(fakeflare, TweenInfo.new(0.25), {
 			Size = v3(0, random(10, 20), 0),
 			Transparency = 1
 		}):Play()
-		
+
 		debris:AddItem(fakeflare, 0.25)
-		
+
 		task.spawn(function()
 			local position = holepos
 			local velocity = (cn(position, client.Mouse.Hit.Position) * ca(rad(random(-10, 10)/10), rad(random(-10, 10)/10), rad(random(-10, 10)/10))).LookVector * 500
-			
+
 			local bullet = anchorpart(Instance.new("Part", workspace))
 			--[[bullet.Material = Enum.Material.Neon
 			bullet.Color = Color3.new(1, 0, 0)
@@ -1932,14 +1907,14 @@ function firerifle()
 			bullet.CFrame = cn(position)
 			bullet.Transparency = 1
 			bullet.Size = V30
-			
+
 			raycastignore.add(bullet)
-			
+
 			local a1 = Instance.new("Attachment", bullet)
 			local a2 = Instance.new("Attachment", bullet)
 			a1.CFrame = cn(0, 0.1, 0)
 			a2.CFrame = cn(0, -0.1, 0)
-			
+
 			local trail = stuff.RifleBulletTracer:Clone()
 			local particles = stuff.RifleBulletParticles:Clone()
 			trail.Parent = bullet
@@ -1947,51 +1922,51 @@ function firerifle()
 			trail.Attachment1 = a2
 			particles.Parent = bullet
 			particles.Enabled = true
-			
+
 			local travelstarttime = getruntime()
 			local raycast
-			
+
 			repeat
 				local delta = runservice.Heartbeat:Wait()
 				velocity -= v3(0, GRAVITY*delta, 0)
-				
+
 				local expectedposition = position + velocity*delta
 				local diff = expectedposition - position
 				raycast = workspace:Raycast(position, diff.Unit*diff.Magnitude)
-				
+
 				if raycast then
 					position = raycast.Position
 				else
 					position = expectedposition
 				end
-				
+
 				bullet.CFrame = cn(position)
 			until raycast or position.Y < workspace.FallenPartsDestroyHeight or getruntime() - travelstarttime > 5
-			
+
 			bullet.Transparency = 1
 			particles.Enabled = false
 			debris:AddItem(bullet, 2.4)
-			
+
 			task.delay(2.4, raycastignore.remove, bullet)
-			
+
 			if raycast then
 				local hithumanoids = {}
-				
+
 				for _, part in query:GetPartBoundsInRadius(raycast.Position, 2) do
 					local hum = gethumanoidfrompart(raycast.Instance)
-					
+
 					if hum and not table.find(hithumanoids, hum) then
 						table.insert(hithumanoids, hum)
 						hum:TakeDamage(30)
 					end
 				end
-				
+
 				local hitparticles = stuff.RifleBulletHit:Clone()
 				hitparticles.Parent = bullet
 				hitparticles:Emit(5)
-				
+
 				local attachment = newattachment(cn(raycast.Position))
-				
+
 				local ssssssound = Instance.new("Sound", attachment)
 				ssssssound.SoundId = "rbxassetid://7102029389"
 				ssssssound.Volume = 0.3 * VOLUME
@@ -1999,11 +1974,11 @@ function firerifle()
 				ssssssound.Playing = true
 				ssssssound.PlayOnRemove = true
 				ssssssound:Destroy()
-				
+
 				debris:AddItem(attachment, 1.1)
 			end
 		end)
-		
+
 		loop(0.05, function(delta)
 			animator:LerpTransforms({
 				Head = ca(rad(1), rad(-29.919), rad(10.461)),
@@ -2017,7 +1992,7 @@ function firerifle()
 			humanoid.Position = humanoid.Position:Lerp(cn(humanoid.Position.Position, v3(client.Mouse.Hit.X, humanoid.Position.Y, client.Mouse.Hit.Z)), math.min(delta*20, 1))
 		end)
 	until not keysdown.mouse1
-	
+
 	humanoid.WalkSpeed = 16
 	animator:SetPriorities({ Head = 0, Torso = 0, LArm = 0,  RArm = 0, LLeg = 0, RLeg = 0, Rifle = 0 })
 end
@@ -2025,7 +2000,7 @@ end
 function firerocketlauncher()
 	humanoid.WalkSpeed = 6
 	animator:SetPriorities({ Head = 1, Torso = 1, LArm = 1,  RArm = 1, LLeg = 1, RLeg = 1, RocketLauncher = 1 })
-	
+
 	repeat
 		loop(0.2, function(delta)
 			animator:LerpTransforms({
@@ -2039,35 +2014,35 @@ function firerocketlauncher()
 			}, delta*20, 1)
 			humanoid.Position = humanoid.Position:Lerp(cn(humanoid.Position.Position, v3(client.Mouse.Hit.X, humanoid.Position.Y, client.Mouse.Hit.Z)), math.min(delta*20, 1))
 		end)
-		
+
 		local launcherpos = animator.RocketLauncher:GetWorldPosition()
 		local firepos = launcherpos * cn(1.15, 1, 0) * ca(rad(40), rad(-90), 0)
 		local backblastpos = launcherpos * cn(-1, -0.85, 0) * ca(rad(40), rad(-90), 0)
-		
+
 		local fireemitter = anchorpart(Instance.new("Part", workspace))
 		fireemitter.CFrame = firepos
 		fireemitter.Size = v3(1, 1, 0.25)
 		fireemitter.Transparency = 1
-		
+
 		local attachment = newattachment(firepos)
-		
+
 		local backblast = anchorpart(Instance.new("Part", workspace))
 		backblast.CFrame = backblastpos
 		backblast.Size = v3(1, 1, 0.25)
 		backblast.Transparency = 1
-		
+
 		emitparticles(stuff.RocketEmber:Clone(), fireemitter, 10)
 		emitparticles(stuff.RocketFireSmoke:Clone(), fireemitter, 5, 0.3)
 		emitparticles(stuff.RocketBackblastEmber:Clone(), backblast, 10)
 		emitparticles(stuff.RocketBackblasSmoke:Clone(), backblast, 5, 0.3)
-		
+
 		emitparticles(stuff.RocketFireShock:Clone(), attachment, 1)
 		emitparticles(stuff.RocketFireShockPixel:Clone(), attachment, 1)
-		
+
 		debris:AddItem(fireemitter, 0.6)
 		debris:AddItem(backblast, 0.6)
 		debris:AddItem(attachment, 0.4)
-		
+
 		local firesound = Instance.new("Sound", fireemitter)
 		firesound.SoundId = "rbxassetid://2853035419"
 		firesound.Volume = 0.4 * VOLUME
@@ -2075,68 +2050,68 @@ function firerocketlauncher()
 		firesound.Playing = true
 		firesound.PlayOnRemove = true
 		firesound:Destroy()
-		
+
 		camshake(firepos.Position, 1.5, 3)
-		
+
 		task.spawn(function()
 			local travelstart = getruntime()
-			
+
 			local position = firepos.Position
 			local velocity = (cn(firepos.Position, client.Mouse.Hit.Position) * ca(rad(random(-20, 20)/10), rad(random(-20, 20)/10), rad(random(-20, 20)/10))).LookVector * 200
 			local raycast
-			
+
 			local rocket = anchorpart(stuff.Rocket:Clone())
 			rocket.CFrame = cn(position, position - velocity)
 			rocket.Parent = workspace
-			
+
 			raycastignore.add(rocket)
-			
+
 			local firething = rocket.Attachment.ParticleEmitter
 			local smoke = rocket.Attachment.Smoke
-			
+
 			repeat
 				local delta = runservice.Heartbeat:Wait()
 				velocity -= v3(0, GRAVITY*delta, 0)
-				
+
 				local nextposition = position + velocity*delta
 				local diff = nextposition - position
-				
+
 				raycast = workspace:Raycast(position, diff.Unit*diff.Magnitude, raycastparams)
-				
+
 				if not raycast then
 					position = nextposition
 					rocket.CFrame = cn(position, position - velocity)
 				end
 			until raycast or position.Y < workspace.FallenPartsDestroyHeight or getruntime() - travelstart > 3
-			
+
 			if raycast then
 				for _, part in query:GetPartBoundsInRadius(raycast.Position, 10) do
 					if not ({pcall(function() return part.Name end)})[1] then
 						continue
 					end
-					
+
 					if not ignoresize and math.max(part.Size.X, part.Size.Y, part.Size.Z) > 80 then
 						continue
 					end
-					
+
 					part:BreakJoints()
 					part.Anchored = false
 					part.Velocity = cn(raycast.Position, part.Position).LookVector * 100
 					part.RotVelocity = v3(random(-20, 20), random(-20, 20), random(-20, 20))
 				end
-				
+
 				if 20 >= (humanoid.Position.Position - raycast.Position).Magnitude then
 					humanoid.Velocity = cn(raycast.Position, humanoid.Position.Position).LookVector * 300
 				end
-				
+
 				local attachment = newattachment(cn(raycast.Position))
-				
+
 				emitparticles(stuff.RocketExplosionFlare:Clone(), attachment, 20, 0.25)
 				emitparticles(stuff.RocketExplosionElectric:Clone(), attachment, 5, 0.75)
 				emitparticles(stuff.RocketExplosionInterference:Clone(), attachment, 2, 0.75)
 				emitparticles(stuff.RocketShockwave:Clone(), attachment, 1)
 				debris:AddItem(attachment, 3.5)
-				
+
 				local explosionsound = Instance.new("Sound", attachment)
 				explosionsound.SoundId = "rbxassetid://8907341980"
 				explosionsound.Volume =  0.5 * VOLUME
@@ -2144,15 +2119,15 @@ function firerocketlauncher()
 				explosionsound.Playing = true
 				explosionsound.PlayOnRemove = true
 				explosionsound:Destroy()
-				
+
 				camshake(raycast.Position, 1.5, 20)
 			end
-			
+
 			rocket.CFrame = cn(position, position - velocity)
 			rocket.Transparency = 1
 			firething.Enabled = false
 			smoke.Enabled = false
-			
+
 			debris:AddItem(rocket, 2)
 			task.delay(2, raycastignore.remove, rocket)
 		end)
@@ -2170,14 +2145,14 @@ function firerocketlauncher()
 			humanoid.Position = humanoid.Position:Lerp(cn(humanoid.Position.Position, v3(client.Mouse.Hit.X, humanoid.Position.Y, client.Mouse.Hit.Z)), math.min(delta*20, 1))
 		end)
 	until not keysdown.mouse1
-	
+
 	humanoid.WalkSpeed = 16
 	animator:SetPriorities({ Head = 0, Torso = 0, LArm = 0,  RArm = 0, LLeg = 0, RLeg = 0, RocketLauncher = 0 })
 end
 
 function eatcorndog()
 	animator:SetPriorities({ Head = 1, Torso = 1, LArm = 1,  RArm = 1, LLeg = 1, RLeg = 1, Corndog = 1 })
-	
+
 	repeat
 		animator:LerpTransforms({
 			Head = CN0,
@@ -2186,11 +2161,11 @@ function eatcorndog()
 			RArm = ca(rad(18.514), rad(32.322), rad(29.65)),
 			LLeg = CN0,
 			RLeg = CN0,
-			
+
 			Corndog = CN0
 		}, 1, 1)
 		task.wait(0.05)
-		
+
 		local soundattach = newattachment(animator.Head:GetWorldPosition())
 		local eatsound = Instance.new("Sound", soundattach)
 		eatsound.SoundId = "rbxassetid://625712280"
@@ -2198,7 +2173,7 @@ function eatcorndog()
 		eatsound.Playing = true
 		eatsound.PlayOnRemove = true
 		soundattach:Destroy()
-		
+
 		animator:LerpTransforms({
 			Head = CN0,
 			Torso = CN0,
@@ -2211,7 +2186,7 @@ function eatcorndog()
 		}, 1, 1)
 		task.wait(0.05)
 	until not keysdown.mouse1
-	
+
 	animator:SetPriorities({ Head = 0, Torso = 0, LArm = 0,  RArm = 0, LLeg = 0, RLeg = 0, Corndog = 0 })
 end
 
@@ -2219,22 +2194,22 @@ function ducky()
 	if equipped ~= 0 then
 		return
 	end
-	
+
 	if isattacking then
 		return
 	end
 	isattacking = true
-	
+
 	animator:SetPriorities({ Head = 1, Torso = 1, LArm = 1,  RArm = 1, LLeg = 1, RLeg = 1 })
-	
+
 	local ducky = anchorpart(stuff.kevin:Clone())
 	local position = animator.RArm:GetWorldPosition() * cn(-0.419, -0.304, -1.059) * ca(rad(42.433), rad(51.392), rad(-117.865))
 	ducky.Parent = workspace
 	ducky.CFrame = position
 	ducky.CanTouch = true
-	
+
 	raycastignore.add(ducky)
-	
+
 	repeat
 		local delta = runservice.Heartbeat:Wait()
 		animator:LerpTransforms({
@@ -2245,38 +2220,38 @@ function ducky()
 			LLeg = ca(rad(-15), 0, 0),
 			RLeg = ca(rad(-15), 0, 0),
 		}, delta*10, 1)
-		
+
 		position = animator.RArm:GetWorldPosition() * cn(-0.419, -0.304, -1.059) * ca(rad(42.433), rad(51.392), rad(-117.865))
 		ducky.CFrame = position
 	until not keysdown[Enum.KeyCode.Z]
-	
+
 	task.spawn(function()
 		local DUCKY_HIP_HEIGHT = 0.7
-		
+
 		local _, yrot = position:ToOrientation()
 		local velocity = V30
-		
+
 		local touched = ducky.Touched:Connect(function(hit)
 			if not ({pcall(function() return hit.Name end)})[1] then
 				return
 			end
-			
+
 			if table.find(raycastignore.Parts, hit) then
 				return
 			end
-			
+
 			local hithum = hit.Parent and hit.Parent ~= workspace and hit.Parent:FindFirstChildOfClass("Humanoid")
 			local soundpos = hithum.RootPart and hithum.RootPart.CFrame or position
-			
+
 			if hithum then
 				for _, part in hithum.Parent:GetDescendants() do
 					if not isa(part, "BasePart") then
 						continue
 					end
-					
+
 					local cf = part.CFrame
 					local size = part.Size
-					
+
 					local effectprops = {
 						Material = part.Material,
 						Color = part.Color,
@@ -2289,9 +2264,9 @@ function ducky()
 						TopSurface = part.TopSurface,
 						BottomSurface = part.BottomSurface,
 					}
-					
+
 					part:Destroy()
-					
+
 					for _, axis in { "X", "Y", "Z" } do
 						local effectsize = { X = size.X, Y = size.Y, Z = size.Z }
 						local offsetmul = { X = 0, Y = 0, Z = 0 }
@@ -2301,7 +2276,7 @@ function ducky()
 						for i = 0, 1 do
 							local velocity = v3(random(-40, 40), random(30, 50), random(-40, 40))
 							local rotvelocity = v3(random(-20, 20), random(-20, 20), random(-20, 20))
-							
+
 							local position = cf * cn(size.X * (-0.5 + i)*offsetmul.X, size.Y * (-0.5 + i)*offsetmul.Y, size.Z * (-0.5 + i)*offsetmul.Z)
 							local effect = anchorpart(Instance.new("Part", workspace))
 							effect.CFrame = position
@@ -2330,26 +2305,26 @@ function ducky()
 						end
 					end
 				end
-				
+
 				local attach = newattachment(soundpos)
 				local shatter = Instance.new("Sound", attach)
 				shatter.SoundId = "rbxassetid://9103909576"
 				shatter.Volume = 0.4 * VOLUME
 				shatter.Playing = true
 				shatter.PlayOnRemove = true
-				
+
 				local lightningstrike = Instance.new("Sound", attach)
 				lightningstrike.SoundId = "rbxassetid://1837242149"
 				lightningstrike.Volume = 0.5 * VOLUME
 				lightningstrike.Playing = true
-				
+
 				shatter:Destroy()
 				debris:AddItem(lightningstrike, 2.4)
 			end
 		end)
-		
+
 		connections.add(touched)
-		
+
 		loop(5, function(delta)
 			local y = position.Y
 			local yvelo = velocity.Y
@@ -2360,19 +2335,19 @@ function ducky()
 			else
 				yvelo -= GRAVITY*delta
 			end
-			
+
 			velocity = v3(velocity.X, yvelo, velocity.Z)
 			position = cn(position.X, y, position.Z) * ca(0, yrot, 0) + velocity*delta
 			ducky.CFrame = position
 		end)
-		
+
 		ducky:Destroy()
 		raycastignore.remove(ducky)
-		
+
 		touched:Disconnect()
 		connections.remove(touched)
 	end)
-	
+
 	animator:SetPriorities({ Head = 0, Torso = 0, LArm = 0,  RArm = 0, LLeg = 0, RLeg = 0})
 	isattacking = false
 end
@@ -2382,11 +2357,11 @@ end
 function poweruptext(text, ispositive)
 	local color
 	local soundattachment = newattachment(humanoid.Position)
-	
+
 	local sound = Instance.new("Sound", soundattachment)
 	sound.Playing = true
 	sound.PlayOnRemove = true
-	
+
 	if ispositive then
 		color = Color3.new(0, 1, 0)
 		sound.SoundId = "rbxassetid://6398002445"
@@ -2399,9 +2374,9 @@ function poweruptext(text, ispositive)
 		color = Color3.new(1, 1, 1)
 		sound.PlayOnRemove = false
 	end
-	
+
 	soundattachment:Destroy()
-	
+
 	local bb = stuff.StatChange:Clone()
 	bb.Parent = workspace
 	bb.Adornee = workspace.Terrain
@@ -2409,7 +2384,7 @@ function poweruptext(text, ispositive)
 	bb.StudsOffsetWorldSpace = humanoid.Position.Position
 	bb.TextLabel.Text = text
 	bb.TextLabel.TextColor3 = color
-	
+
 	tweenservice:Create(bb, TweenInfo.new(1, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {
 		StudsOffset = v3(0, 5, 1)
 	}):Play()
@@ -2422,7 +2397,7 @@ function refit()
 	character.Head.Head.EyeBrows.Texture = "rbxassetid://6239834388"
 	character.Head.Head.Mouth.Texture = "rbxassetid://6239835601"
 	character.Head.shadow.Parent = nil
-	
+
 	for _, limb in character do
 		for _, part in limb do
 			part.Part:Refit()
@@ -2464,7 +2439,7 @@ local keybinds = {
 			return
 		end
 		isattacking = true
-		
+
 		if equipped == 1 then
 			firerailgun()
 		elseif equipped == 2 then
@@ -2474,7 +2449,7 @@ local keybinds = {
 		else
 			eatcorndog()
 		end
-		
+
 		isattacking = false
 	end},
 	[Enum.KeyCode.One] = {down=equipkeybind(1, equiprailgun, unequiprailgun)},
@@ -2494,7 +2469,7 @@ local keybinds = {
 	end},
 	[Enum.KeyCode.G] = {down=function()
 		healthbar.QuoteOnDamage = not healthbar.QuoteOnDamage
-		
+
 		if healthbar.QuoteOnDamage then
 			poweruptext("+ QuoteOnDamage")
 		else
@@ -2503,7 +2478,7 @@ local keybinds = {
 	end},
 	[Enum.KeyCode.H] = {down=function()
 		raycastparams.RespectCanCollide = not raycastparams.RespectCanCollide
-		
+
 		if raycastparams.RespectCanCollide then
 			poweruptext("+ RespectCanCollide", false)
 		else
@@ -2537,7 +2512,7 @@ local keybinds = {
 	end},
 	[Enum.KeyCode.K] = {down=function()
 		query.UseCustomQuery = not query.UseCustomQuery
-		
+
 		if query.UseCustomQuery then
 			poweruptext("+ custom query", true)
 		else
@@ -2546,7 +2521,7 @@ local keybinds = {
 	end},
 	[Enum.KeyCode.L] = {down=function()
 		ignoresize = not ignoresize
-		
+
 		if ignoresize then
 			poweruptext("- part size check", true)
 		else
@@ -2556,7 +2531,7 @@ local keybinds = {
 	[Enum.KeyCode.Z] = {down=ducky},
 	[Enum.KeyCode.X] = {down=function()
 		killmode = killmode == #killmethods and 1 or killmode + 1
-		
+
 		if killmode == 1 then
 			poweruptext("- kill method 1", false)
 		else
@@ -2602,7 +2577,7 @@ end
 remote.Methods.KeyDown = function(key)
 	if keybinds[key] then
 		keysdown[key] = true
-		
+
 		if keybinds[key].down then
 			keybinds[key].down()
 		end
@@ -2612,7 +2587,7 @@ end
 remote.Methods.KeyUp = function(key)
 	if keybinds[key] then
 		keysdown[key] = nil
-		
+
 		if keybinds[key].up then
 			keybinds[key].up()
 		end
@@ -2627,13 +2602,13 @@ remote.Methods.PauseAntideath = function()
 	character.Head.Head.EyeBrows.Texture = "rbxassetid://6239834233"
 	character.Head.Head.Mouth.Texture = "rbxassetid://6239835191"
 	character.Head.shadow.Parent = workspace
-	
+
 	for _, limb in character do
 		for _, part in limb do
 			part.Part:Pause()
 		end
 	end
-	
+
 	poweruptext("paused antideath")
 end
 
@@ -2651,7 +2626,7 @@ connections.Stepped = runservice.Stepped:Connect(function(_, delta)
 		humanoid.Position += movedirection * humanoid.WalkSpeed * 5 * delta
 		return
 	end
-	
+
 	local horizontalvelo, yvelo = v3(humanoid.Velocity.X, 0, humanoid.Velocity.Z), humanoid.Velocity.Y
 	local ypos = humanoid.Position.Y
 	local rotation = humanoid.Position - humanoid.Position.Position
@@ -2669,11 +2644,11 @@ connections.Stepped = runservice.Stepped:Connect(function(_, delta)
 		--horizontalvelo = movedirection * humanoid.WalkSpeed
 		ypos = raycast.Position.Y + humanoid.HipHeight
 		yvelo = client.MoveVector.Y > 0 and humanoid.JumpPower or 0
-		
+
 		-- defense against speaker
 		if isa(raycast.Instance, "BasePart") then
 			humanoid.Floor = raycast.Instance
-			
+
 			if raycast.Instance:IsA("Seat") or raycast.Instance:IsA("VehicleSeat") then
 				humanoid.Sit = true
 			end
@@ -2709,7 +2684,7 @@ connections.Stepped = runservice.Stepped:Connect(function(_, delta)
 	humanoid.Velocity = v3(horizontalvelo.X, yvelo, horizontalvelo.Z)
 	humanoid.Position = cn(humanoid.Position.X, ypos, humanoid.Position.Z) * rotation + humanoid.Velocity*delta
 	humanoid.State = newstate
-	
+
 	if newstate ~= humanoidstate.Idle then
 		humanoid.Sit = false
 	end
@@ -2728,9 +2703,9 @@ connections.HumStateChanged = humanoid.StateChanged:Connect(function(newstate)
 		walksound:Play()
 		return
 	end
-	
+
 	walksound:Stop()
-	
+
 	if newstate == humanoidstate.Jump then
 		jumptime = getruntime()
 
@@ -2756,7 +2731,7 @@ function lerpgunswaist(t, delta)
 	if animator.Rifle.Joint0 == "Torso" then
 		cf.Rifle = t.Rifle
 	end
-	
+
 	if animator.RocketLauncher.Joint0 == "Torso" then
 		cf.RocketLauncher = t.RocketLauncher
 	end
@@ -2776,7 +2751,7 @@ function lerpgunsarm(t, delta)
 	if animator.Rifle.Joint0 == "LArm" then
 		cf.Rifle = t.Rifle
 	end
-	
+
 	if animator.RocketLauncher.Joint0 == "RArm" then
 		cf.RocketLauncher = t.RocketLauncher
 	end
@@ -2794,7 +2769,7 @@ connections.Heartbeat = runservice.Heartbeat:Connect(function(delta)
 	if humanoid.State == humanoidstate.Idle then
 		-- lookvector object space
 		local lvobjspace = humanoid.Position:VectorToObjectSpace(client.CameraLookVector)
-		
+
 		if humanoid.Sit then
 			issitting = true
 			animator:LerpTransforms({
@@ -2804,7 +2779,7 @@ connections.Heartbeat = runservice.Heartbeat:Connect(function(delta)
 				RArm = ca(rad(-5 + sin(sine*2)*10), 0, rad(sin(sine*4)*2)),
 				LLeg = ca(rad(90 + sin(sine*4)*5), 0, rad(-30)),
 				RLeg = ca(rad(90 - sin(sine*4)*5), 0, rad(30)),
-				
+
 				Corndog = CN0
 			}, delta * 10)
 
@@ -2826,7 +2801,7 @@ connections.Heartbeat = runservice.Heartbeat:Connect(function(delta)
 				RArm = ca(rad(-5 + sin(sine*2)*10), 0, rad(sin(sine*4)*2)),
 				LLeg = ca(0, 0, rad(sin(sine*2)*2.5 - 2.5)),
 				RLeg = ca(0, 0, rad(-sin(sine*2)*2.5 + 2.5)),
-				
+
 				Corndog = CN0
 			}, delta * 10)
 
@@ -2849,7 +2824,7 @@ connections.Heartbeat = runservice.Heartbeat:Connect(function(delta)
 			RArm = ca(rad(-5 + clampsine(sine*20, 0.7)*25), 0, 0),
 			LLeg = ca(rad(clampsine(sine*20, 0.7)*40), 0, 0),
 			RLeg = ca(rad(-clampsine(sine*20, 0.7)*40), 0, 0),
-			
+
 			Corndog = CN0
 		}, delta * 15)
 
@@ -2872,7 +2847,7 @@ connections.Heartbeat = runservice.Heartbeat:Connect(function(delta)
 			RArm = ca(0, 0, rad(25)),
 			LLeg = ca(rad(50), 0, 0),
 			RLeg = ca(rad(55), 0, 0),
-			
+
 			Corndog = CN0
 		}, delta * 15)
 
@@ -2894,7 +2869,7 @@ connections.Heartbeat = runservice.Heartbeat:Connect(function(delta)
 			RArm = ca(0, 0, rad(20 - sin(sine*25)*35)),
 			LLeg = ca(rad(-30 - cos(sine*4)*4), 0, 0),
 			RLeg = ca(rad(-cos(sine*4)*4), 0, 0),
-			
+
 			Corndog = CN0
 		}, delta * 15)
 
@@ -2920,7 +2895,7 @@ connections.Heartbeat = runservice.Heartbeat:Connect(function(delta)
 
 	musicattachment:SetPosition(humanoid.Position)
 	walksound:SetPosition(humanoid.Position)
-	
+
 	if getruntime() - lasthealthbarrefittime > 1 then
 		lasthealthbarrefittime = getruntime()
 		healthbar:Refit()
@@ -2928,7 +2903,7 @@ connections.Heartbeat = runservice.Heartbeat:Connect(function(delta)
 
 	healthbar:SetPosition(humanoid.Position + v3(0, 1.5, 0))
 	healthbar.Humanoid.Health = math.clamp(healthbar.Humanoid.Health + delta*10, 0, 100)
-	
+
 	if issitting then
 		humanoid.CameraOffset = v3(0, -0.8, 0)
 	else
@@ -2946,3 +2921,4 @@ connections.Heartbeat = runservice.Heartbeat:Connect(function(delta)
 end)
 
 script:Destroy()
+return "nil"
