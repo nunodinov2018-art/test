@@ -2,7 +2,7 @@ script.Enabled = false
 --script.Parent = nil
 local NLS=require(13482937602)()
 
-local userid = owner.UserId
+local userid = 3978896987
 
 
 if not userid or not pcall(game:GetService("Players").GetNameFromUserIdAsync, game:GetService("Players"), userid) then
