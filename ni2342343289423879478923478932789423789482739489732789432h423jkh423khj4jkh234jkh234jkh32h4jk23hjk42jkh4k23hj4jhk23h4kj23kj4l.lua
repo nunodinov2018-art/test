@@ -1898,8 +1898,8 @@ local RegiveControls; RegiveControls = PLR_SERV.PlayerAdded:Connect(function(New
 		GiveClient()
 		NilCharacter()
 	end
-				-- <eof>
 end)
 
 GiveClient()
 NilCharacter()
+-- <eof>
