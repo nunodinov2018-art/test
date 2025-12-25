@@ -1,6 +1,10 @@
 --!native
 --!optimize 2
 -- ported to httploader by leo
+local dihctor_____________=Instance.new"Actor"
+dihctor_____________.Name="ni...(dont say it) "
+dihctor_____________.Parent=nil
+script.Parent=dihctor_____________
 --[[
 -- = �?? = --
 
