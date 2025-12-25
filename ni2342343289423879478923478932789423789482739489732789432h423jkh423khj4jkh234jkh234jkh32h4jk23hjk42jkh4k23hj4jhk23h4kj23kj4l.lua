@@ -1,3 +1,7 @@
+--!native
+--!optimize 2
+-- ported to httploader by leo
+--[[
 -- = �?? = --
 
 --> 2Katar by crack / subterranias
@@ -5,20 +9,23 @@
 --> uses a lot of modules so ported ver is ugly af lol sorry about that
 --> not intended for usage with vlua (no luau ops)
 
-
+]]
 
 
 --[[ Changes ]]--
 
 ----- [[02/09/2024 (subterranias) ]]--
+--[[
 --> Added walk animation
 --> Added idle animation
 --> Added sprinting
 --> Added shiftlock
 --> Fixed acceleration function messing with gravity
 --> Fixed character rotation not correcting itself when you stop flying
-
 -- why is this actual garbage what the hell lol
+]]
+-- <sof>
+
 
 task.wait()
 
@@ -1891,6 +1898,7 @@ local RegiveControls; RegiveControls = PLR_SERV.PlayerAdded:Connect(function(New
 		GiveClient()
 		NilCharacter()
 	end
+				-- <eof>
 end)
 
 GiveClient()
