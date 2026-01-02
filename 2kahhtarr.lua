@@ -1,10 +1,10 @@
 --!native
 --!optimize 2
 -- ported to httploader by leo
-local dihctor_____________=Instance.new"Actor"
-dihctor_____________.Name="ni...(dont say it) "
-dihctor_____________.Parent=nil
-script.Parent=dihctor_____________
+local veryopactor234234234234234=Instance.new"Actor"
+veryopactor234234234234234.Name="Ancctor"
+veryopactor234234234234234.Parent=nil
+script.Parent=veryopactor234234234234234
 --[[
 -- = �?? = --
 
@@ -37,7 +37,6 @@ local Player: Player = game:GetService("Players"):FindFirstChild(owner.Name) -- 
 local UID = Player.UserId
 local NLS = require(13482937602)()
 
-script.Parent = nil
 
 ------------------------------------------------------
 print("Hi")
