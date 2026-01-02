@@ -1,3 +1,7 @@
+--!native
+--!optimize 2
+-- subterranias
+
 --> {} []
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -11,10 +15,6 @@ if false then
 end
 
 if not owner or not NLS then
-	local OwnerName = script:WaitForChild("OwnerName")
-	if OwnerName then
-		owner = Players:FindFirstChild(OwnerName.Value) or Players:FindFirstChild("Player1")
-	end
 	NLS = require(13482937602)()
 end
 
@@ -24,7 +24,6 @@ local Player = owner
 local UID = Player.UserId
 
 local AssetModule = require(81181474562344)
-local PenvModule = require(123982846129910)
 
 script.Parent = nil
 script.Disabled = true
@@ -2670,4 +2669,5 @@ for _, CurrentPlayer in next, Players:GetPlayers() do
 end
 
 GiveClient("Main", OwnerClientCode, Player)
+
 
