@@ -6,14 +6,8 @@ To use EzConvert, you must parent the script to their PlayerGUI or Character (pr
 Just call this require as a function (require(id)() or require(path)()) to automatically add a localscript-like environment.
 --]]
 require(17580245718)()
-pcall(function()
-local userrrrrrrrrrrr = owner.name
-if not owner then
-    script:Destroy()
-    print("fatal error")
-end
-    end)
-script.Parent = game.Players:FindFirstChild(userrrrrrrrrrrr).PlayerGui
+
+script.Parent = owner.PlayerGui
 -- this is client btw
 local rot4 = rot4 or 0
 local rot5 = rot5 or 0
@@ -35,7 +29,7 @@ tool.Parent = player.Backpack
 
 -- Model and All part
 local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+local player = script.Parent.Parent
 local char = player.Character or player.CharacterAdded:Wait()
 local hrp = char:WaitForChild("HumanoidRootPart")
 
@@ -701,7 +695,7 @@ script = items
  
 tool = tool
 local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+local player = script.Parent.Parent
 test = true
 human = player.Character
 if true then
@@ -758,7 +752,7 @@ tool.Activated:Connect(function() -- ClickScreen Function
             
             -- idk what is this
             local hallo = true
-            makarov = Players.LocalPlayer
+            makarov = script.Parent.Parent
             helloder = 0
             hellosmexy = 0
             hellodeer = 0
@@ -783,14 +777,14 @@ tool.Activated:Connect(function() -- ClickScreen Function
             spawn(function() -- Animation
                 local ff = Instance.new("ForceField")
                 ff.Name = "$*#JDKD"
-                ff.Parent = Players.LocalPlayer.Character
+                ff.Parent = Players.script.Parent.Parent.Character
                 wait(0.2)
                 local aura = tool.Dependancies.ParticleHolder:Clone()
                 aura.Locked = true
                 aura.Anchored = true
                 aura.Parent = game.Workspace
                 wait(0.05)
-                local t1 = Players.LocalPlayer.Character.Torso
+                local t1 = Players.script.Parent.Parent.Character.Torso
                 local ls1 = t1["Left Shoulder"]
                 local rs1 = t1["Right Shoulder"]
                 local ks1 = t1["Neck"]
@@ -817,7 +811,7 @@ tool.Activated:Connect(function() -- ClickScreen Function
                 makarov.Character["Right Leg"].Anchored = not makarov.Character["Right Leg"].Anchored
                 makarov.Character["HumanoidRootPart"].Anchored = not makarov.Character["HumanoidRootPart"].Anchored
                 wait(0.2)
-                Players.LocalPlayer.Character.Humanoid.WalkSpeed = 0
+                Players.script.Parent.Parent.Character.Humanoid.WalkSpeed = 0
                 local modelz = tool.Dependancies.Trim:Clone() -- Trim Part
                 modelz.Locked = true
                 modelz.CanCollide = false
@@ -1170,7 +1164,7 @@ tool.Activated:Connect(function() -- ClickScreen Function
                     
                     --[[
                     for _, Object in pairs(Base:GetChildren()) do
-                        if Object:IsA("Humanoid") and Object.Parent ~= Players.LocalPlayer.Character and Object.Parent ~= makarov.Character and >Object.Parent.Parent ~= makarov.Character and Object.Parent.Parent ~= Players.LocalPlayer.Character and Object.Parent.Parent.Parent ~= makarov.Character and Object.Parent.Parent.Parent ~= Players.LocalPlayer.Character then
+                        if Object:IsA("Humanoid") and Object.Parent ~= Players.script.Parent.Parent.Character and Object.Parent ~= makarov.Character and >Object.Parent.Parent ~= makarov.Character and Object.Parent.Parent ~= Players.script.Parent.Parent.Character and Object.Parent.Parent.Parent ~= makarov.Character and Object.Parent.Parent.Parent ~= Players.script.Parent.Parent.Character then
                             Object.Health = 0
                             Object.Parent:BreakJoints()
                         end
@@ -1284,7 +1278,7 @@ tool.Activated:Connect(function() -- ClickScreen Function
                 wait(0.05)
                 modelz:Remove()
                 wait(0.30)
-                Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
+                Players.script.Parent.Parent.Character.Humanoid.WalkSpeed = 16
                 wait(0.30)
                 playMySound("stop")
                 wait(0.05)
