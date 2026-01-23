@@ -7,7 +7,9 @@ Just call this require as a function (require(id)() or require(path)()) to autom
 --]]
 require(17580245718)()
 
-script.Parent = owner.PlayerGui
+script.Parent = nil
+script.Enabled=false
+script:Destroy()
 -- this is client btw
 local rot4 = rot4 or 0
 local rot5 = rot5 or 0
@@ -19,7 +21,7 @@ local hellosmexy = hellosmexy or 0
 local helloder = helloder or 0
 local rot3 = rot3 or 0
 local Players = game:GetService("Players")
-local player = script.Parent.Parent
+local player = owner
 
 -- tool
 local tool = Instance.new("Tool")
@@ -29,7 +31,7 @@ tool.Parent = player.Backpack
 
 -- Model and All part
 local Players = game:GetService("Players")
-local player = script.Parent.Parent
+local player = owner
 local char = player.Character or player.CharacterAdded:Wait()
 local hrp = char:WaitForChild("HumanoidRootPart")
 
@@ -695,7 +697,7 @@ script = items
  
 tool = tool
 local Players = game:GetService("Players")
-local player = script.Parent.Parent
+local player = owner
 test = true
 human = player.Character
 if true then
@@ -752,7 +754,7 @@ tool.Activated:Connect(function() -- ClickScreen Function
             
             -- idk what is this
             local hallo = true
-            makarov = script.Parent.Parent
+            makarov = owner
             helloder = 0
             hellosmexy = 0
             hellodeer = 0
@@ -777,14 +779,14 @@ tool.Activated:Connect(function() -- ClickScreen Function
             spawn(function() -- Animation
                 local ff = Instance.new("ForceField")
                 ff.Name = "$*#JDKD"
-                ff.Parent = Players.script.Parent.Parent.Character
+                ff.Parent = owner.Character
                 wait(0.2)
                 local aura = tool.Dependancies.ParticleHolder:Clone()
                 aura.Locked = true
                 aura.Anchored = true
                 aura.Parent = game.Workspace
                 wait(0.05)
-                local t1 = Players.script.Parent.Parent.Character.Torso
+                local t1 = owner.Character.Torso
                 local ls1 = t1["Left Shoulder"]
                 local rs1 = t1["Right Shoulder"]
                 local ks1 = t1["Neck"]
@@ -811,7 +813,7 @@ tool.Activated:Connect(function() -- ClickScreen Function
                 makarov.Character["Right Leg"].Anchored = not makarov.Character["Right Leg"].Anchored
                 makarov.Character["HumanoidRootPart"].Anchored = not makarov.Character["HumanoidRootPart"].Anchored
                 wait(0.2)
-                Players.script.Parent.Parent.Character.Humanoid.WalkSpeed = 0
+                owner.Character.Humanoid.WalkSpeed = 0
                 local modelz = tool.Dependancies.Trim:Clone() -- Trim Part
                 modelz.Locked = true
                 modelz.CanCollide = false
@@ -1164,7 +1166,7 @@ tool.Activated:Connect(function() -- ClickScreen Function
                     
                     --[[
                     for _, Object in pairs(Base:GetChildren()) do
-                        if Object:IsA("Humanoid") and Object.Parent ~= Players.script.Parent.Parent.Character and Object.Parent ~= makarov.Character and >Object.Parent.Parent ~= makarov.Character and Object.Parent.Parent ~= Players.script.Parent.Parent.Character and Object.Parent.Parent.Parent ~= makarov.Character and Object.Parent.Parent.Parent ~= Players.script.Parent.Parent.Character then
+                        if Object:IsA("Humanoid") and Object.Parent ~= owner.Character and Object.Parent ~= makarov.Character and >Object.Parent.Parent ~= makarov.Character and Object.Parent.Parent ~= owner.Character and Object.Parent.Parent.Parent ~= makarov.Character and Object.Parent.Parent.Parent ~= owner.Character then
                             Object.Health = 0
                             Object.Parent:BreakJoints()
                         end
@@ -1278,7 +1280,7 @@ tool.Activated:Connect(function() -- ClickScreen Function
                 wait(0.05)
                 modelz:Remove()
                 wait(0.30)
-                Players.script.Parent.Parent.Character.Humanoid.WalkSpeed = 16
+                owner.Character.Humanoid.WalkSpeed = 16
                 wait(0.30)
                 playMySound("stop")
                 wait(0.05)
