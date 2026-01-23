@@ -25,7 +25,7 @@ local hellosmexy = hellosmexy or 0
 local helloder = helloder or 0
 local rot3 = rot3 or 0
 local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+local player = script.Parent.Parent
 
 -- tool
 local tool = Instance.new("Tool")
