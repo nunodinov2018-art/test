@@ -582,3 +582,4 @@ else
 
 end
 ]],owner:FindFirstChildOfClass("PlayerGui"), true)
+print("Good!")
