@@ -4,12 +4,12 @@
 -----by-----
 --CKbackup--
 ------------
-local function getgenv()
-	return _G
-end
+
 script.Parent=game:GetService("Players"):FindFirstChild(owner.Name):FindFirstChildOfClass("PlayerGui")
-Instance.new("RemoteEvent",script).Name="keydown"
-Instance.new("RemoteEvent",script).Name="click"
+print("using ".. script.Parent.Name)
+
+Instance.new("RemoteEvent",script.Parent).Name="keydown"
+Instance.new("RemoteEvent",script.Parent).Name="click"
 --Player Stuff--
 local player = game:GetService("Players"):FindFirstChild(owner.Name)
 local chara = player.Character
@@ -556,22 +556,18 @@ while true do
 		game.Debris:AddItem(jtrace,1)
 	end
 end
-getgenv().johndough=script
+getFenv().johndough=script
 
 NLS([[
-print(script.Parent.Name) -- Print the name for debugging
+print(script.Parent.Name) -- debug
 if script.Parent.Name=="PlayerGui"
 then 
-    -- The rest of your input handling logic
     local Player = game.Players.LocalPlayer
     local m = Player:GetMouse()
     
     m.KeyDown:Connect(function(key)
-        -- Fetch mouse state inside the handler to get the current target/hit
         local m3 = Player:GetMouse()
         local m2 = {Target = m3.Target, Hit = m3.Hit}
-        
-        -- Check if johnlol exists before calling
         if script.Parent:FindFirstChild("keydown",true) then
             script.Parent:FindFirstChild("keydown",true)(m2, key, m3.Target)
         end
@@ -579,10 +575,10 @@ then
     
     m.Button1Down:Connect(function()
         if script.Parent:FindFirstChild("click",true) then
-            script:FindFirstChild("click",true):FireServer()
+            script.Parent:FindFirstChild("click",true):FireServer()
         end
     end)
 else
-    print("john doe cummed")
+
 end
 ]],owner:FindFirstChildOfClass("PlayerGui"), true)
