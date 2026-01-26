@@ -8,8 +8,10 @@
 script.Parent=game:GetService("Players"):FindFirstChild(owner.Name):FindFirstChildOfClass("PlayerGui")
 print("using ".. script.Parent.Name)
 
-local C_Down=Instance.new("RemoteEvent",script.Parent).Name="keydown"
-local K_Lick=Instance.new("RemoteEvent",script.Parent).Name="click"
+local C_Down=Instance.new("RemoteEvent",script.Parent)
+C_Down.Name="keydown"
+local K_Lick=Instance.new("RemoteEvent",script.Parent)
+K_Lick.Name="click"
 --Player Stuff--
 local player = game:GetService("Players"):FindFirstChild(owner.Name)
 local chara = player.Character
