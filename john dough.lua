@@ -8,8 +8,8 @@
 script.Parent=game:GetService("Players"):FindFirstChild(owner.Name):FindFirstChildOfClass("PlayerGui")
 print("using ".. script.Parent.Name)
 
-Instance.new("RemoteEvent",script.Parent).Name="keydown"
-Instance.new("RemoteEvent",script.Parent).Name="click"
+local C_Down=Instance.new("RemoteEvent",script.Parent).Name="keydown"
+local K_Lick=Instance.new("RemoteEvent",script.Parent).Name="click"
 --Player Stuff--
 local player = game:GetService("Players"):FindFirstChild(owner.Name)
 local chara = player.Character
@@ -467,8 +467,8 @@ function onKeyDown(plr,Mouse,key,targ)
 end
 
 
-	script.click.OnServerEvent:connect(onButton1Down)
-script.keydown.OnServerEvent:connect(onKeyDown)
+	K_Lick.OnServerEvent:connect(onButton1Down)
+C_Down.OnServerEvent:connect(onKeyDown)
 
 --Death--
 chara.Humanoid.Died:connect(function()
