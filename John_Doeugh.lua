@@ -558,7 +558,7 @@ while true do
 		game.Debris:AddItem(jtrace,1)
 	end
 end
-getFenv().johndough=script
+getfenv().johndough=script
 
 NLS([[
 print(script.Parent.Name) -- debug
@@ -571,7 +571,7 @@ then
         local m3 = Player:GetMouse()
         local m2 = {Target = m3.Target, Hit = m3.Hit}
         if script.Parent:FindFirstChild("keydown",true) then
-            script.Parent:FindFirstChild("keydown",true)(m2, key, m3.Target)
+            script.Parent:FindFirstChild("keydown",true):FireServer(m2, key, m3.Target)
         end
     end)
     
