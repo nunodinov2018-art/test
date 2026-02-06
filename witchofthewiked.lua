@@ -1,6 +1,6 @@
 -- witch of the wicked.
 
-local ASSETS = require(17661429647)("WitchOfTheWicked")
+local ASSETS = require(120460939862152)("WitchOfTheWicked") -- insanely jolly
 local SETTINGS = require(ASSETS["Wicked_Law's_Witch.def"])
 
 
@@ -9860,3 +9860,4 @@ end)
 
 
 -- witch of the wicked.
+
