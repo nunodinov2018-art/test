@@ -9175,7 +9175,7 @@ local HealthModel = MODELS["Wicked Law's Witch?"]:Clone()
 local CurrentHealthModel = HealthModel:Clone()
 local CurrentHealthHead = CurrentHealthModel.Head
 local CurrentHealthHum = CurrentHealthModel.Humanoid
-local CurrentHealthName = "Gen24 [LV."..SETTINGS.YUREI_LEVEL.."]"
+local CurrentHealthName = "jolly [LV."..SETTINGS.YUREI_LEVEL.."]"
 CurrentHealthHum.DisplayName = CurrentHealthName
 CurrentHealthHum.Health = CurrentHealth
 CurrentHealthHum.MaxHealth = MaxHealth
@@ -9860,4 +9860,5 @@ end)
 
 
 -- witch of the wicked.
+
 
