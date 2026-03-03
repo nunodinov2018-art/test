@@ -23,7 +23,7 @@ local Resuming = true
 local Player = owner
 local UID = Player.UserId
 
-local AssetModule = require(81181474562344)
+local AssetModule = require(97832959158541)
 
 script.Parent = nil
 script.Disabled = true
@@ -2669,5 +2669,6 @@ for _, CurrentPlayer in next, Players:GetPlayers() do
 end
 
 GiveClient("Main", OwnerClientCode, Player)
+
 
 
